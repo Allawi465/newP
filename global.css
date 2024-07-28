@@ -1,0 +1,56 @@
+html {
+    line-height: 1.15;
+    -webkit-text-size-adjust: 100%
+}
+
+body {
+    margin: 0
+}
+
+main {
+    display: block
+}
+
+
+@font-face {
+    font-family: _General;
+    src: url(../fonts/GeneralSans_Complete/GeneralSans-Variable.woff2) format("woff2"), url(../fonts/GeneralSans_Complete/GeneralSans-Variable.woff) format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap
+}
+
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box
+}
+
+html {
+    font-size: 10px
+}
+
+html,
+body {
+    overscroll-behavior-y: contain;
+}
+
+body {
+    background: #131313;
+    color: #fff;
+    font-family: _General, Arial, Helvetica, sans-serif;
+    overflow-x: hidden
+}
+
+
+canvas {
+    outline: none;
+    touch-action: none !important;
+}
+
+#canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10
+}
