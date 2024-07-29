@@ -1,36 +1,8 @@
-import * as THREE from "/node_modules/.vite/deps/three.js?v=372d1c56";
-import { DragGesture } from '@use-gesture/vanilla';
+import * as THREE from 'three';
+import { gsap } from 'gsap';
+import { vertexShader, fragmentShader } from './shader';
 
-const vertexShader = /* glsl */`
-varying vec2 vUv;
-
-void main() {
-  vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-}
-`;
-
-const fragmentShader = /* glsl */`
-uniform sampler2D uTex;
-uniform vec2 uRes;
-uniform vec2 uImageRes;
-
-vec2 CoverUV(vec2 u, vec2 s, vec2 i) {
-    float rs = s.x / s.y; 
-    float ri = i.x / i.y; 
-    vec2 st = rs < ri ? vec2(i.x * s.y / i.y, s.y) : vec2(s.x, i.y * s.x / i.x);
-    vec2 o = (rs < ri ? vec2((st.x - s.x) / 2.0, 0.0) : vec2(0.0, (st.y - s.y) / 2.0)) / st;
-    return u * s / st + o;
-}
-
-varying vec2 vUv;
-void main() {
-    vec2 uv = CoverUV(vUv, uRes, uImageRes);
-    vec3 tex = texture2D(uTex, uv).rgb;
-    gl_FragColor = vec4(tex, 1.0);
-}
-`;
-
+// Your image data and variables
 const images = [
     { src: '1.png', title: 'Adventure Trail Hikes' },
     { src: '2.png', title: 'Holidaze' },
@@ -41,23 +13,25 @@ const images = [
 ];
 
 let scene, camera, renderer, group;
-let position = 0;
-const movementSensitivity = 250;
-const meshSpacing = 7.2;
 let currentPosition = 0;
+const movementSensitivity = 20;
+const meshSpacing = 8;
+const slideWidth = 7;
+const slideHeight = 10;
+let isDragging = false;
+let startX = 0;
+
+// Raycaster and mouse vector for hover detection
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 function loadTextures() {
     const loader = new THREE.TextureLoader();
-    const texturePromises = images.map(img => {
-        return new Promise((resolve, reject) => {
-            loader.load(
-                img.src,
-                texture => resolve(texture),
-                undefined,
-                err => reject(err)
-            );
-        });
-    });
+    const texturePromises = images.map(img =>
+        new Promise((resolve, reject) => {
+            loader.load(img.src, resolve, undefined, reject);
+        })
+    );
     return Promise.all(texturePromises);
 }
 
@@ -79,44 +53,107 @@ function init(textures) {
     group = new THREE.Group();
     scene.add(group);
 
-    for (let i = 0; i < textures.length; i++) {
-        const texture = textures[i];
-        const planeGeometry = new THREE.PlaneGeometry(6, 9);
+    textures.forEach((texture, i) => {
+        const planeGeometry = new THREE.PlaneGeometry(slideWidth, slideHeight);
         const shaderMaterial = new THREE.ShaderMaterial({
             transparent: true,
             uniforms: {
-                uTex: { value: texture },
-                uRes: { value: { x: 1, y: 1 } },
-                uImageRes: {
-                    value: new THREE.Vector2(texture.image.width, texture.image.height),
-                },
-                uPlaneResolution: {
-                    value: new THREE.Vector2(window.innerWidth, window.innerHeight),
-                },
-                time: { value: 0.0 },
+                u_texture: { value: texture },
+                u_time: { type: "f", value: 0 },
+                u_strength: { type: "f", value: 5.0 },
+                u_speed: { type: "f", value: 1.0 },
+                u_zoom: { value: 1.0 } // Make sure the name matches
             },
             vertexShader,
             fragmentShader
         });
 
         const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
-        planeMesh.position.x = calculatePositionX(i, position);
+        planeMesh.position.x = calculatePositionX(i, currentPosition);
+        planeMesh.userData.index = i; // Store index in userData
+        planeMesh.userData.hovered = false; // Hover flag
+        planeMesh.userData.tl = gsap.timeline({ paused: true })
+            .to(planeMesh.rotation, { z: -0.1, duration: 0.5, ease: "power2.inOut" })
+            .to(shaderMaterial.uniforms.u_zoom, { value: 0.9, duration: 0.5, ease: "power2.inOut" }, 0) // Ensure the uniform name matches
+            .to(shaderMaterial.uniforms.u_time, { value: 1.0, duration: 0.5, ease: "power2.inOut" }, 0); // Update u_time uniform
 
         group.add(planeMesh);
-    }
-
-    // Add drag gesture
-    const gesture = new DragGesture(renderer.domElement, ({ active, movement: [mx], memo = currentPosition }) => {
-        if (active) {
-            currentPosition = memo + mx / movementSensitivity;
-            updatePositions();
-        } else {
-            return currentPosition;
-        }
     });
 
-    window.addEventListener('resize', onWindowResize, false);
+    renderer.domElement.addEventListener("mousedown", onMouseDown);
+    renderer.domElement.addEventListener("mousemove", onMouseMove);
+    renderer.domElement.addEventListener("mouseup", onMouseUp);
+
+    renderer.domElement.addEventListener("touchstart", onTouchStart);
+    renderer.domElement.addEventListener("touchmove", onTouchMove);
+    renderer.domElement.addEventListener("touchend", onTouchEnd);
+
+    renderer.domElement.addEventListener("mousemove", onMouseMoveHover);
+
+    window.addEventListener("resize", onWindowResize, false);
     animate();
+}
+
+function onMouseDown(event) {
+    isDragging = true;
+    startX = event.clientX;
+}
+
+function onMouseMove(event) {
+    if (isDragging) {
+        const delta = event.clientX - startX;
+        currentPosition += delta / movementSensitivity;
+        gsap.to(group.children.map(child => child.position), {
+            duration: 0.5,
+            x: (index) => calculatePositionX(index, currentPosition),
+            ease: "power2.out",
+            onUpdate: updatePositions
+        });
+
+        // Update uniforms during drag
+        group.children.forEach(child => {
+            child.material.uniforms.u_time.value += delta * 0.01; // Adjust time value
+            child.material.uniforms.u_strength.value = 5.0; // Adjust strength
+            child.material.uniforms.u_speed.value = 1.0; // Adjust speed
+        });
+
+        startX = event.clientX;
+    }
+}
+
+function onMouseUp() {
+    isDragging = false;
+}
+
+function onTouchStart(event) {
+    isDragging = true;
+    startX = event.touches[0].clientX;
+}
+
+function onTouchMove(event) {
+    if (isDragging) {
+        const delta = event.touches[0].clientX - startX;
+        currentPosition += delta / movementSensitivity;
+        gsap.to(group.children.map(child => child.position), {
+            duration: 0.5,
+            x: (index) => calculatePositionX(index, currentPosition),
+            ease: "power2.out",
+            onUpdate: updatePositions
+        });
+
+        // Update uniforms during drag
+        group.children.forEach(child => {
+            child.material.uniforms.u_time.value += delta * 0.01; // Adjust time value
+            child.material.uniforms.u_strength.value = 5.0; // Adjust strength
+            child.material.uniforms.u_speed.value = 1.0; // Adjust speed
+        });
+
+        startX = event.touches[0].clientX;
+    }
+}
+
+function onTouchEnd() {
+    isDragging = false;
 }
 
 function updatePositions() {
@@ -133,11 +170,33 @@ function onWindowResize() {
 
 function animate() {
     requestAnimationFrame(animate);
+
+    // Update the time uniform for the animation
+    group.children.forEach(child => {
+        child.material.uniforms.u_time.value += 0.01;
+    });
+
     renderer.render(scene, camera);
 }
 
-loadTextures().then(loadedTextures => {
-    init(loadedTextures);
-}).catch(err => {
-    console.error('Error loading textures:', err);
-});
+function onMouseMoveHover(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(group.children);
+    group.children.forEach(child => {
+        if (intersects.length > 0 && intersects[0].object === child) {
+            if (!child.userData.hovered) {
+                child.userData.hovered = true;
+                child.userData.tl.play();
+            }
+        } else {
+            if (child.userData.hovered) {
+                child.userData.hovered = false;
+                child.userData.tl.reverse();
+            }
+        }
+    });
+}
+
+loadTextures().then(init).catch(console.error);

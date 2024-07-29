@@ -11,15 +11,6 @@ main {
     display: block
 }
 
-
-@font-face {
-    font-family: _General;
-    src: url(../fonts/GeneralSans_Complete/GeneralSans-Variable.woff2) format("woff2"), url(../fonts/GeneralSans_Complete/GeneralSans-Variable.woff) format("woff");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap
-}
-
 * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
