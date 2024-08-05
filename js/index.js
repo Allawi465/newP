@@ -5,6 +5,8 @@ import { calculatePositionX, images } from './utils/index.js';
 const meshSpacing = 6.7;
 const slideWidth = 5.2;
 const slideHeight = 10;
+const initialDistanceScale = 0.0;
+const dragDistanceScale = -0.029;
 
 class EffectShell {
     constructor() {
@@ -69,7 +71,8 @@ class EffectShell {
                 uTexture: { value: texture },
                 uOffset: { value: new THREE.Vector2(0.0, 0.0) },
                 uzom: { value: 1.0 },
-                uBorderRadius: { value: 0.035 }
+                uBorderRadius: { value: 0.035 },
+                uDistanceScale: { value: initialDistanceScale }
             },
             vertexShader: this.vertexShader(),
             fragmentShader: this.fragmentShader(),
@@ -99,13 +102,19 @@ class EffectShell {
         this.isDragging = true;
         this.startX = event.clientX !== undefined ? event.clientX : (event.touches && event.touches[0].clientX);
         event.target.setPointerCapture(event.pointerId);
+
+        gsap.to(this.group.children.map(child => child.material.uniforms.uDistanceScale), {
+            value: dragDistanceScale,
+            duration: 0.5,
+            ease: "power2.out"
+        });
     }
 
     onPointerMove(event) {
         if (!this.isDragging) return;
 
         const clientX = event.clientX !== undefined ? event.clientX : (event.touches && event.touches[0].clientX);
-        if (clientX === undefined) return;  // If clientX is still undefined, exit the function
+        if (clientX === undefined) return;
 
         const delta = clientX - this.startX;
         this.currentPosition += delta / this.movementSensitivity;
@@ -127,6 +136,12 @@ class EffectShell {
         this.isMoving = true;
         this.resetStretchEffect();
         event.target.releasePointerCapture(event.pointerId);
+
+        // Reset the distance scale when stopping drag
+        gsap.to(this.group.children.map(child => child.material.uniforms.uDistanceScale), {
+            value: initialDistanceScale, // Reset to original value
+            ease: "power2.out"
+        });
     }
 
     onMouseMoveHover(event) {
@@ -149,6 +164,7 @@ class EffectShell {
     updatePositions() {
         this.group.children.forEach((child, index) => {
             child.position.x = calculatePositionX(index, this.currentPosition, meshSpacing);
+
         });
     }
 
@@ -200,12 +216,13 @@ class EffectShell {
     vertexShader() {
         return `
             uniform vec2 uOffset;
+            uniform float uDistanceScale;
             varying vec2 vUv;
             out vec3 vertexColor;
     
             vec3 setPosition(vec3 position) {
                vec3 positionNew = position;
-               float distanceFromCenter = abs((modelMatrix * vec4(position, 1.0) * 0.001).x);
+               float distanceFromCenter = abs((modelMatrix * vec4(position, 1.0) * uDistanceScale).x);
     
                positionNew.y *= 1. + 1. * pow(distanceFromCenter, 2.);
                return positionNew;
@@ -264,7 +281,6 @@ class EffectShell {
             }
         `;
     }
-
 }
 
 class StretchEffect extends EffectShell {
