@@ -5,22 +5,25 @@ import { calculatePositionX, images } from './utils/index.js';
 const meshSpacing = 6.7;
 const slideWidth = 5.2;
 const slideHeight = 10;
-const initialDistanceScale = 0.0;
-const dragDistanceScale = -0.029;
+const initialDistanceScale = 0;
+const maxDragDistanceScale = 0.19;
+const maxOffset = 1;
 
 class EffectShell {
     constructor() {
         this.textures = [];
         this.mouse = new THREE.Vector2();
         this.raycaster = new THREE.Raycaster();
-        this.isDragging = false;
-        this.startX = 0;
-        this.currentPosition = 0;
-        this.movementSensitivity = 40;
-        this.maxStretch = 1;
+        this.movementSensitivity = 50;
         this.velocity = 0;
-        this.friction = 0.85;
+        this.friction = 0.95;
+        this.startX = 0;
+        this.isDragging = false;
+        this.currentPosition = 0;
         this.isMoving = false;
+        this.dragDelta = 0; // To track the drag delta
+        this.lastX = 0; // To track the last x position
+        this.dragSpeed = 0; // To track the speed of the drag
 
         this.init().then(() => this.onInitComplete());
     }
@@ -84,7 +87,7 @@ class EffectShell {
         planeMesh.userData = { index, hovered: false, tl: gsap.timeline({ paused: true }) };
 
         planeMesh.userData.tl.to(planeMesh.rotation, { z: -0.1, duration: 0.5, ease: "power2.inOut" })
-            .to(shaderMaterial.uniforms.uzom, { value: 0.95, duration: 0.5, ease: "power2.inOut" }, 0);
+            .to(shaderMaterial.uniforms.uzom, { value: 0.9, duration: 0.5, ease: "power2.inOut" }, 0);
 
         return planeMesh;
     }
@@ -101,13 +104,9 @@ class EffectShell {
     onPointerDown(event) {
         this.isDragging = true;
         this.startX = event.clientX !== undefined ? event.clientX : (event.touches && event.touches[0].clientX);
+        this.dragDelta = 0;  // Reset drag delta
+        this.lastX = this.startX; // Initialize lastX
         event.target.setPointerCapture(event.pointerId);
-
-        gsap.to(this.group.children.map(child => child.material.uniforms.uDistanceScale), {
-            value: dragDistanceScale,
-            duration: 0.5,
-            ease: "power2.out"
-        });
     }
 
     onPointerMove(event) {
@@ -117,7 +116,31 @@ class EffectShell {
         if (clientX === undefined) return;
 
         const delta = clientX - this.startX;
+        this.dragDelta += Math.abs(delta);  // Accumulate drag delta
         this.currentPosition += delta / this.movementSensitivity;
+
+        // Calculate drag speed
+        this.dragSpeed = clientX - this.lastX;
+        this.lastX = clientX;
+
+        // Dynamically adjust the effect based on drag speed
+        const dragSpeedAbs = Math.abs(this.dragSpeed);
+        const dynamicDistanceScale = initialDistanceScale + Math.min(dragSpeedAbs / 100, maxDragDistanceScale);
+
+        if (Math.abs(this.dragDelta) > 0) {
+            this.group.children.forEach(child => {
+                gsap.to(child.material.uniforms.uDistanceScale, {
+                    value: dynamicDistanceScale,
+                    duration: 0.5, // Apply easing
+                    ease: "power2.out"
+                });
+                gsap.to(child.material.uniforms.uOffset.value, {
+                    x: Math.max(Math.min(this.dragSpeed / 18, maxOffset), -maxOffset), // Apply symmetric stretching
+                    duration: 0.5, // Apply easing
+                    ease: "power2.out"
+                });
+            });
+        }
 
         gsap.to(this.group.children.map(child => child.position), {
             duration: 0.5,
@@ -126,7 +149,6 @@ class EffectShell {
             onUpdate: this.updatePositions.bind(this)
         });
 
-        this.updateStretchEffect(delta);
         this.velocity = (delta / this.movementSensitivity) * 0.5;
         this.startX = clientX;
     }
@@ -137,10 +159,18 @@ class EffectShell {
         this.resetStretchEffect();
         event.target.releasePointerCapture(event.pointerId);
 
-        // Reset the distance scale when stopping drag
-        gsap.to(this.group.children.map(child => child.material.uniforms.uDistanceScale), {
-            value: initialDistanceScale, // Reset to original value
-            ease: "power2.out"
+        this.group.children.forEach(child => {
+            gsap.to(child.material.uniforms.uDistanceScale, {
+                value: initialDistanceScale,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+            gsap.to(child.material.uniforms.uOffset.value, {
+                x: 0,
+                y: 0,
+                duration: 0.5,
+                ease: "power2.out"
+            });
         });
     }
 
@@ -164,7 +194,6 @@ class EffectShell {
     updatePositions() {
         this.group.children.forEach((child, index) => {
             child.position.x = calculatePositionX(index, this.currentPosition, meshSpacing);
-
         });
     }
 
@@ -195,21 +224,15 @@ class EffectShell {
         }
     }
 
-    updateStretchEffect(delta) {
-        const clampedDelta = Math.max(Math.min(delta * this.options.strength, this.maxStretch), -this.maxStretch);
-        gsap.to(this.group.children.map(child => child.material.uniforms.uOffset.value), {
-            x: clampedDelta,
-            duration: 0.2,
-            ease: "power2.out"
-        });
-    }
 
     resetStretchEffect() {
-        gsap.to(this.group.children.map(child => child.material.uniforms.uOffset.value), {
-            x: 0,
-            y: 0,
-            duration: 0.5,
-            ease: "power2.out",
+        this.group.children.forEach(child => {
+            gsap.to(child.material.uniforms.uOffset.value, {
+                x: 0,
+                y: 0,
+                duration: 0.5,
+                ease: "power2.out"
+            });
         });
     }
 
@@ -218,27 +241,24 @@ class EffectShell {
             uniform vec2 uOffset;
             uniform float uDistanceScale;
             varying vec2 vUv;
-            out vec3 vertexColor;
-    
+            
             vec3 setPosition(vec3 position) {
-               vec3 positionNew = position;
-               float distanceFromCenter = abs((modelMatrix * vec4(position, 1.0) * uDistanceScale).x);
+                vec3 positionNew = position;
+                float distanceFromCenter = abs((modelMatrix * vec4(position, 1.0)).x * uDistanceScale);
     
-               positionNew.y *= 1. + 1. * pow(distanceFromCenter, 2.);
-               return positionNew;
+                positionNew.y *= 1. + 0.02 * pow(distanceFromCenter, 2.);
+                return positionNew;
             }
     
             vec3 deformationCurve(vec3 position, vec2 uv, vec2 offset) {
                 float M_PI = 3.1415926535897932384626433832795;
-                position.x = position.x + (sin(uv.y * M_PI) * offset.x);
-                position.y = position.y + (sin(uv.x * M_PI) * offset.y);
+                position.x += sin(uv.y * M_PI) * offset.x;
+                position.y += sin(uv.x * M_PI) * offset.y;
                 return position;
             }
     
             void main() {
                 vUv = uv;
-                vertexColor = vec3(0.5, 0.5, 0.0);
-    
                 vec3 newPosition = deformationCurve(position, uv, uOffset);
                 newPosition = setPosition(newPosition);
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
@@ -288,7 +308,7 @@ class StretchEffect extends EffectShell {
         super();
         this.container = container;
         this.itemsWrapper = itemsWrapper;
-        this.options = { strength: 0.5, ...options };
+        this.options = { strength: 0, ...options };
     }
 
     onInitComplete() {
