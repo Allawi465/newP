@@ -1,29 +1,29 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { calculatePositionX, images } from './utils/index.js';
+import { vertexShader, fragmentShader } from './glsl/shader.js';
+import { onPointerDown, onPointerMove, onPointerUp, onMouseMoveHover } from './slider/index.js';
 
-const meshSpacing = 6.7;
+export const meshSpacing = 6.4;
 const slideWidth = 5.2;
-const slideHeight = 10;
+const slideHeight = 9.4;
 const initialDistanceScale = 0;
-const maxDragDistanceScale = 0.19;
-const maxOffset = 1;
 
 class EffectShell {
     constructor() {
         this.textures = [];
         this.mouse = new THREE.Vector2();
         this.raycaster = new THREE.Raycaster();
-        this.movementSensitivity = 50;
+        this.movementSensitivity = 40;
         this.velocity = 0;
         this.friction = 0.95;
         this.startX = 0;
         this.isDragging = false;
         this.currentPosition = 0;
         this.isMoving = false;
-        this.dragDelta = 0; // To track the drag delta
-        this.lastX = 0; // To track the last x position
-        this.dragSpeed = 0; // To track the speed of the drag
+        this.dragDelta = 0;
+        this.lastX = 0;
+        this.dragSpeed = 0;
 
         this.init().then(() => this.onInitComplete());
     }
@@ -45,6 +45,157 @@ class EffectShell {
         return Promise.all(imageArray.map(image => new Promise((resolve, reject) => {
             textureLoader.load(image.src, resolve, undefined, reject);
         })));
+    }
+
+    onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    setupScene() {
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100);
+        this.camera.position.z = 10.5;
+
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(this.renderer.domElement);
+
+        this.group = new THREE.Group();
+        this.scene.add(this.group);
+    }
+
+    createMeshes() {
+        this.textures.forEach((texture, i) => {
+            const planeMesh = this.createPlaneMesh(texture, i);
+            this.group.add(planeMesh);
+        });
+    }
+
+    createPlaneMesh(texture, index) {
+        const planeGeometry = new THREE.PlaneGeometry(slideWidth, slideHeight, 16, 16);
+        const shaderMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                uTexture: { value: texture },
+                uOffset: { value: new THREE.Vector2(0.0, 0.0) },
+                uzom: { value: 1.0 },
+                uBorderRadius: { value: 0.035 },
+                uDistanceScale: { value: initialDistanceScale }
+            },
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            transparent: true
+        });
+
+        const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
+        planeMesh.position.x = calculatePositionX(index, 0, meshSpacing);
+        planeMesh.userData = { index, hovered: false, tl: gsap.timeline({ paused: true }) };
+
+        planeMesh.userData.tl.to(planeMesh.rotation, { z: -0.1, duration: 0.5, ease: "power2.inOut" })
+            .to(shaderMaterial.uniforms.uzom, { value: 0.9, duration: 0.5, ease: "power2.inOut" }, 0);
+
+        return planeMesh;
+    }
+
+    updatePositions() {
+        this.group.children.forEach((child, index) => {
+            child.position.x = calculatePositionX(index, this.currentPosition, meshSpacing);
+        });
+    }
+
+    animate() {
+        requestAnimationFrame(this.animate.bind(this));
+        this.renderer.render(this.scene, this.camera);
+
+        if (this.isMoving) {
+            this.currentPosition += this.velocity;
+            this.velocity *= this.friction;
+
+            gsap.to(this.group.children.map(child => child.position), {
+                duration: 0.5,
+                x: (index) => calculatePositionX(index, this.currentPosition, meshSpacing),
+                ease: "power2.out",
+                onUpdate: this.updatePositions.bind(this)
+            });
+
+            if (Math.abs(this.velocity) < 0.01) {
+                this.isMoving = false;
+            }
+        }
+    }
+
+    setupEventListeners() {
+        window.addEventListener('resize', this.onWindowResize.bind(this));
+        window.addEventListener('pointerdown', (event) => onPointerDown(event, this));
+        window.addEventListener('pointermove', (event) => onPointerMove(event, this));
+        window.addEventListener('pointerup', (event) => onPointerUp(event, this));
+        window.addEventListener('pointercancel', (event) => onPointerUp(event, this));
+        window.addEventListener('mousemove', (event) => onMouseMoveHover(event, this));
+    }
+
+    onInitComplete() {
+        // Perform any additional setup after initialization here
+        console.log("Initialization complete!");
+    }
+}
+
+
+new EffectShell();
+
+/* import * as THREE from 'three';
+import gsap from 'gsap';
+import { calculatePositionX, images } from './utils/index.js';
+
+const meshSpacing = 6.4;
+const slideWidth = 5.2;
+const slideHeight = 9.4;
+const initialDistanceScale = 0;
+const maxDragDistanceScale = 0.2;
+const maxOffset = 1;
+
+class EffectShell {
+    constructor() {
+        this.textures = [];
+        this.mouse = new THREE.Vector2();
+        this.raycaster = new THREE.Raycaster();
+        this.movementSensitivity = 50;
+        this.velocity = 0;
+        this.friction = 0.95;
+        this.startX = 0;
+        this.isDragging = false;
+        this.currentPosition = 0;
+        this.isMoving = false;
+        this.dragDelta = 0;
+        this.lastX = 0;
+        this.dragSpeed = 0;
+
+        this.init().then(() => this.onInitComplete());
+    }
+
+    async init() {
+        try {
+            this.textures = await this.loadTextures(images);
+            this.setupScene();
+            this.createMeshes();
+            this.setupEventListeners();
+            this.animate();
+        } catch (error) {
+            console.error('Error initializing EffectShell:', error);
+        }
+    }
+
+    loadTextures(imageArray) {
+        const textureLoader = new THREE.TextureLoader();
+        return Promise.all(imageArray.map(image => new Promise((resolve, reject) => {
+            textureLoader.load(image.src, resolve, undefined, reject);
+        })));
+    }
+
+    onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     setupScene() {
@@ -90,15 +241,6 @@ class EffectShell {
             .to(shaderMaterial.uniforms.uzom, { value: 0.9, duration: 0.5, ease: "power2.inOut" }, 0);
 
         return planeMesh;
-    }
-
-    setupEventListeners() {
-        window.addEventListener('resize', this.onWindowResize.bind(this));
-        window.addEventListener('pointerdown', this.onPointerDown.bind(this));
-        window.addEventListener('pointermove', this.onPointerMove.bind(this));
-        window.addEventListener('pointerup', this.onPointerUp.bind(this));
-        window.addEventListener('pointercancel', this.onPointerUp.bind(this));
-        window.addEventListener('mousemove', this.onMouseMoveHover.bind(this));
     }
 
     onPointerDown(event) {
@@ -195,12 +337,6 @@ class EffectShell {
         this.group.children.forEach((child, index) => {
             child.position.x = calculatePositionX(index, this.currentPosition, meshSpacing);
         });
-    }
-
-    onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     animate() {
@@ -301,6 +437,15 @@ class EffectShell {
             }
         `;
     }
+
+    setupEventListeners() {
+        window.addEventListener('resize', this.onWindowResize.bind(this));
+        window.addEventListener('pointerdown', this.onPointerDown.bind(this));
+        window.addEventListener('pointermove', this.onPointerMove.bind(this));
+        window.addEventListener('pointerup', this.onPointerUp.bind(this));
+        window.addEventListener('pointercancel', this.onPointerUp.bind(this));
+        window.addEventListener('mousemove', this.onMouseMoveHover.bind(this));
+    }
 }
 
 class StretchEffect extends EffectShell {
@@ -323,3 +468,4 @@ class StretchEffect extends EffectShell {
 }
 
 new StretchEffect();
+ */

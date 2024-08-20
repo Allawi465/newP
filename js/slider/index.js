@@ -1,103 +1,103 @@
-import * as THREE from 'three';
 import gsap from 'gsap';
 import { calculatePositionX } from '../utils/index.js';
-import { group, meshSpacing, camera, renderer } from '../scene/index.js';
-let mouse = new THREE.Vector2();
-let raycaster = new THREE.Raycaster();
+import { meshSpacing } from '../index.js';
+const initialDistanceScale = 0;
+const maxDragDistanceScale = 0.22;
+const maxOffset = 0.65;
 
-let isDragging = false;
-let startX = 0;
-export let currentPosition = 0;
-const movementSensitivity = 20;
-
-export function onMouseDown(event) {
-    isDragging = true;
-    startX = event.clientX;
+export function onPointerDown(event, context) {
+    context.isDragging = true;
+    context.startX = event.clientX !== undefined ? event.clientX : (event.touches && event.touches[0].clientX);
+    context.dragDelta = 0;
+    context.lastX = context.startX;
+    event.target.setPointerCapture(event.pointerId);
 }
 
-export function onMouseMove(event) {
-    if (isDragging) {
-        const delta = event.clientX - startX;
-        currentPosition += delta / movementSensitivity;
-        gsap.to(group.children.map(child => child.position), {
-            duration: 0.5,
-            x: (index) => calculatePositionX(index, currentPosition, movementSensitivity),
-            ease: "power2.out",
-            onUpdate: updatePositions
-        });
+export function onPointerMove(event, context) {
+    if (!context.isDragging) return;
 
-        group.children.forEach(child => {
-            child.material.uniforms.u_time.value += delta * 0.01;
-            child.material.uniforms.u_strength.value = 5.0;
-            child.material.uniforms.u_speed.value = 1.0;
-        });
+    const clientX = event.clientX !== undefined ? event.clientX : (event.touches && event.touches[0].clientX);
+    if (clientX === undefined) return;
 
-        startX = event.clientX;
+    const delta = clientX - context.startX;
+    context.dragDelta += Math.abs(delta);
+    context.currentPosition += delta / context.movementSensitivity;
+
+    context.dragSpeed = clientX - context.lastX;
+    context.lastX = clientX;
+
+    const dragSpeedAbs = Math.abs(context.dragSpeed);
+    const dynamicDistanceScale = initialDistanceScale + Math.min(dragSpeedAbs / 180, maxDragDistanceScale);
+
+    if (Math.abs(context.dragDelta) > 0) {
+        context.group.children.forEach(child => {
+            gsap.to(child.material.uniforms.uDistanceScale, {
+                value: dynamicDistanceScale,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+            gsap.to(child.material.uniforms.uOffset.value, {
+                x: Math.max(Math.min(context.dragSpeed / 18, maxOffset), -maxOffset),
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        });
     }
+
+    gsap.to(context.group.children.map(child => child.position), {
+        duration: 0.5,
+        x: (index) => calculatePositionX(index, context.currentPosition, meshSpacing),
+        ease: "power2.out",
+        onUpdate: context.updatePositions.bind(context)
+    });
+
+    context.velocity = (delta / context.movementSensitivity) * 0.5;
+    context.startX = clientX;
 }
 
-export function onMouseUp() {
-    isDragging = false;
-}
+export function onPointerUp(event, context) {
+    context.isDragging = false;
+    context.isMoving = true;
 
-export function onTouchStart(event) {
-    isDragging = true;
-    startX = event.touches[0].clientX;
-}
-
-export function onTouchMove(event) {
-    if (isDragging) {
-        const delta = event.touches[0].clientX - startX;
-        currentPosition += delta / movementSensitivity;
-        gsap.to(group.children.map(child => child.position), {
+    context.group.children.forEach(child => {
+        gsap.to(child.material.uniforms.uOffset.value, {
+            x: 0,
+            y: 0,
             duration: 0.5,
-            x: (index) => calculatePositionX(index, currentPosition, movementSensitivity),
-            ease: "power2.out",
-            onUpdate: updatePositions
+            ease: "power2.out"
         });
+    });
 
-        group.children.forEach(child => {
-            child.material.uniforms.u_time.value += delta * 0.01;
-            child.material.uniforms.u_strength.value = 5.0;
-            child.material.uniforms.u_speed.value = 1.0;
+    event.target.releasePointerCapture(event.pointerId);
+
+    context.group.children.forEach(child => {
+        gsap.to(child.material.uniforms.uDistanceScale, {
+            value: initialDistanceScale,
+            duration: 0.5,
+            ease: "power2.out"
         });
-
-        startX = event.touches[0].clientX;
-    }
+        gsap.to(child.material.uniforms.uOffset.value, {
+            x: 0,
+            y: 0,
+            duration: 0.5,
+            ease: "power2.out"
+        });
+    });
 }
 
-export function onTouchEnd() {
-    isDragging = false;
-}
+export function onMouseMoveHover(event, context) {
+    context.mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+    context.raycaster.setFromCamera(context.mouse, context.camera);
 
-export function onMouseMoveHover(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(group.children);
-    group.children.forEach(child => {
-        if (intersects.length > 0 && intersects[0].object === child) {
-            if (!child.userData.hovered) {
-                child.userData.hovered = true;
-                child.userData.tl.play();
-            }
-        } else {
-            if (child.userData.hovered) {
-                child.userData.hovered = false;
-                child.userData.tl.reverse();
-            }
+    const intersects = context.raycaster.intersectObjects(context.group.children);
+    context.group.children.forEach(child => {
+        const isIntersected = intersects.length > 0 && intersects[0].object === child;
+        if (isIntersected && !child.userData.hovered) {
+            child.userData.hovered = true;
+            child.userData.tl.play();
+        } else if (!isIntersected && child.userData.hovered) {
+            child.userData.hovered = false;
+            child.userData.tl.reverse();
         }
     });
-}
-
-function updatePositions() {
-    group.children.forEach((child, index) => {
-        child.position.x = calculatePositionX(index, currentPosition, meshSpacing);
-    });
-}
-
-export function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
 }
