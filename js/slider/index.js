@@ -1,7 +1,5 @@
 import gsap from 'gsap';
 import { calculatePositionX } from '../utils/index.js';
-import { meshSpacing } from '../index.js';
-const initialDistanceScale = 0;
 const maxDragDistanceScale = 0.22;
 const maxOffset = 0.65;
 
@@ -27,29 +25,44 @@ export function onPointerMove(event, context) {
     context.lastX = clientX;
 
     const dragSpeedAbs = Math.abs(context.dragSpeed);
-    const dynamicDistanceScale = initialDistanceScale + Math.min(dragSpeedAbs / 180, maxDragDistanceScale);
+
+    // Get the current window dimensions
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    // Adjust the scaling factor dynamically based on the current window size
+    const smallScreenThreshold = 1707; // Threshold for small screen
+    const widthFactor = windowWidth < smallScreenThreshold ? (smallScreenThreshold / windowWidth) : 1;
+    const heightFactor = windowHeight < smallScreenThreshold ? (smallScreenThreshold / windowHeight) : 1;
+
+    // Make the effect more pronounced when the width is smaller
+    const curveIntensity = windowWidth < smallScreenThreshold ? 1.0 : 1.0; // Increase intensity for smaller screens
+    const dynamicDistanceScale = context.initialDistanceScale + Math.min(dragSpeedAbs / (180 / curveIntensity), maxDragDistanceScale) * widthFactor * heightFactor;
 
     if (Math.abs(context.dragDelta) > 0) {
         context.group.children.forEach(child => {
+            // Apply a more dynamic curve by increasing the distance scale effect
             gsap.to(child.material.uniforms.uDistanceScale, {
                 value: dynamicDistanceScale,
-                duration: 0.5,
+                duration: 0.5, // Adjust duration for responsiveness
                 ease: "power2.out"
             });
+            // Make the curve effect more noticeable by scaling the offset
             gsap.to(child.material.uniforms.uOffset.value, {
-                x: Math.max(Math.min(context.dragSpeed / 18, maxOffset), -maxOffset),
-                duration: 0.5,
+                x: Math.max(Math.min(context.dragSpeed / (9 * curveIntensity), maxOffset), -maxOffset),
+                duration: 0.5, // Adjust duration for responsiveness
                 ease: "power2.out"
             });
         });
-    }
 
-    gsap.to(context.group.children.map(child => child.position), {
-        duration: 0.5,
-        x: (index) => calculatePositionX(index, context.currentPosition, meshSpacing),
-        ease: "power2.out",
-        onUpdate: context.updatePositions.bind(context)
-    });
+        // Use the globally stored scaleFactor from onWindowResize
+        gsap.to(context.group.children.map(child => child.position), {
+            duration: 0.5, // Adjust duration for responsiveness
+            x: (index) => calculatePositionX(index, context.currentPosition, context.adjustedMeshSpacing),
+            ease: "power2.out",
+            onUpdate: context.updatePositions.bind(context)
+        });
+    }
 
     context.velocity = (delta / context.movementSensitivity) * 0.5;
     context.startX = clientX;
@@ -72,10 +85,11 @@ export function onPointerUp(event, context) {
 
     context.group.children.forEach(child => {
         gsap.to(child.material.uniforms.uDistanceScale, {
-            value: initialDistanceScale,
+            value: context.initialDistanceScale,
             duration: 0.5,
             ease: "power2.out"
         });
+
         gsap.to(child.material.uniforms.uOffset.value, {
             x: 0,
             y: 0,
