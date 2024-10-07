@@ -49,14 +49,26 @@ canvas {
 }
 
 .slider-project__description {
+    margin-top: 5px;
+}
+
+.slider-project__description {
     opacity: .5;
+}
+
+@media (max-width: 1151px) {
+
+    .slider-project__description,
+    .slider-project__title {
+        max-width: 170px
+    }
 }
 
 @media (max-width: 700px) {
 
     .slider-project__description,
     .slider-project__title {
-        max-width: 180px
+        max-width: 150px
     }
 }
 

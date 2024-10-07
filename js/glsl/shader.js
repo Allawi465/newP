@@ -12,9 +12,21 @@ export const vertexShader = `
     }
 
     vec3 deformationCurve(vec3 position, vec2 uv, vec2 offset) {
-        float M_PI = 3.1415926535897932384626433832795;
-        position.x += sin(uv.y * M_PI) * offset.x;
-        position.y += sin(uv.x * M_PI) * offset.y;
+        float PI = 3.141592653589793238;
+
+        // Parameters to control the wave effect
+        float amplitudeX = 0.009;
+
+        // Create separate Bézier curves for the top and bottom
+        float topCurve = pow(uv.y, 1.0) * (uv.y * (uv.y * 1.0 - 14.0) + 10.0);
+        float bottomCurve = pow(1.0 - uv.y, 1.0) * ((1.0 - uv.y) * (1.0 - uv.y * 1.0 - 14.0) + 10.0);
+
+        // Combine both curves to create an effect at both the top and bottom
+        float bezierCurve = topCurve + bottomCurve;
+
+        // Apply the Bézier curve-based transformation to the x position
+        position.x += bezierCurve * offset.x * amplitudeX;
+
         return position;
     }
 

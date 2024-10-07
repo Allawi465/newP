@@ -3,7 +3,9 @@ import gsap from 'gsap';
 import { calculatePositionX, images } from './utils/index.js';
 import { vertexShader, fragmentShader } from './glsl/shader.js';
 import { onPointerDown, onPointerMove, onPointerUp, onMouseMoveHover } from './slider/index.js';
-import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/Addons.js';
+import { CSS2DRenderer } from 'three/examples/jsm/Addons.js';
+import { createCSS2DObjects } from './slider/titles/index.js';
+import { calculateTargetFov, updateCameraProperties } from './camera/index.js';
 
 
 class EffectShell {
@@ -14,8 +16,8 @@ class EffectShell {
         this.raycaster = new THREE.Raycaster();
         this.movementSensitivity = 40;
         this.velocity = 0;
-        this.defaultCameraZ = 10.5;
-        this.friction = 0.95;
+        this.defaultCameraZ = 9;
+        this.friction = 0.9;
         this.startX = 0;
         this.isDragging = false;
         this.currentPosition = 0;
@@ -24,11 +26,12 @@ class EffectShell {
         this.lastX = 0;
         this.dragSpeed = 0;
         this.scaleFactor = 1
-        this.slideHeight = 9.8;
+        this.slideHeight = 10.5;
         this.slideWidth = 5;
         this.baseMeshSpacing = 6.2;
         this.meshSpacing = this.baseMeshSpacing;
         this.initialDistanceScale = 0;
+        this.targetFov = 75;
 
         this.init().then(() => this.onInitComplete());
     }
@@ -38,7 +41,7 @@ class EffectShell {
             this.textures = await this.loadTextures(images);
             this.setupScene();
             this.createMeshes();
-            this.createCSS2DObjects();
+            createCSS2DObjects(this, images);
             this.setupEventListeners();
             this.animate();
             this.onWindowResize();
@@ -90,62 +93,20 @@ class EffectShell {
         const newHeight = window.innerHeight;
         this.camera.aspect = newWidth / newHeight;
 
-        // Base dimensions for adjustments
-        const baseWidth = 1707; // Width at which FOV starts changing
-        const baseHeight = 1024; // Reference height for camera adjustment
-        const defaultFov = 75; // Default field of view
-        const maxFov = 120; // Maximum field of view to prevent it from zooming out too much
-        const defaultCameraZ = 10.5; // Default camera Z depth
+        const targetFov = calculateTargetFov(newWidth);
 
-        // Determine target FOV and camera Z position
-        let targetFov = defaultFov;
-        let cameraZPosition = defaultCameraZ;
-
-        // Case 1: Both width and height have changed
-        if (newWidth < baseWidth && newHeight !== baseHeight) {
-            // Adjust FOV based on width
-            const widthScaleFactor = baseWidth / newWidth;
-            targetFov = Math.min(defaultFov * widthScaleFactor, maxFov);
-
-            // Adjust the camera Z position and further adjust FOV based on height
-            const heightScaleFactor = newHeight / baseHeight;
-            cameraZPosition = defaultCameraZ * heightScaleFactor;
-
-            const heightScaleFactorForFov = baseHeight / newHeight;
-            targetFov = Math.min(targetFov * heightScaleFactorForFov, maxFov);
-        }
-        // Case 2: Only the height has changed
-        else if (newHeight !== baseHeight) {
-            const heightScaleFactor = newHeight / baseHeight;
-            cameraZPosition = defaultCameraZ * heightScaleFactor;
-
-            const heightScaleFactorForFov = baseHeight / newHeight;
-            targetFov = Math.min(targetFov * heightScaleFactorForFov, 100);
-        }
-        // Case 3: Only the width has changed or none have changed
-        else if (newWidth < baseWidth) {
-            const widthScaleFactor = baseWidth / newWidth;
-            targetFov = Math.min(defaultFov * widthScaleFactor, maxFov);
-        }
-
-        // Apply the calculated FOV and camera Z position
-        this.camera.fov = targetFov;
-        this.camera.position.z = cameraZPosition;
-        this.camera.updateProjectionMatrix();
-
+        updateCameraProperties(this.camera, targetFov, newHeight, this.defaultCameraZ);
 
         if (!this.isDragging) {
-            const baseOffset = 10; // Adjust this value to control the movement speed
-            const horizontalOffset = (newWidth < baseWidth) ? baseOffset * (baseWidth - newWidth) / baseWidth : 0;
-
-            const verticalOffset = (newHeight < baseHeight) ? baseOffset * (baseHeight - newHeight) / baseHeight : 0;
-
-            // Update currentPosition based on width and height
+            const baseWidth = 1707;
+            const baseHeight = 1024;
+            const baseOffset = 10;
+            const horizontalOffset = newWidth < baseWidth ? baseOffset * (baseWidth - newWidth) / baseWidth : 0;
+            const verticalOffset = newHeight < baseHeight ? baseOffset * (baseHeight - newHeight) / baseHeight : 0;
             this.currentPosition += (horizontalOffset + verticalOffset) / this.meshSpacing;
             this.updatePositions();
         }
 
-        // Update the renderer and labelRenderer sizes
         this.renderer.setSize(newWidth, newHeight);
         this.labelRenderer.setSize(newWidth, newHeight);
 
@@ -160,12 +121,15 @@ class EffectShell {
     }
 
     createPlaneMesh(texture, index) {
-        const planeGeometry = new THREE.PlaneGeometry(this.slideWidth * this.scaleFactor, this.slideHeight * this.scaleFactor, 16, 16);
+        const planeGeometry = new THREE.PlaneGeometry(this.slideWidth * this.scaleFactor, this.slideHeight * this.scaleFactor, 100, 24);
         const shaderMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 uTexture: { value: texture },
-                uOffset: { value: new THREE.Vector2(0.0, 0.0) },
+                uOffset: {
+                    value: new THREE.Vector2(0.0, 0.0)
+                },
                 uzom: { value: 1.0 },
+                uIntensity: { value: 0.09 },
                 uBorderRadius: { value: 0.035 },
                 uDistanceScale: { value: this.initialDistanceScale }
             },
@@ -188,47 +152,28 @@ class EffectShell {
         this.group.children.forEach((child, index) => {
             child.position.x = calculatePositionX(index, this.currentPosition, this.meshSpacing);
         });
+
+        this.syncHtmlWithSlider();
     }
 
-    createCSS2DObjects() {
-        images.forEach((image, index) => {
-            const element = document.createElement('div');
-            element.className = 'slider-project';
-            element.dataset.index = index;
-
-            const container = document.createElement('div');
-            container.className = 'slider-project__container';
-
-            const title = document.createElement('div');
-            title.className = 'slider-project__title';
-            title.textContent = image.title || '';
-            container.appendChild(title);
-
-            const description = document.createElement('div');
-            description.className = 'slider-project__description';
-            description.textContent = image.description || '';
-            container.appendChild(description);
-
-            element.appendChild(container);
-
-            const objectCSS = new CSS2DObject(element);
-
-
-            const mesh = this.group.children[index];
-            objectCSS.position.copy(mesh.position);
-
-            this.cssGroup.add(objectCSS);
-            this.cssObjects.push(objectCSS);
-            document.body.appendChild(element);
-        });
-    }
 
     syncHtmlWithSlider() {
+        // Calculate duration dynamically based on the current velocity and position
+        const animationDuration = this.isMoving ? Math.abs(this.velocity) * 0.005 : 0.05; // Adjust duration factor as needed
+
         this.group.children.forEach((mesh, index) => {
             const objectCSS = this.cssObjects[index];
-            objectCSS.position.copy(mesh.position);
-            objectCSS.position.y -= this.slideHeight / 2 + 0.2;
-            objectCSS.position.x -= -this.slideWidth + 1.19;
+
+            // Calculate the exact target X position based on your style preferences
+            const targetX = mesh.position.x - (-this.slideWidth + 1.19); // Custom X offset
+
+            // Animate only the X position with gsap
+            gsap.to(objectCSS.position, {
+                x: targetX,                 // Move to calculated X position
+                duration: animationDuration,
+                ease: "power2.out",
+            });
+
         });
     }
 
@@ -236,26 +181,10 @@ class EffectShell {
         requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
 
-        if (this.isMoving) {
-            this.currentPosition += this.velocity;
-            this.velocity *= this.friction;
-
-            gsap.to(this.group.children.map(child => child.position), {
-                duration: 0.5,
-                x: (index) => calculatePositionX(index, this.currentPosition, this.meshSpacing),
-                ease: "power2.out",
-                onUpdate: this.updatePositions.bind(this)
-            });
-
-            if (Math.abs(this.velocity) < 0.01) {
-                this.isMoving = false;
-            }
-        }
-
         this.syncHtmlWithSlider();
-
         this.labelRenderer.render(this.scene, this.camera);
     }
+
 
     setupEventListeners() {
         window.addEventListener('resize', this.onWindowResize.bind(this));
@@ -272,3 +201,20 @@ class EffectShell {
 }
 
 new EffectShell();
+
+class Effect {
+    constructor({ plane, position, uniforms, options }) {
+        this.plane = plane;
+        this.position = position;
+        this.uniforms = uniforms;
+        this.options = options;
+    }
+
+    onPositionUpdate() {
+        let offset = this.plane.position
+            .clone()
+            .sub(this.position)
+            .multiplyScalar(-this.options.strength);
+        this.uniforms.uOffset.value = offset;
+    }
+}
