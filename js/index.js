@@ -14,10 +14,10 @@ class EffectShell {
         this.cssObjects = [];
         this.mouse = new THREE.Vector2();
         this.raycaster = new THREE.Raycaster();
-        this.movementSensitivity = 40;
+        this.movementSensitivity = 35;
         this.velocity = 0;
         this.defaultCameraZ = 9;
-        this.friction = 0.9;
+        this.friction = 0.85;
         this.startX = 0;
         this.isDragging = false;
         this.currentPosition = 0;
@@ -156,32 +156,42 @@ class EffectShell {
         this.syncHtmlWithSlider();
     }
 
-
     syncHtmlWithSlider() {
-        // Calculate duration dynamically based on the current velocity and position
-        const animationDuration = this.isMoving ? Math.abs(this.velocity) * 0.005 : 0.05; // Adjust duration factor as needed
+        const followSpeed = 0.08; // Controls how much the X position should "lag" behind (adjust for more/less lag)
 
         this.group.children.forEach((mesh, index) => {
             const objectCSS = this.cssObjects[index];
 
-            // Calculate the exact target X position based on your style preferences
+            // Calculate the target X position based on mesh position
             const targetX = mesh.position.x - (-this.slideWidth + 1.19); // Custom X offset
 
-            // Animate only the X position with gsap
-            gsap.to(objectCSS.position, {
-                x: targetX,                 // Move to calculated X position
-                duration: animationDuration,
-                ease: "power2.out",
-            });
+            // Directly set the Y position without any interpolation
+            objectCSS.position.y = mesh.position.y - this.slideWidth - 0.5; // Fixed Y position
 
+            // Smoothly move the X position towards the target using lerp-like interpolation
+            const distanceToTargetX = Math.abs(targetX - objectCSS.position.x);
+
+            // If the title is too far away, move it directly to avoid lagging overlap issues
+            if (distanceToTargetX < 15) {
+                objectCSS.position.x += (targetX - objectCSS.position.x) * followSpeed;
+            } else {
+                objectCSS.position.x = targetX;
+            }
+
+            // Apply the updated X and Y positions to the CSS element using translate3d
+            objectCSS.element.style.transform = `translate(-50%, -50%) translate3d(${objectCSS.position.x}px, 0)`;
         });
     }
 
     animate() {
         requestAnimationFrame(this.animate.bind(this));
-        this.renderer.render(this.scene, this.camera);
 
+        // Update positions manually without relying on GSAP
+        this.updatePositions();
         this.syncHtmlWithSlider();
+
+        // Render the 3D scene and CSS elements
+        this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
     }
 
@@ -201,20 +211,3 @@ class EffectShell {
 }
 
 new EffectShell();
-
-class Effect {
-    constructor({ plane, position, uniforms, options }) {
-        this.plane = plane;
-        this.position = position;
-        this.uniforms = uniforms;
-        this.options = options;
-    }
-
-    onPositionUpdate() {
-        let offset = this.plane.position
-            .clone()
-            .sub(this.position)
-            .multiplyScalar(-this.options.strength);
-        this.uniforms.uOffset.value = offset;
-    }
-}

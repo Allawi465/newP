@@ -15,11 +15,11 @@ export const vertexShader = `
         float PI = 3.141592653589793238;
 
         // Parameters to control the wave effect
-        float amplitudeX = 0.009;
+        float amplitudeX = 0.003;
 
         // Create separate Bézier curves for the top and bottom
-        float topCurve = pow(uv.y, 1.0) * (uv.y * (uv.y * 1.0 - 14.0) + 10.0);
-        float bottomCurve = pow(1.0 - uv.y, 1.0) * ((1.0 - uv.y) * (1.0 - uv.y * 1.0 - 14.0) + 10.0);
+        float topCurve = pow(uv.y, 1.0) * (uv.y * (uv.y * 1.0 - 17.0) + 10.0);
+        float bottomCurve = pow(1.0 - uv.y, 1.0) * ((1.0 - uv.y) * (1.0 - uv.y * 1.0 - 15.0) + 10.0);
 
         // Combine both curves to create an effect at both the top and bottom
         float bezierCurve = topCurve + bottomCurve;

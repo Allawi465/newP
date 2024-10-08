@@ -24,11 +24,11 @@ export function onPointerMove(event, context) {
 
     // Apply effects and update positions
     applyOffset(context);
-    /*    applyDistanceScale(context, dynamicDistanceScale); */
+    applyDistanceScale(context, dynamicDistanceScale);
     context.updatePositions();
 
     // Calculate velocity based on movement sensitivity
-    context.velocity = (delta / context.movementSensitivity * 0.2);
+    context.velocity = (delta / context.movementSensitivity * 0.9);
     context.startX = clientX;
 }
 
@@ -56,9 +56,7 @@ export function startMomentumMotion(context) {
     const dynamicDistanceScale = Math.min(distanceScale(context, dragSpeedAbs, widthFactor, heightFactor, curveIntensity, maxDragSpeed), 0.25);
 
     // Adjust uOffset proportionally to the current velocity
-    const offsetValue = context.velocity * 50; // Scale offset based on velocity
-
-
+    const offsetValue = context.velocity * 20; // Scale offset based on velocity
 
     context.group.children.forEach(child => {
         // Smoothly animate the offset and distance scale based on current motion
@@ -84,11 +82,11 @@ export function startMomentumMotion(context) {
                 duration: 0.6,
             });
 
-            /*         gsap.to(child.material.uniforms.uDistanceScale, {
-                        value: context.initialDistanceScale,
-                        duration: 0.5, // Smooth transition duration
-                        ease: "power3.out", // Easing for smooth effect
-                    }); */
+            gsap.to(child.material.uniforms.uDistanceScale, {
+                value: context.initialDistanceScale,
+                duration: 0.5, // Smooth transition duration
+                ease: "power3.out", // Easing for smooth effect
+            });
         });
     }
 }
