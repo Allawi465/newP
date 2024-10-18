@@ -14,24 +14,26 @@ class EffectShell {
         this.cssObjects = [];
         this.mouse = new THREE.Vector2();
         this.raycaster = new THREE.Raycaster();
-        this.movementSensitivity = 35;
+        this.movementSensitivity = 40;
         this.velocity = 0;
-        this.defaultCameraZ = 9;
-        this.friction = 0.85;
+        this.defaultCameraZ = 9.;
+        this.friction = 0.95;
         this.startX = 0;
         this.isDragging = false;
         this.currentPosition = 0;
-        this.isMoving = false;
         this.dragDelta = 0;
         this.lastX = 0;
         this.dragSpeed = 0;
         this.scaleFactor = 1
-        this.slideHeight = 10.5;
-        this.slideWidth = 5;
-        this.baseMeshSpacing = 6.2;
+        this.slideHeight = 10.4;
+        this.slideWidth = 5.1;
+        this.baseMeshSpacing = 6.3;
         this.meshSpacing = this.baseMeshSpacing;
         this.initialDistanceScale = 0;
         this.targetFov = 75;
+        this.maxDistanceScale = 0.7;
+        this.velocityScale = 0.20;
+        this.images = images;
 
         this.init().then(() => this.onInitComplete());
     }
@@ -92,6 +94,21 @@ class EffectShell {
         const newWidth = window.innerWidth;
         const newHeight = window.innerHeight;
         this.camera.aspect = newWidth / newHeight;
+        const minWidth = 300;
+        const maxWidth = 2269;
+        const defaultMaxDistanceScale = 0.065;
+        const maxAllowedScale = 0.2;
+        const defaultVelocityScale = 0.08;
+        const maxVelocityScale = 0.55;
+
+
+        let scaleFactor = (newWidth - minWidth) / (maxWidth - minWidth);
+        scaleFactor = Math.max(0, Math.min(1, scaleFactor));
+
+        this.maxDistanceScale = defaultMaxDistanceScale + (maxAllowedScale - defaultMaxDistanceScale) * (1 - scaleFactor);
+
+        this.velocityScale = defaultVelocityScale + (maxVelocityScale - defaultVelocityScale) * (1 - scaleFactor);
+
 
         const targetFov = calculateTargetFov(newWidth);
 
@@ -121,7 +138,7 @@ class EffectShell {
     }
 
     createPlaneMesh(texture, index) {
-        const planeGeometry = new THREE.PlaneGeometry(this.slideWidth * this.scaleFactor, this.slideHeight * this.scaleFactor, 100, 24);
+        const planeGeometry = new THREE.PlaneGeometry(this.slideWidth * this.scaleFactor, this.slideHeight * this.scaleFactor, 24, 24);
         const shaderMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 uTexture: { value: texture },
@@ -129,8 +146,7 @@ class EffectShell {
                     value: new THREE.Vector2(0.0, 0.0)
                 },
                 uzom: { value: 1.0 },
-                uIntensity: { value: 0.09 },
-                uBorderRadius: { value: 0.035 },
+                uBorderRadius: { value: 0.03 },
                 uDistanceScale: { value: this.initialDistanceScale }
             },
             vertexShader: vertexShader,
@@ -157,28 +173,24 @@ class EffectShell {
     }
 
     syncHtmlWithSlider() {
-        const followSpeed = 0.08; // Controls how much the X position should "lag" behind (adjust for more/less lag)
+        const followSpeed = 0.07;
 
         this.group.children.forEach((mesh, index) => {
             const objectCSS = this.cssObjects[index];
 
-            // Calculate the target X position based on mesh position
-            const targetX = mesh.position.x - (-this.slideWidth + 1.19); // Custom X offset
+            const targetX = mesh.position.x - (-this.slideWidth + 1.25);
 
-            // Directly set the Y position without any interpolation
-            objectCSS.position.y = mesh.position.y - this.slideWidth - 0.5; // Fixed Y position
+            objectCSS.position.y = mesh.position.y - this.slideWidth - 0.28;
 
-            // Smoothly move the X position towards the target using lerp-like interpolation
+
             const distanceToTargetX = Math.abs(targetX - objectCSS.position.x);
 
-            // If the title is too far away, move it directly to avoid lagging overlap issues
-            if (distanceToTargetX < 15) {
+            if (distanceToTargetX < 10) {
                 objectCSS.position.x += (targetX - objectCSS.position.x) * followSpeed;
             } else {
                 objectCSS.position.x = targetX;
             }
 
-            // Apply the updated X and Y positions to the CSS element using translate3d
             objectCSS.element.style.transform = `translate(-50%, -50%) translate3d(${objectCSS.position.x}px, 0)`;
         });
     }
@@ -186,11 +198,8 @@ class EffectShell {
     animate() {
         requestAnimationFrame(this.animate.bind(this));
 
-        // Update positions manually without relying on GSAP
         this.updatePositions();
         this.syncHtmlWithSlider();
-
-        // Render the 3D scene and CSS elements
         this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
     }

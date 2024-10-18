@@ -8,7 +8,6 @@ export function calculateTargetFov(newWidth) {
 
 
     if (newWidth < 585) {
-
         const factor = (980 - newWidth) / (980 - 611);
         calculatedFov = midFov + (maxFov - midFov) * factor;
     } else if (newWidth < 980) {
