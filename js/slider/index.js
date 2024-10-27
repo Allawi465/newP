@@ -10,7 +10,7 @@ export function onPointerMove(event, context) {
     const delta = clientX - context.startX;
 
     // Apply some smoothing to the dragDelta to make it feel more constant
-    const smoothingFactor = 0.2; // Adjust this factor for more or less smoothness
+    const smoothingFactor = 0.5; // Adjust this factor for more or less smoothness
     context.dragDelta = context.dragDelta * (1 - smoothingFactor) + Math.abs(delta) * smoothingFactor;
 
     // Adjust the position with some easing to avoid abrupt jumps
@@ -21,7 +21,7 @@ export function onPointerMove(event, context) {
     context.dragSpeed = context.dragSpeed * (1 - smoothingFactor) + rawSpeed * smoothingFactor;
 
     // Limit the maximum speed for more control
-    context.dragSpeed = Math.max(Math.min(context.dragSpeed, 40), -40); // Adjust limits as needed
+    context.dragSpeed = Math.max(Math.min(context.dragSpeed, 60), -60);
 
     context.lastX = clientX;
 
@@ -36,6 +36,49 @@ export function onPointerMove(event, context) {
     context.velocity = context.velocity * (1 - smoothingFactor) + (delta / context.movementSensitivity) * smoothingFactor;
     context.startX = clientX;
 }
+
+export function onPointerDown(event, context) {
+    context.isDragging = true;
+    context.startX = event.clientX !== undefined ? event.clientX : (event.touches && event.touches[0].clientX);
+    context.startY = event.clientY !== undefined ? event.clientY : (event.touches && event.touches[0].clientY);
+    context.dragDelta = 1;
+    context.lastX = context.startX;
+    context.isMoving = false;
+    context.isMomentumStarted = false;
+
+    // Store the initial click position
+    context.initialClick = { x: context.startX, y: context.startY };
+}
+
+export function onPointerUp(event, context) {
+    const endX = event.clientX !== undefined
+        ? event.clientX
+        : (event.touches && event.touches[0] && event.touches[0].clientX);
+    const endY = event.clientY !== undefined
+        ? event.clientY
+        : (event.touches && event.touches[0] && event.touches[0].clientY);
+
+    // If endX or endY is undefined, exit early to prevent errors
+    if (endX === undefined || endY === undefined) return;
+
+    const deltaX = Math.abs(endX - context.initialClick.x);
+    const deltaY = Math.abs(endY - context.initialClick.y);
+    const clickThreshold = 5; // Small movement threshold to consider it a click
+
+    // Reset dragging state
+    context.isDragging = false;
+
+    // Check if it was a click (minimal movement)
+    if (deltaX < clickThreshold && deltaY < clickThreshold) {
+        // Treat it as a click
+        handleClick(event, context);
+    } else {
+        // Treat it as a drag, stop dragging and start momentum
+        context.isMoving = true;
+        startMomentumMotion(context);
+    }
+}
+
 
 
 export function startMomentumMotion(context) {
@@ -74,7 +117,7 @@ export function startMomentumMotion(context) {
 
             gsap.to(child.material.uniforms.uDistanceScale, {
                 value: context.initialDistanceScale,
-                duration: 1,
+                duration: 0.5,
                 ease: "power1.out",
             });
         });
@@ -96,41 +139,6 @@ export function onMouseMoveHover(event, context) {
             child.userData.tl.reverse();
         }
     });
-}
-
-export function onPointerDown(event, context) {
-    context.isDragging = true;
-    context.startX = event.clientX !== undefined ? event.clientX : (event.touches && event.touches[0].clientX);
-    context.startY = event.clientY !== undefined ? event.clientY : (event.touches && event.touches[0].clientY);
-    context.dragDelta = 1;
-    context.lastX = context.startX;
-    context.isMoving = false;
-    context.isMomentumStarted = false;
-
-    // Store the initial click position
-    context.initialClick = { x: context.startX, y: context.startY };
-}
-
-export function onPointerUp(event, context) {
-    const endX = event.clientX !== undefined ? event.clientX : (event.touches && event.touches[0].clientX);
-    const endY = event.clientY !== undefined ? event.clientY : (event.touches && event.touches[0].clientY);
-
-    const deltaX = Math.abs(endX - context.initialClick.x);
-    const deltaY = Math.abs(endY - context.initialClick.y);
-    const clickThreshold = 5; // Small movement threshold to consider it a click
-
-    // Reset dragging state
-    context.isDragging = false;
-
-    // Check if it was a click (minimal movement)
-    if (deltaX < clickThreshold && deltaY < clickThreshold) {
-        // Treat it as a click
-        handleClick(event, context);
-    } else {
-        // Treat it as a drag, stop dragging and start momentum
-        context.isMoving = true;
-        startMomentumMotion(context);
-    }
 }
 
 function handleClick(event, context) {
@@ -178,35 +186,21 @@ function showDivWithContent(index, context) {
         <img src="${selectedImage.src}" alt="${selectedImage.title}" class="projectsImg" />
         <h2>${selectedImage.title}</h2>
         <p>${selectedImage.description}</p>
-        <button id="closeBtn">Close</button>
     `;
 
     // Add event listener to the close button after the content is rendered
-    const closeBtn = document.getElementById('closeBtn');
+    const closeBtn = document.getElementById('close');
     closeBtn.addEventListener('click', () => closeInfoDiv(context));
 
     // Make the div visible
     infoDiv.style.display = 'block';
 
-    // Hide the canvas by removing it from the DOM
-    const canvas = context.renderer.domElement;
-    if (canvas) {
-        canvas.remove();  // Remove the canvas from the DOM
-    }
-    // Set a flag indicating the div is open
-    context.isDivOpen = true; // Prevent further clicks while the div is open
+    context.isDivOpen = true;
 }
 
 function closeInfoDiv(context) {
     // Hide the info div
     document.getElementById('infoDiv').style.display = 'none';
 
-    // Re-add the canvas to the DOM
-    const canvas = context.renderer.domElement;
-    if (canvas) {
-        document.body.appendChild(canvas);  // Re-append the canvas to the DOM
-    }
-
-    // Reset the flag indicating the div is open
-    context.isDivOpen = false; // Allow clicks again
+    context.isDivOpen = false;
 }

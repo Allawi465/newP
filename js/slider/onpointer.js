@@ -9,7 +9,7 @@ export function applyDistanceScale(context) {
     context.group.children.forEach(child => {
         gsap.to(child.material.uniforms.uDistanceScale, {
             value: distanceScaleValue,
-            duration: 0.55,
+            duration: 0.5,
             ease: "power1.out",
         });
     });

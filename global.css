@@ -4,50 +4,183 @@
     box-sizing: border-box
 }
 
-body,
-html,
-canvas {
-    touch-action: none !important;
-    user-select: none !important;
+:root {
+    --column-count: 12;
+    --w1: calc((100% - 26px * 2 - 24px *(var(--column-count) - 1)) / 12);
+}
 
+@media (max-width: 1000px) {
+    :root {
+        --column-count: 10;
+    }
+}
+
+@media (max-width: 800px) {
+    :root {
+        --column-count: 6;
+    }
+}
+
+.w1 {
+    width: var(--w1)
+}
+
+.c1 {
+    left: 26px
+}
+
+.c2 {
+    left: calc(26px + var(--w1))
+}
+
+.c3 {
+    left: calc(26px + var(--w1) * 2 + 24px)
+}
+
+.c11 {
+    right: calc(26px + var(--w1) + 5px)
+}
+
+.c12 {
+    right: calc(26px + 5px)
+}
+
+/* lenis */
+
+html.lenis,
+html.lenis body {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+    pointer-events: none;
+}
+
+html {
+    line-height: 1.15;
+    -webkit-text-size-adjust: 100%
+}
+
+body,
+html {
+    user-select: none !important;
+    overscroll-behavior-y: contain;
 }
 
 html {
     line-height: 1.15;
     -webkit-text-size-adjust: 100%;
-    font-size: 10px
+    font-size: 11px
 }
 
 main {
     display: block
 }
 
-
 body {
-    background: #e2dbdb;
+    background: #1E1E1E;
     color: #fff;
-    font-family: _General, Arial, Helvetica, sans-serif;
-    overflow: hidden;
+    font-family: "Poppins", Arial, Helvetica, sans-serif;
     margin: 0;
 }
 
-
 canvas {
     outline: none;
-    touch-action: none !important;
     position: fixed;
     top: 0;
     left: 0;
-    border-radius: 20px;
-    padding: 6px;
-    visibility: visible;
+    z-index: 10;
 }
+
+::-webkit-scrollbar {
+    width: 5px;
+    width: 0
+}
+
+
+/* header */
+
+.header {
+    position: absolute;
+    top: 35px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    box-sizing: border-box;
+    padding: 0 35px;
+    z-index: 21;
+    mix-blend-mode: difference;
+}
+
+.header__item {
+    position: absolute;
+    pointer-events: none;
+}
+
+.logo {
+    font-family: "Bonheur Royale", cursive;
+    font-size: 18px;
+}
+
+.about {
+    position: fixed;
+    z-index: 999;
+    top: 35px;
+    right: 35px;
+    text-align: right;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: .3s linear;
+    -webkit-tap-highlight-color: transparent;
+    border-bottom: 1px solid white;
+    width: auto;
+}
+
+.scroll {
+    position: absolute;
+    bottom: 35px;
+    display: flex;
+    z-index: 900;
+}
+
+.scroll-line {
+    position: absolute;
+    bottom: 35px;
+    right: 35px;
+    grid-column-gap: 16px;
+    grid-row-gap: 16px;
+    flex-direction: column;
+    align-items: center;
+    width: 32px;
+    display: flex;
+    z-index: 20;
+}
+
+.scroll_line {
+    height: 200px;
+    width: 1px;
+    background-color: #fff;
+}
+
+
+/* slider */
 
 .slider-project {
     font-size: 1.2rem;
     font-variation-settings: "wght" 500;
     text-transform: uppercase;
-    color: #fff;
     transform-origin: left center;
 }
 
@@ -63,16 +196,22 @@ canvas {
     opacity: .5;
 }
 
+/* slider prosjects */
+
 #infoDiv {
-    height: 100%;
     width: 100%;
-    z-index: 999 !important;
-    position: absolute;
+    height: 100lvh;
+    z-index: 40;
+    position: fixed;
     top: 0;
     left: 0;
+    padding-bottom: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     background-color: white;
     display: none;
+    pointer-events: none;
 }
 
 .projectsImg {
@@ -89,11 +228,146 @@ canvas {
     background: none;
 }
 
+
+
+/* Hero section */
+
+.hero {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    height: 100lvh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: 20;
+}
+
+.hero__title {
+    margin-bottom: 26px;
+    text-transform: uppercase;
+    margin: 0;
+    font-variation-settings: "wght" 500;
+    font-weight: 400;
+}
+
+.creative {
+    font-family: "Bonheur Royale", cursive;
+    font-size: min(13vw, 19vh);
+    line-height: .8;
+    position: relative;
+}
+
+.developer {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: min(12vw, 18vh);
+    line-height: .8;
+    position: relative;
+}
+
+.hero__txt {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.hero_txt {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+    margin-top: 40px;
+}
+
+.hero__description {
+    max-width: 80%;
+    width: 600px;
+    padding-right: 35px;
+    padding-left: 10px;
+    box-sizing: border-box;
+}
+
+.txt {
+    text-transform: uppercase;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    margin: 0px;
+}
+
+/* projects page */
+
+
+.projects {
+    height: 100lvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* footer page */
+
+.footer {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+@media (max-width: 1380px) {
+    .hero__description {
+        width: 550px;
+        padding-right: 10px;
+    }
+}
+
+@media (max-width: 1231px) {
+    .hero__description {
+        width: 450px;
+    }
+}
+
+@media (max-width: 1005px) {
+    .hero__description {
+        width: 400px;
+    }
+}
+
+@media (max-width: 897px) {
+    .hero__description {
+        width: 365px;
+        padding-right: 10px;
+    }
+}
+
 @media (max-width: 1151px) {
 
     .slider-project__description,
     .slider-project__title {
         max-width: 170px
+    }
+
+}
+
+@media (max-width: 800px) {
+    .hero_txt {
+        flex-wrap: wrap;
+        justify-content: start;
+    }
+
+    .hero_txt {
+        margin-top: 10px;
+    }
+
+    .hero__description {
+        width: 100%;
+        max-width: 540px;
+        padding-right: 35px;
+        padding-left: 0px;
+        box-sizing: border-box;
     }
 }
 
@@ -103,6 +377,26 @@ canvas {
     .slider-project__title {
         max-width: 150px
     }
+
+}
+
+@media (max-width: 640px) {
+
+    .header_item {
+        left: 80px !important;
+    }
+
+    .hero .c2 {
+        left: 26px
+    }
+
+    .hero__txt {
+        width: calc(100% - 26px * 2)
+    }
+
+    .hero__title {
+        font-size: 14vw
+    }
 }
 
 @media (max-width: 550px) {
@@ -111,6 +405,16 @@ canvas {
     .slider-project__title {
         max-width: 140px
     }
+
+    .hero__description {
+        width: 100%;
+        max-width: 600px;
+        box-sizing: border-box;
+    }
+
+    .scroll_line {
+        height: 100px;
+    }
 }
 
 @media (max-width: 450px) {
@@ -118,5 +422,13 @@ canvas {
     .slider-project__description,
     .slider-project__title {
         max-width: 130px
+    }
+
+    .header_item {
+        width: var(--w1)
+    }
+
+    .hero__txt {
+        padding-right: 35px;
     }
 }

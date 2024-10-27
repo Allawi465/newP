@@ -1,22 +1,30 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { calculatePositionX, images } from './utils/index.js';
-import { vertexShader, fragmentShader } from './glsl/shader.js';
+import transitionFragment from "./glsl/transition/transition_frag.js"
+import transitionVertext from './glsl/transition/transition_vertex.js';
 import { onPointerDown, onPointerMove, onPointerUp, onMouseMoveHover } from './slider/index.js';
 import { CSS2DRenderer } from 'three/examples/jsm/Addons.js';
 import { createCSS2DObjects } from './slider/titles/index.js';
 import { calculateTargetFov, updateCameraProperties } from './camera/index.js';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis'
+import { syncHtmlWithSlider } from './slider/titles/syncHtml.js';
+import { createPlaneMesh } from './slider/planeMesh/index.js';
+
+gsap.registerPlugin(ScrollTrigger);
 
 
 class EffectShell {
     constructor() {
         this.textures = [];
         this.cssObjects = [];
+        this.meshes = [];
         this.mouse = new THREE.Vector2();
         this.raycaster = new THREE.Raycaster();
-        this.movementSensitivity = 40;
+        this.movementSensitivity = 60;
         this.velocity = 0;
-        this.defaultCameraZ = 9.;
+        this.defaultCameraZ = 9.5;
         this.friction = 0.95;
         this.startX = 0;
         this.isDragging = false;
@@ -24,7 +32,7 @@ class EffectShell {
         this.dragDelta = 0;
         this.lastX = 0;
         this.dragSpeed = 0;
-        this.scaleFactor = 1
+        this.scaleFactor = 1;
         this.slideHeight = 10.4;
         this.slideWidth = 5.1;
         this.baseMeshSpacing = 6.3;
@@ -34,8 +42,25 @@ class EffectShell {
         this.maxDistanceScale = 0.7;
         this.velocityScale = 0.20;
         this.images = images;
+        this.largePlane = null;
 
         this.init().then(() => this.onInitComplete());
+
+        this.lenis = new Lenis({
+            smooth: true,
+            direction: 'vertical',
+            wrapper: document.body,
+            content: document.documentElement,
+            syncTouch: true,
+
+        });
+
+        const rafCallback = (time) => {
+            this.lenis.raf(time);
+            ScrollTrigger.update();
+            requestAnimationFrame(rafCallback);
+        };
+        requestAnimationFrame(rafCallback);
     }
 
     async init() {
@@ -53,7 +78,6 @@ class EffectShell {
     }
 
     setupScene() {
-
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
         this.camera.position.z = this.defaultCameraZ;
@@ -61,8 +85,8 @@ class EffectShell {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0xffffff, 1);
         document.body.appendChild(this.renderer.domElement);
-
 
         this.labelRenderer = new CSS2DRenderer();
         this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -86,10 +110,6 @@ class EffectShell {
         })));
     }
 
-    updateAdjustedMeshSpacing() {
-        this.meshSpacing = this.baseMeshSpacing * this.scaleFactor;
-    }
-
     onWindowResize() {
         const newWidth = window.innerWidth;
         const newHeight = window.innerHeight;
@@ -99,19 +119,15 @@ class EffectShell {
         const defaultMaxDistanceScale = 0.065;
         const maxAllowedScale = 0.2;
         const defaultVelocityScale = 0.08;
-        const maxVelocityScale = 0.55;
-
+        const maxVelocityScale = 0.45;
 
         let scaleFactor = (newWidth - minWidth) / (maxWidth - minWidth);
         scaleFactor = Math.max(0, Math.min(1, scaleFactor));
 
         this.maxDistanceScale = defaultMaxDistanceScale + (maxAllowedScale - defaultMaxDistanceScale) * (1 - scaleFactor);
-
         this.velocityScale = defaultVelocityScale + (maxVelocityScale - defaultVelocityScale) * (1 - scaleFactor);
 
-
         const targetFov = calculateTargetFov(newWidth);
-
         updateCameraProperties(this.camera, targetFov, newHeight, this.defaultCameraZ);
 
         if (!this.isDragging) {
@@ -126,42 +142,74 @@ class EffectShell {
 
         this.renderer.setSize(newWidth, newHeight);
         this.labelRenderer.setSize(newWidth, newHeight);
-
         this.syncHtmlWithSlider();
+
+        const aspect = newWidth / newHeight;
+        const planeHeight = 2 * Math.tan((this.camera.fov * Math.PI) / 360) * Math.abs(this.camera.position.z - this.largePlane.position.z);
+        const planeWidth = planeHeight * aspect;
+
+        this.largePlane.geometry.dispose();
+        this.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
+
+        const projectsElement = document.querySelector('.projects');
+        this.meshes.forEach(mesh => this.setMeshPosition(mesh, projectsElement));
     }
 
     createMeshes() {
+        const largePlane = this.createLargePlane();
+        this.scene.add(largePlane);
+
         this.textures.forEach((texture, i) => {
             const planeMesh = this.createPlaneMesh(texture, i);
             this.group.add(planeMesh);
         });
     }
 
+
     createPlaneMesh(texture, index) {
-        const planeGeometry = new THREE.PlaneGeometry(this.slideWidth * this.scaleFactor, this.slideHeight * this.scaleFactor, 24, 24);
-        const shaderMaterial = new THREE.ShaderMaterial({
+        return createPlaneMesh(this, texture, index);
+    }
+
+    setMeshPosition(mesh, projectsElement) {
+        const rect = projectsElement.getBoundingClientRect();
+        const projectsHeight = rect.height;
+        const viewportHeight = window.innerHeight;
+
+        mesh.position.x = 0;
+        mesh.position.y = -(viewportHeight / 2 - rect.top - projectsHeight / 2);
+    }
+
+    createLargePlane() {
+        const largeShaderMaterial = new THREE.ShaderMaterial({
             uniforms: {
-                uTexture: { value: texture },
-                uOffset: {
-                    value: new THREE.Vector2(0.0, 0.0)
-                },
-                uzom: { value: 1.0 },
-                uBorderRadius: { value: 0.03 },
-                uDistanceScale: { value: this.initialDistanceScale }
+                width: { value: 5 },
+                scaleX: { value: 4.7 },
+                scaleY: { value: 2.9 },
+                progress: { value: 0 },
+                time: { value: 1 }
             },
-            vertexShader: vertexShader,
-            fragmentShader: fragmentShader,
+            vertexShader: transitionVertext,
+            fragmentShader: transitionFragment,
             transparent: true
         });
 
-        const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
-        planeMesh.position.x = calculatePositionX(index, 0, this.meshSpacing);
-        planeMesh.userData = { index, hovered: false, tl: gsap.timeline({ paused: true }) };
+        const largeGeometry = new THREE.PlaneGeometry(1, 1, 24, 24);
+        this.largePlane = new THREE.Mesh(largeGeometry, largeShaderMaterial);
 
-        planeMesh.userData.tl.to(planeMesh.rotation, { z: -0.09, duration: 0.5, ease: "power2.inOut" })
-            .to(shaderMaterial.uniforms.uzom, { value: 0.9, duration: 0.5, ease: "power2.inOut" }, 0);
 
-        return planeMesh;
+        this.onWindowResize();
+
+        gsap.to(largeShaderMaterial.uniforms.progress, {
+            value: 1,
+            duration: 2,
+            ease: 'power2.inOut',
+        });
+
+        return this.largePlane;
+    }
+
+    updateAdjustedMeshSpacing() {
+        this.meshSpacing = this.baseMeshSpacing * this.scaleFactor;
     }
 
     updatePositions() {
@@ -173,45 +221,31 @@ class EffectShell {
     }
 
     syncHtmlWithSlider() {
-        const followSpeed = 0.07;
-
-        this.group.children.forEach((mesh, index) => {
-            const objectCSS = this.cssObjects[index];
-
-            const targetX = mesh.position.x - (-this.slideWidth + 1.25);
-
-            objectCSS.position.y = mesh.position.y - this.slideWidth - 0.28;
-
-
-            const distanceToTargetX = Math.abs(targetX - objectCSS.position.x);
-
-            if (distanceToTargetX < 10) {
-                objectCSS.position.x += (targetX - objectCSS.position.x) * followSpeed;
-            } else {
-                objectCSS.position.x = targetX;
-            }
-
-            objectCSS.element.style.transform = `translate(-50%, -50%) translate3d(${objectCSS.position.x}px, 0)`;
-        });
+        syncHtmlWithSlider(this);
     }
 
     animate() {
         requestAnimationFrame(this.animate.bind(this));
 
-        this.updatePositions();
+        if (this.isDragging || Math.abs(this.velocity) > 0) {
+            this.updatePositions();
+        }
         this.syncHtmlWithSlider();
         this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
+
     }
 
 
     setupEventListeners() {
         window.addEventListener('resize', this.onWindowResize.bind(this));
-        window.addEventListener('pointerdown', (event) => onPointerDown(event, this));
-        window.addEventListener('pointermove', (event) => onPointerMove(event, this));
-        window.addEventListener('pointerup', (event) => onPointerUp(event, this));
-        window.addEventListener('pointercancel', (event) => onPointerUp(event, this));
         window.addEventListener('mousemove', (event) => onMouseMoveHover(event, this));
+        window.addEventListener('pointerdown', (event) => onPointerDown(event, this), { passive: false });
+        window.addEventListener('pointermove', (event) => onPointerMove(event, this), { passive: false });
+        window.addEventListener('pointerup', (event) => onPointerUp(event, this), { passive: false });
+        window.addEventListener('touchstart', (event) => onPointerDown(event, this), { passive: false });
+        window.addEventListener('touchmove', (event) => onPointerMove(event, this), { passive: false });
+        window.addEventListener('touchend', (event) => onPointerUp(event, this), { passive: false });
     }
 
     onInitComplete() {
