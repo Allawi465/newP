@@ -18,7 +18,7 @@ void main() {
   
   float realnoise = 0.5 * (cnoise(vec4(newUV.x * scaleX + 0. * time / 3., newUV.y * scaleY, 0. * time / 3., 0.)) + 1.);
   
-  vec3 colorFromProgress = vec3(0.07, 0.07, 0.07);
+  vec3 colorFromProgress = vec3(0.16, 0.16, 0.16);
   
   // Use colorFromProgress in your final calculation
   float w = width * dt;
