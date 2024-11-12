@@ -15,20 +15,19 @@ function showDivWithContent(index, context) {
         <img src="${selectedImage.src}" alt="${selectedImage.title}" class="projectsImg" />
         <h2>${selectedImage.title}</h2>
         <p>${selectedImage.description}</p>
-        <div id="close" class="close">Close</div>
     `;
 
     // Add event listener to the close button after the content is rendered
     const closeBtn = document.getElementById('close');
     closeBtn.addEventListener('click', () => closeInfoDiv(context));
 
-    closeBtn.style.display = 'block';
+    closeBtn.style.zIndex = 'block';
 
     // Make the div visible
     infoDiv.style.display = 'block';
 
     // Stop Lenis scrolling when the info div is open
-    context.stopScrolling();
+    context.stopBodyScrolling();
 
     context.isDivOpen = true;
 }

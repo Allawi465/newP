@@ -1,15 +1,22 @@
 function closeInfoDiv(context) {
-    // Hide the info div
-    document.getElementById('projects_info').style.display = 'none';
-    document.getElementById('about').style.display = 'none';
+    const aboutDiv = document.getElementById('about');
+    aboutDiv.classList.remove('show');
+    aboutDiv.style.zIndex = 0;
+
     const closeBtn = document.getElementById('close');
     closeBtn.style.display = 'none';
-    // Resume Lenis scrolling when the info div is closed
-    context.startScrolling();
+
+    // Stop aboutDiv scrolling and start body scrolling
+    /*     context.stopAboutScrolling(); */
+    context.startBodyScrolling();
 
     context.isDivOpen = false;
-
     context.toggleAboutfbo(false);
+
+    // Pause the horizontalLoop animation
+    if (context.tl) {
+        context.tl.pause();
+    }
 }
 
 export default closeInfoDiv;

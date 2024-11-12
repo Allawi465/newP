@@ -1,5 +1,10 @@
 import * as THREE from 'three';
+import { CSS2DRenderer } from 'three/examples/jsm/Addons.js';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis'
+
+
 import { calculatePositionX, images } from './utils/index.js';
 
 import transitionFragment from './glsl/transition/transition_frag.js';
@@ -8,13 +13,13 @@ import transitionVertex from './glsl/transition/transition_vertex.js';
 
 import { onPointerDown, onPointerMove, onPointerUp } from './slider/index.js';
 import { onMouseMoveHover } from './slider/mouseHover/index.js';
-import { CSS2DRenderer } from 'three/examples/jsm/Addons.js';
 import { createCSS2DObjects } from './slider/titles/index.js';
 import { calculateTargetFov, updateCameraProperties } from './camera/index.js';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis'
+
+
 import { syncHtmlWithSlider } from './slider/titles/syncHtml.js';
 import { createPlaneMesh } from './slider/planeMesh/index.js';
+
 import showAbout from "./components/about/index.js"
 
 import fragment from './glsl/moon/fragment.js';
@@ -60,6 +65,7 @@ class EffectShell {
         this.isOverlayVisible = false;
         this.aspect = window.innerWidth / window.innerHeight
         this.frustumSize = 5;
+        this.isDivOpen = false;
 
         this.objectScene = new THREE.Scene();
         this.objectCamera = new THREE.OrthographicCamera(
@@ -87,7 +93,7 @@ class EffectShell {
 
         this.init().then(() => this.onInitComplete());
 
-        this.lenis = new Lenis({
+        this.bodyLenis = new Lenis({
             smooth: true,
             direction: 'vertical',
             wrapper: document.body,
@@ -96,12 +102,35 @@ class EffectShell {
             touchMultiplier: 0.5,
         });
 
+        // Lenis instance for the aboutDiv scroll
+        this.aboutLenis = new Lenis({
+            smooth: true,
+            direction: 'vertical',
+            wrapper: document.getElementById('about'), // Target the aboutDiv directly
+            content: document.getElementById('about'), // Target the aboutDiv content
+            syncTouch: true,
+            touchMultiplier: 0.5,
+        });
+
+        // Single RAF loop to control both instances based on the active context
         const rafCallback = (time) => {
-            this.lenis.raf(time);
+            if (this.isDivOpen) {
+                this.aboutLenis.raf(time);
+            } else {
+                this.bodyLenis.raf(time);
+            }
             ScrollTrigger.update();
             requestAnimationFrame(rafCallback);
         };
         requestAnimationFrame(rafCallback);
+    }
+
+    stopBodyScrolling() {
+        this.bodyLenis.stop();
+    }
+
+    startBodyScrolling() {
+        this.bodyLenis.start();
     }
 
     async init() {
@@ -120,14 +149,6 @@ class EffectShell {
         }
     }
 
-    stopScrolling() {
-        this.lenis.stop();
-    }
-
-    // Method to start Lenis scroll
-    startScrolling() {
-        this.lenis.start();
-    }
 
 
     setupScene() {
@@ -207,16 +228,27 @@ class EffectShell {
         const projectsElement = document.querySelector('.projects');
         this.meshes.forEach(mesh => this.setMeshPosition(mesh, projectsElement));
 
-        this.overlayRenderer.setSize(newWidth, newHeight);
-        this.aspect = newWidth / newHeight;
-        this.objectCamera.left = (this.frustumSize * this.aspect) / -2;
-        this.objectCamera.right = (this.frustumSize * this.aspect) / 2;
+
+
+        this.objectCamera.left = (this.frustumSize * aspect) / -2;
+        this.objectCamera.right = (this.frustumSize * aspect) / 2;
         this.objectCamera.top = this.frustumSize / 2;
         this.objectCamera.bottom = this.frustumSize / -2;
+        this.overlayRenderer.setSize(newWidth, newHeight);
         this.objectCamera.updateProjectionMatrix();
+
+
 
         if (this.points) {
             this.updatePointsPosition();
+        }
+
+        if (this.points && this.points.material && this.points.material.uniforms && this.points.material.uniforms.colorMode) {
+            if (newWidth <= 640) {
+                this.points.material.uniforms.colorMode.value = 1; // Light color scheme for mobile
+            } else {
+                this.points.material.uniforms.colorMode.value = 0; // Original color scheme for desktop
+            }
         }
 
     }
@@ -286,7 +318,7 @@ class EffectShell {
 
 
     setupFBO() {
-        this.size = 256;
+        this.size = 356;
         this.fbo = this.getRenderTarget();
         this.fbo1 = this.getRenderTarget();
 
@@ -364,6 +396,7 @@ class EffectShell {
                 time: { value: 0 },
                 uPositions: { value: null },
                 resolution: { value: new THREE.Vector4() },
+                colorMode: { value: 0 },
             },
             transparent: true,
             vertexShader: vertexParticles,
@@ -503,4 +536,6 @@ class EffectShell {
     }
 }
 
-new EffectShell();   
+new EffectShell();
+
+
