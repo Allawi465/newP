@@ -36,7 +36,6 @@ html {
 }
 
 body {
-    background: #292929;
     color: #fff;
     font-family: "Poppins", Arial, Helvetica, sans-serif;
     margin: 0;
@@ -71,12 +70,11 @@ html.lenis body {
 
 /* canvas */
 
-canvas {
+#canvas {
     outline: none;
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 10;
 }
 
 #container {
@@ -85,8 +83,8 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 999;
     pointer-events: none;
+    z-index: 60;
 }
 
 ::-webkit-scrollbar {
@@ -104,9 +102,9 @@ canvas {
     display: flex;
     box-sizing: border-box;
     padding: 0 35px;
-    z-index: 21;
     mix-blend-mode: difference;
-    z-index: 50;
+    z-index: 70;
+    opacity: 0;
 }
 
 .header__item {
@@ -114,42 +112,56 @@ canvas {
     pointer-events: none;
 }
 
-
 .about {
     position: fixed;
-    z-index: 30;
-    top: 35px;
-    right: 35px;
+    top: 27px;
+    right: 15px;
     text-align: right;
     cursor: pointer !important;
     pointer-events: auto;
-    transition: .3s linear;
-    -webkit-tap-highlight-color: transparent;
-    border-bottom: 1px solid white;
-    width: auto;
+    border-bottom: 1px;
+    border-radius: 20px;
+    padding: 8px;
+    width: 70px;
+    text-align: center;
+    background: #292929;
+    z-index: 999;
+    opacity: 0;
 }
+
+.about span {
+    mix-blend-mode: difference;
+}
+
 
 .close {
     position: fixed;
-    z-index: 999;
-    top: 35px;
-    right: 35px;
+    top: 27px;
+    right: 15px;
     text-align: right;
     cursor: pointer;
     pointer-events: auto;
-    transition: .3s linear;
-    -webkit-tap-highlight-color: transparent;
-    border-bottom: 1px solid white;
     width: auto;
     display: none;
+    border-radius: 20px;
+    padding: 8px;
+    width: 70px;
+    text-align: center;
+    background: #ffffff;
+    z-index: 999;
+}
+
+.close span {
     mix-blend-mode: difference;
 }
+
 
 .scroll {
     position: absolute;
     bottom: 35px;
     display: flex;
-    z-index: 20;
+    z-index: 60;
+    opacity: 0;
 }
 
 .scroll-line {
@@ -162,7 +174,8 @@ canvas {
     align-items: center;
     width: 32px;
     display: flex;
-    z-index: 20;
+    z-index: 60;
+    opacity: 0;
 }
 
 .scroll_line {
@@ -204,7 +217,7 @@ canvas {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    z-index: 20;
+    z-index: 60;
 }
 
 .hero-parent {
@@ -213,6 +226,7 @@ canvas {
     grid-template-columns: 500px;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
+    opacity: 0;
 }
 
 .hero_heading {
@@ -221,7 +235,6 @@ canvas {
     line-height: .85;
     font-family: "Bebas Neue", sans-serif;
     font-style: italic;
-    position: relative;
     margin: 0;
     width: fit-content;
 }
@@ -231,15 +244,14 @@ canvas {
     font-weight: 500;
     line-height: .8;
     font-family: "Bebas Neue", sans-serif;
-    position: relative;
     margin: 0;
     width: fit-content;
-
 }
 
 .text_hero {
     grid-area: 2 / 1 / 3 / 2;
     margin-left: 15px;
+    opacity: 0;
 }
 
 .txt {
@@ -279,11 +291,11 @@ canvas {
     height: 100lvh;
     z-index: 0;
     position: fixed;
+    transition: opacity 0.5s ease;
     top: 0;
     left: 0;
     overflow: hidden;
     display: block;
-    background-color: white;
     color: black;
     opacity: 0;
 }
@@ -308,6 +320,7 @@ canvas {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+
 }
 
 .about-content {
@@ -322,6 +335,7 @@ canvas {
     grid-template-columns: 486px;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
+    opacity: 0;
 }
 
 .heading {
@@ -334,6 +348,7 @@ canvas {
 
 .text_about {
     grid-area: 2 / 1 / 3 / 2;
+    opacity: 0;
 }
 
 .about_headings {
@@ -362,6 +377,7 @@ canvas {
     top: -50px;
     position: relative;
     gap: 100px;
+    opacity: 0;
 }
 
 .icons {
@@ -396,6 +412,7 @@ canvas {
     margin-right: .1em;
     flex: none;
     transform-style: preserve-3d !important;
+    opacity: 0;
 }
 
 .title-single {
@@ -421,6 +438,7 @@ canvas {
     flex-direction: column;
     max-width: 50rem;
     display: flex;
+    opacity: 0;
 }
 
 .skills_headings {
@@ -430,9 +448,11 @@ canvas {
     margin: 0;
 }
 
-.skills_headings span {
+
+.skills_headings_expertise {
     display: block;
     margin-left: 158px;
+    display: flex;
 }
 
 .skills_parf {
@@ -443,6 +463,7 @@ canvas {
 
 .skill_container {
     margin-top: 5rem;
+    opacity: 0;
 }
 
 .skill_table {
@@ -507,6 +528,106 @@ canvas {
     left: 0%;
     right: 0%;
 }
+
+
+
+/* counter */
+
+
+
+.loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: #000000;
+    pointer-events: none;
+    z-index: 60;
+}
+
+.loading_logo {
+    position: fixed;
+    top: 35px;
+    left: 26px;
+    width: fit-content;
+}
+
+.logo_section {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+}
+
+.logo_name {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo_name h1 {
+    font-size: clamp(1rem, 5vw, 7.5rem);
+    font-weight: 400;
+    line-height: .85;
+    margin-right: 15px;
+}
+
+
+
+.logo_name span {
+    font-size: 8rem;
+    font-weight: 100;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.logo_name h2 {
+    font-size: clamp(1rem, 5vw, 7.5rem);
+    font-weight: 200;
+    line-height: .85;
+    margin-left: 15px;
+}
+
+.counter {
+    position: fixed;
+    right: 26px;
+    bottom: 10px;
+    display: flex;
+    font-size: 70px;
+    line-height: 102px;
+    clip-path: polygon(0 0, 100% 0, 100% 100px, 0 100px);
+    font-weight: 300;
+}
+
+.digit {
+    width: 50px;
+    height: 20px;
+    text-align: center;
+}
+
+.counter-1,
+.counter-2,
+.counter-3 {
+    position: relative;
+    top: 0px;
+}
+
+.num1offset1 {
+    position: relative;
+    right: -10px;
+}
+
+
+.char {
+    opacity: 0;
+}
+
+
 
 @media (max-width: 1614px) {
 
@@ -584,12 +705,13 @@ canvas {
     }
 
     .hero_heading2 {
-        font-size: min(22vw, 35vh);
+        font-size: min(23vw, 35vh);
     }
 
     .text_hero {
         margin-top: 10px;
         max-width: 500px;
+        margin-left: 0px;
     }
 
 }
@@ -687,7 +809,7 @@ canvas {
 
     .text_about {
         margin-top: 10px;
-        max-width: 80%;
+        max-width: 75%;
     }
 
     .about_headings {
@@ -706,12 +828,13 @@ canvas {
         font-size: 14em;
     }
 
+
 }
 
 @media (max-width: 640px) {
 
     .text_hero {
-        max-width: 75%;
+        max-width: 80%;
     }
 
     .hero.c2,
@@ -721,6 +844,10 @@ canvas {
     .hero__txt.c2 {
         left: 26px;
         width: calc(100% - 26px * 2);
+    }
+
+    .text_about {
+        max-width: 100%;
     }
 
 
@@ -746,7 +873,7 @@ canvas {
         font-size: 2.5rem;
     }
 
-    .skills_headings span {
+    .skills_headings_expertise {
         margin-left: 78px;
     }
 
@@ -759,13 +886,6 @@ canvas {
         max-width: 75%;
     }
 
-    .skills_text_wrap,
-    .skill_table,
-    .skills_tags,
-    .skill_title {
-        width: calc(100% - 26px * 2);
-    }
-
     .skill_title {
         font-size: 2.2rem;
     }
@@ -773,6 +893,24 @@ canvas {
     .skills_tags {
         font-size: 1.1rem;
         flex-wrap: wrap;
+    }
+
+    .logo_name h1,
+    .logo_name h2 {
+        font-size: clamp(0.5rem, 6vw, 5rem);
+        margin-right: 10px;
+    }
+
+    .logo_name span {
+        font-size: 5em;
+        font-weight: 100;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .counter {
+        font-size: 60px;
+        bottom: 0;
     }
 }
 
@@ -782,15 +920,6 @@ canvas {
     .slider-project__title {
         max-width: 140px;
     }
-
-    .hero_heading {
-        font-size: min(20vw, 24vh);
-    }
-
-    .hero_heading2 {
-        font-size: min(19vw, 20vh);
-    }
-
 
     .scroll_line {
         height: 100px;
@@ -812,6 +941,15 @@ canvas {
     .skills_text_wrap {
         max-width: 100%;
     }
+
+    .counter {
+        font-size: 50px;
+    }
+
+    .loading_logo svg {
+        width: 40px;
+    }
+
 }
 
 @media (max-width: 450px) {
@@ -828,6 +966,14 @@ canvas {
     .about_headings2 {
         font-size: 130px;
     }
+
+    .digit {
+        width: 40px;
+    }
+
+    .counter {
+        font-size: 40px;
+    }
 }
 
 @media (max-width: 350px) {
@@ -843,10 +989,6 @@ canvas {
         gap: 30px;
     }
 
-    .text_about {
-        max-width: 82%;
-    }
-
     .about_headings {
         font-size: 100px;
     }
@@ -857,6 +999,20 @@ canvas {
 
     .skills_section {
         margin-top: 100px;
+    }
+
+    .digit {
+        width: 30px;
+    }
+
+    .num1offset1 {
+        position: relative;
+        right: -5px;
+    }
+
+
+    .counter {
+        font-size: 30px;
     }
 }
 

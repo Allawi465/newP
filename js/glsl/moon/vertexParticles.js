@@ -1,48 +1,46 @@
 const vertexParticles = /*glsl*/ `
 uniform float time;
 uniform int colorMode; // Uniform to switch between modes
-varying vec2 vUv;
-varying vec4 vColor;
-uniform sampler2D uPositions;
+uniform float opacity; // Uniform for opacity animation
+uniform sampler2D uPositions; // Texture containing positions
+varying vec2 vUv; // Pass UV coordinates to fragment shader
+varying vec4 vColor; // Pass color to fragment shader
 float PI = 3.141592653589793238;
 
 void main() {
-  vUv = uv;
-  vec4 pos = texture2D(uPositions, uv);
+  vUv = uv; // Assign UV coordinates to the varying
+  vec4 pos = texture2D(uPositions, uv); // Sample positions from the texture
   float angle = atan(pos.y, pos.x);
-  vec4 baseColor; // Define baseColor only once
+  vec4 baseColor;
 
   // Mode 0: Original Color Scheme
   if (colorMode == 0) {
-    baseColor = 0.8 * vec4(0.5 + 0.45 * sin(angle + time * 0.4));
+    baseColor = 0.8 * vec4(0.5 + 0.45 * sin(angle + time * 0.4), 
+                       0.5 + 0.45, 
+                       0.5 + 0.45, 
+                       1.0); 
     baseColor.rgb *= vec3(
-    0.8 + 0.2 * sin(angle + time * 0.01),  // Red channel with oscillation
-    0.5 + 0.4 * cos(angle + time * 0.01),  // Green channel, more subdued
-    0.9 + 0.1 * sin(angle + time * 0.01)   // Blue channel, close to bright blue
-  );
-    baseColor.rgb *= 0.9;
-    baseColor.rgb = min(baseColor.rgb, vec3(0.9));
-  } 
-  // Mode 1: Light Color Scheme for Small Screens
-else {
-    // Start with a medium-dark gray base color
-    baseColor = vec4(0.05); // Overall gray intensity
-
-    // Adjust RGB to be closer to a neutral gray, not near white
-    baseColor.rgb *= vec3(
-      0.09, // Darker red component for gray
-      0.09, // Darker green component for gray
-      0.09  // Darker blue component for gray
+      0.5 + 0.3 * sin(angle + time * 0.04),  // Red channel
+      0.5 + 0.45 * cos(angle + time * 0.04),  // Green channel
+      0.5 + 0.25 * sin(angle + time * 0.04)   // Blue channel
     );
+    baseColor.rgb *= 0.8;
+    baseColor.rgb = min(baseColor.rgb, vec3(1.));
+  } 
 
-    // Mix towards a slightly darker gray to make it more pronounced
-    baseColor.rgb = mix(baseColor.rgb, vec3(0.09), 0.09); // Adjusted to medium gray
-}
+  else {
+    baseColor = vec4(0.05); // Gray base color
+    baseColor.rgb *= vec3(0.09, 0.09, 0.09); // Neutral gray
+    baseColor.rgb = mix(baseColor.rgb, vec3(0.09), 0.09);
+  }
 
-  vColor = baseColor;
-  vec4 mvPosition = modelViewMatrix * vec4(pos.xyz, 1.0);
-  gl_PointSize = 1.5 * (1. / -mvPosition.z);
-  gl_Position = projectionMatrix * mvPosition;
+  // Apply opacity uniform to final color
+  baseColor.a *= opacity;
+
+  vColor = baseColor; // Pass final color to the fragment shader
+  vec4 mvPosition = modelViewMatrix * vec4(pos.xyz, 1.0); // Apply model-view matrix
+  gl_PointSize = 1.5 * (1. / -mvPosition.z); // Set point size
+  gl_Position = projectionMatrix * mvPosition; // Apply projection matrix
 }
 `;
 

@@ -18,7 +18,70 @@
 </head>
 
 <body>
-    <div class="header txt">
+    <div class="loadingOverlay">
+        <div class="loading_logo">
+            <svg width="50" viewBox="0 0 934 578" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M151.5 267L20.2971 66.75H282.703L151.5 267Z" fill="black" />
+                <path d="M290 279.5V578H13V283.5L150 492L290 279.5Z" fill="black" />
+                <path d="M798 227L868.148 378.5H727.852L798 227Z" fill="black" />
+                <path d="M662 577.5L698.5 487.5H896L933.5 577.5H662Z" fill="black" />
+                <path d="M717 65H430V578H498.5L717 65Z" fill="black" />
+            </svg>
+        </div>
+        <div class="logo_section">
+            <div class="logo_name">
+                <h1>
+                    Mohammed Allawi
+                </h1>
+                <span>|</span>
+                <h2>
+                    Web Developer
+                </h2>
+            </div>
+
+        </div>
+
+        <div class="counter">
+            <div class="counter-1 digit">
+                <div class="num">0</div>
+                <div class="num num1offset1">1</div>
+            </div>
+
+
+            <div class="counter-2 digit">
+                <div class="num">0</div>
+                <div class="num num1offset2">1</div>
+                <div class="num">2</div>
+                <div class="num">3</div>
+                <div class="num">4</div>
+                <div class="num">5</div>
+                <div class="num">6</div>
+                <div class="num">7</div>
+                <div class="num">8</div>
+                <div class="num">9</div>
+                <div class="num">0</div>
+            </div>
+
+
+            <div class="counter-3 digit">
+                <div class="num">0</div>
+                <div class="num">1</div>
+                <div class="num">2</div>
+                <div class="num">3</div>
+                <div class="num">4</div>
+                <div class="num">5</div>
+                <div class="num">6</div>
+                <div class="num">7</div>
+                <div class="num">8</div>
+                <div class="num">9</div>
+            </div>
+
+
+            <div class="counter_percent">%</div>
+        </div>
+
+    </div>
+    <div class="header">
 
         <div class="header__item" style="left: 50%; right: 50%;">
             <svg width="50" viewBox="0 0 934 578" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,15 +92,19 @@
                 <path d="M717 65H430V578H498.5L717 65Z" fill="white" />
             </svg>
         </div>
-        <div class="header__item c1">Web developer</div>
+        <div class="header__item c1 txt">Web developer</div>
     </div>
 
-    <div class="about txt" id="openAbout">
-        about
+    <div class="about" id="openAbout">
+        <span class="txt">
+            About
+        </span>
     </div>
 
-    <div class="close txt" id="close">
-        close
+    <div class="close" id="close">
+        <span class="txt">
+            close
+        </span>
     </div>
 
     <div class="hero">
@@ -157,7 +224,10 @@
 
                     </div>
                     <div class="skills_text_wrap">
-                        <div class="skills_headings"> Skills & <span>expertise</span></div>
+                        <div class="skills_headings"><span class="skills_headings_skills">Skills</span>
+                            <span class="skills_headings_and">&</span>
+                            <span class="skills_headings_expertise">expertise</span>
+                        </div>
                         <p class="skills_parf">I take complex ideas and turn them into easy, engaging experiences. My
                             goal
                             is to
@@ -307,19 +377,16 @@
                         </div>
                     </div>
                 </div>
-
-
-
-
             </div>
         </div>
     </div>
 
-    <div id="container"></div>
+    <canvas id="canvas"></canvas>
+
+    <div id="container">
+        <canvas id="about_canvas"></canvas>
+    </div>
 
 </body>
-<script>
-
-</script>
 
 </html>

@@ -41,6 +41,10 @@ export function createPlaneMesh(content, texture, index) {
     const projectsElement = document.querySelector('.projects');
     content.setMeshPosition(planeMesh, projectsElement);
 
+    content.meshArray = content.meshArray || [];
+
+    content.meshArray.push(planeMesh);
+
     ScrollTrigger.create({
         trigger: ".projects",
         start: 'top 100%',

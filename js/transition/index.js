@@ -3,7 +3,8 @@ import { gsap } from 'gsap';
 import transitionFragment from "../glsl/transition/transition_frag.js"
 import transitionVertex from '../glsl/transition/transition_frag.js';
 
-export function createLargePlane(content) {
+export function createLargePlane() {
+
     const largeShaderMaterial = new THREE.ShaderMaterial({
         uniforms: {
             width: { value: 5 },
