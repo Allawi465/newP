@@ -15,9 +15,9 @@ void main() {
 
   // Mode 0: Original Color Scheme
   if (colorMode == 0) {
-    baseColor = 0.8 * vec4(0.5 + 0.45 * sin(angle + time * 0.4), 
-                       0.5 + 0.45, 
-                       0.5 + 0.45, 
+    baseColor = 0.8 * vec4(0.5 + 0.35 * sin(angle + time * 0.35), 
+                       0.5 + 0.35, 
+                       0.5 + 0.35, 
                        1.0); 
     baseColor.rgb *= vec3(
       0.5 + 0.3 * sin(angle + time * 0.04),  // Red channel

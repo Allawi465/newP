@@ -3,7 +3,7 @@ export function syncHtmlWithSlider(content) {
 
     content.group.children.forEach((mesh, index) => {
         const objectCSS = content.cssObjects[index];
-        const targetX = mesh.position.x - (-content.slideWidth + 1.25);
+        const targetX = mesh.position.x - 2.5;
 
         objectCSS.position.y = mesh.position.y - content.slideWidth - 0.28;
 

@@ -41,9 +41,6 @@ export const animateCounters = () => {
 
 export default function initLoadingSequence(context) {
 
-    context.meshArray.forEach(mesh => mesh.visible = false);
-    context.cssObjects.forEach(text => text.visible = false);
-
     let typeSplit = new SplitType('.hero_heading', {
         types: 'words, chars',
         tagName: 'span',
@@ -56,7 +53,10 @@ export default function initLoadingSequence(context) {
 
 
     context.stopBodyScrolling();
-    const timeline = gsap.timeline();
+    const timeline = gsap.timeline({
+        duration: 1.1,          // Default duration
+        ease: "power2.inOut",   // Default ease
+    });
 
     // Step 1: Animate the counter
     timeline.add(() => animateCounters(), 0);
@@ -130,11 +130,8 @@ export default function initLoadingSequence(context) {
         ease: "power2.inOut",
     }, 4.8)
 
-    // Step 3: Log when the timeline completes
     timeline.eventCallback("onComplete", () => {
         context.startBodyScrolling();
 
-        context.meshArray.forEach(mesh => mesh.visible = true);
-        context.cssObjects.forEach(text => text.visible = true);
     });
 }

@@ -223,7 +223,7 @@ html.lenis body {
 .hero-parent {
     display: grid;
     grid-template-rows: 1fr;
-    grid-template-columns: 500px;
+    grid-template-columns: 465px;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
     opacity: 0;
@@ -300,13 +300,152 @@ html.lenis body {
     opacity: 0;
 }
 
-.show {
-    opacity: 1 !important;
+.projects_container {
+    position: relative;
+    width: calc(100% - 26px* 2);
+    margin-top: 200px;
+    padding-bottom: 100px;
+}
+
+.projects_titles {
+    display: block;
+    width: fit-content;
+    margin-bottom: 26px;
+    opacity: 0;
+}
+
+.projects_title {
+    font-size: min(13vw, 25vh);
+    margin: 0;
+    font-variation-settings: "wght" 500;
+    line-height: .8;
+    letter-spacing: -1vw;
+    position: relative;
+    font-weight: 400;
+    width: fit-content;
+    opacity: 0;
+}
+
+.project_title {
+    margin-bottom: 26px;
+    top: 0;
+    left: -.9vw;
+}
+
+.project_slogan {
+    font-variation-settings: "wght" 500;
+    font-weight: 400;
+    font-size: min(4vw, 4vh);
+    margin: 0;
+    right: .1vw;
+    width: auto;
+    display: flex;
+    justify-content: end;
+    position: relative;
+    opacity: 0;
+}
+
+.project_descri_wrap {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    margin-left: calc(26px* 2);
+}
+
+.projects_description {
+    font-size: min(4vw, 6vh);
+    line-height: 1;
+    font-variation-settings: "wght" 600;
+    flex: 1;
+    width: 100%;
+    opacity: 0;
+}
+
+
+.link_cta {
+    margin-top: 26px;
+    display: inline-block;
+    font-variation-settings: "wght" 500;
+    border-bottom: 1px solid #333333;
+    cursor: pointer;
+    text-decoration: none;
+    color: #000000;
+    transition: .2s linear;
+    cursor: pointer !important;
+}
+
+.link_cta:hover {
+    text-decoration: line-through;
+    border-bottom: 1px solid transparent;
+
+}
+
+.project_img {
+    width: 100%;
+    margin-top: 26px;
+    border-radius: 8px;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
+    display: block;
+}
+
+.project_second {
+    display: flex;
+    margin: 0;
+    margin-top: calc(26px* 2);
+}
+
+.project_imgSmall {
+    width: 50%;
+    border-radius: 8px;
+    aspect-ratio: 1;
+    position: relative;
+    overflow: hidden;
+    display: block;
 }
 
 .projectsImg {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
     object-fit: cover;
+    z-index: 40;
+    opacity: 0;
 }
+
+.projects_detils {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin-top: calc(26px* 2);
+    opacity: 0;
+}
+
+.projects_detils_text {
+    text-transform: uppercase;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+}
+
+.bottom_link {
+    text-align: end;
+}
+
+
+.show {
+    opacity: 1 !important;
+    transform: none;
+}
+
+.hidden_link {
+    display: none;
+    opacity: 0;
+}
+
 
 /* About */
 
@@ -320,7 +459,6 @@ html.lenis body {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-
 }
 
 .about-content {
@@ -332,7 +470,7 @@ html.lenis body {
 .about-parent {
     display: grid;
     grid-template-rows: 1fr;
-    grid-template-columns: 486px;
+    grid-template-columns: 472px;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
     opacity: 0;
@@ -349,10 +487,11 @@ html.lenis body {
 .text_about {
     grid-area: 2 / 1 / 3 / 2;
     opacity: 0;
+    width: 465px;
 }
 
 .about_headings {
-    font-size: 290px;
+    font-size: 280px;
     font-weight: 500;
     line-height: .85;
     font-family: "Bebas Neue", sans-serif;
@@ -363,7 +502,7 @@ html.lenis body {
 }
 
 .about_headings2 {
-    font-size: 270px;
+    font-size: 250px;
     font-weight: 500;
     line-height: .8;
     font-family: "Bebas Neue", sans-serif;
@@ -385,11 +524,12 @@ html.lenis body {
     align-items: center;
     color: rgb(0, 0, 0);
     text-decoration: none;
+    transition: .2s linear;
+    cursor: pointer !important;
 }
 
 .icons:hover {
     text-decoration: line-through;
-    cursor: pointer !important;
 }
 
 .icons-txt {
@@ -412,7 +552,6 @@ html.lenis body {
     margin-right: .1em;
     flex: none;
     transform-style: preserve-3d !important;
-    opacity: 0;
 }
 
 .title-single {
@@ -424,6 +563,7 @@ html.lenis body {
 
 .skills_section {
     margin-top: 250px;
+    margin-bottom: 200px;
 }
 
 .skills_info {
@@ -530,10 +670,7 @@ html.lenis body {
 }
 
 
-
 /* counter */
-
-
 
 .loadingOverlay {
     position: fixed;
@@ -576,8 +713,6 @@ html.lenis body {
     line-height: .85;
     margin-right: 15px;
 }
-
-
 
 .logo_name span {
     font-size: 8rem;
@@ -629,92 +764,6 @@ html.lenis body {
 
 
 
-@media (max-width: 1614px) {
-
-    .hero-parent {
-        grid-template-columns: 430px;
-    }
-
-    .hero_heading {
-        font-size: 240px;
-    }
-
-    .hero_heading2 {
-        font-size: 220px;
-    }
-
-}
-
-@media (max-width: 1496px) {
-
-    .hero-parent {
-        grid-template-columns: 400px;
-    }
-
-    .hero_heading {
-        font-size: 220px;
-    }
-
-    .hero_heading2 {
-        font-size: 200px;
-    }
-
-}
-
-@media (max-width: 1309px) {
-
-    .hero-parent {
-        grid-template-columns: 380px;
-    }
-
-    .hero_heading {
-        font-size: 180px;
-    }
-
-    .hero_heading2 {
-        font-size: 160px;
-    }
-
-}
-
-@media (max-width: 1057px) {
-
-    .hero-parent {
-        grid-template-columns: 337px;
-    }
-
-    .hero_heading {
-        font-size: 160px;
-    }
-
-    .hero_heading2 {
-        font-size: 140px;
-    }
-
-}
-
-@media (max-width: 1129px) {
-
-    .hero-parent {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .hero_heading {
-        font-size: min(24vw, 40vh);
-    }
-
-    .hero_heading2 {
-        font-size: min(23vw, 35vh);
-    }
-
-    .text_hero {
-        margin-top: 10px;
-        max-width: 500px;
-        margin-left: 0px;
-    }
-
-}
 
 @media (max-width: 1151px) {
 
@@ -726,7 +775,18 @@ html.lenis body {
 }
 
 
-@media (max-width: 1005px) {
+@media (max-width: 1050px) {
+
+    .hero-parent {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .text_hero {
+        margin-top: 10px;
+        max-width: 465px;
+        margin-left: 0px;
+    }
 
     .table_section,
     .skills_info {
@@ -735,19 +795,34 @@ html.lenis body {
 
 }
 
-@media (max-width: 897px) {
+@media (max-width: 950px) {
+
+
+    .hero_heading,
+    .hero_heading2,
+    .about_headings,
+    .about_headings2 {
+        font-size: min(24vw, 40vh);
+    }
 
     .about-parent {
-        grid-template-columns: 455px;
+        display: flex;
+        flex-direction: column;
     }
 
-    .about_headings {
-        font-size: 270px;
+    .text_about {
+        margin-top: 10px;
+        max-width: 465px;
+        margin-bottom: 26px;
     }
 
-    .about_headings2 {
-        font-size: 260px;
+    .contact_info {
+        top: 0;
     }
+
+}
+
+@media (max-width: 897px) {
 
     .rolling_h1 {
         font-size: 20em;
@@ -764,24 +839,8 @@ html.lenis body {
 @media (max-width: 800px) {
 
 
-    .about-parent {
-        grid-template-columns: 400px;
-    }
-
-    .about_headings {
-        font-size: 240px;
-    }
-
-    .about_headings2 {
-        font-size: 230px;
-    }
-
     .rolling_h1 {
         font-size: 18em;
-    }
-
-    .contact_info {
-        top: 0px;
     }
 
     .table_section,
@@ -791,6 +850,10 @@ html.lenis body {
 
     .skills_numbers {
         display: none;
+    }
+
+    .project_second {
+        margin-top: 5vw;
     }
 }
 
@@ -802,33 +865,45 @@ html.lenis body {
         max-width: 150px;
     }
 
-    .about-parent {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .text_about {
-        margin-top: 10px;
-        max-width: 75%;
-    }
-
-    .about_headings {
-        font-size: 220px;
-    }
-
-    .about_headings2 {
-        font-size: 200px;
-    }
-
-    .contact_info {
-        top: 100px;
-    }
-
     .rolling_h1 {
         font-size: 14em;
     }
 
+    .projects_detils,
+    .link_description {
+        display: none;
+    }
 
+    .hidden_link {
+        display: block;
+    }
+
+    .project_slogan {
+        justify-content: start;
+    }
+
+    .project_second {
+        flex-direction: column-reverse;
+        flex-wrap: wrap;
+        margin-top: 26px;
+    }
+
+    .project_imgSmall {
+        width: 100%;
+    }
+
+    .project_descri_wrap {
+        margin-left: 0;
+    }
+
+    .projects_description {
+        width: 100%;
+        margin-bottom: 26px;
+    }
+
+    .project_descri_wrap {
+        width: 100%;
+    }
 }
 
 @media (max-width: 640px) {
@@ -860,7 +935,6 @@ html.lenis body {
     }
 
     .contact_info {
-        top: 50px;
         flex-wrap: wrap;
         gap: 40px;
     }
@@ -912,6 +986,12 @@ html.lenis body {
         font-size: 60px;
         bottom: 0;
     }
+
+    .projects_container {
+        margin-top: 25vw;
+
+    }
+
 }
 
 @media (max-width: 550px) {
@@ -923,14 +1003,6 @@ html.lenis body {
 
     .scroll_line {
         height: 100px;
-    }
-
-    .about_headings {
-        font-size: 190px;
-    }
-
-    .about_headings2 {
-        font-size: 180px;
     }
 
     .about-content {
@@ -959,14 +1031,6 @@ html.lenis body {
         max-width: 130px;
     }
 
-    .about_headings {
-        font-size: 140px;
-    }
-
-    .about_headings2 {
-        font-size: 130px;
-    }
-
     .digit {
         width: 40px;
     }
@@ -987,14 +1051,6 @@ html.lenis body {
         top: 15px;
         flex-wrap: wrap;
         gap: 30px;
-    }
-
-    .about_headings {
-        font-size: 100px;
-    }
-
-    .about_headings2 {
-        font-size: 80px;
     }
 
     .skills_section {

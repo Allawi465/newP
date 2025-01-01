@@ -23,7 +23,7 @@ void main() {
 
     float circlularForce = 1. - smoothstep(0.3, 1.4, abs(pos.x - radius));
 
-    float angle = atan(pos.y, pos.x) - info.y * 0.2 * mix(0.5, 1., circlularForce);
+    float angle = atan(pos.y, pos.x) - info.y * 0.22 * mix(0.5, 1., circlularForce);
 
     float targetRadius = mix(
     info.x, 2.2, 
@@ -37,7 +37,7 @@ void main() {
 
     pos.xy += (targetPos.xy - pos.xy) * 0.16;
 
-    pos.xy += curl(pos.xyz * 4., time * 0.1, 0.1).xy * 0.004;
+    pos.xy += curl(pos.xyz * 4., time * 0.1, 0.1).xy * 0.0034;
 
     float dist = length(pos.xy - mouse);
     vec2 dir = normalize(pos.xy - mouse);

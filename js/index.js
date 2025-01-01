@@ -1,36 +1,24 @@
 import * as THREE from 'three';
-import { CSS2DRenderer } from 'three/examples/jsm/Addons.js';
+import Lenis from 'lenis'
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis'
+import { setupScene } from './scene/index.js';
 import initLoadingSequence from './components/loader/index.js';
-
 import { setupFBO } from './moon/setupFBO.js';
 import { addObjects } from './moon/addObjects.js';
-
-
 import { calculatePositionX, images } from './utils/index.js';
-
 import transitionFragment from './glsl/transition/transition_frag.js';
 import transitionVertex from './glsl/transition/transition_vertex.js';
-
-
 import { onPointerDown, onPointerMove, onPointerUp } from './slider/index.js';
 import { onMouseMoveHover } from './slider/mouseHover/index.js';
 import { createCSS2DObjects } from './slider/titles/index.js';
 import { calculateTargetFov, updateCameraProperties } from './camera/index.js';
-
-
 import { syncHtmlWithSlider } from './slider/titles/syncHtml.js';
 import { createPlaneMesh } from './slider/planeMesh/index.js';
-
 import showAbout from "./components/about/index.js"
 import closeInfoDiv from './components/close/index.js';
 
-
-
 gsap.registerPlugin(ScrollTrigger);
-
 
 class EffectShell {
     constructor() {
@@ -38,6 +26,7 @@ class EffectShell {
         this.cssObjects = [];
         this.meshes = [];
         this.meshArray = [];
+        this.images = images;
         this.mouse = new THREE.Vector2();
         this.raycaster = new THREE.Raycaster();
         this.movementSensitivity = 60;
@@ -53,21 +42,23 @@ class EffectShell {
         this.scaleFactor = 1;
         this.slideHeight = 10.4;
         this.slideWidth = 5.1;
-        this.baseMeshSpacing = 6.3;
-        this.meshSpacing = this.baseMeshSpacing;
+        this.meshSpacing = 6.3;
         this.initialDistanceScale = 0;
         this.targetFov = 75;
         this.maxDistanceScale = 0.7;
         this.velocityScale = 0.20;
-        this.images = images;
         this.largePlane = null;
         this.time = 0;
         this.isOverlayVisible = false;
-        this.aspect = window.innerWidth / window.innerHeight
+        this.aspect = window.innerWidth / window.innerHeight;
         this.frustumSize = 5;
         this.isDivOpen = false;
+        this.isProjectsOpen = false;
+        this.isAnimating = false;
         this.largeShaderMaterial = null;
         this.moonShaderMaterial = null;
+        this.baseMeshSpacing = 6.3;
+        this.thetaMultiplier = 0;
 
         this.objectScene = new THREE.Scene();
         this.objectCamera = new THREE.OrthographicCamera(
@@ -117,15 +108,28 @@ class EffectShell {
             touchMultiplier: 0.5,
         });
 
+        this.projectsLenis = new Lenis({
+            smooth: true,
+            direction: 'vertical',
+            wrapper: document.getElementById('projects_info'),
+            content: document.getElementById('projects_info'),
+            syncTouch: true,
+            touchMultiplier: 0.5,
+        });
+
         const rafCallback = (time) => {
-            if (this.isDivOpen) {
+            if (this.isProjectsOpen) {
+                this.projectsLenis.raf(time);
+            } else if (this.isDivOpen) {
                 this.aboutLenis.raf(time);
             } else {
                 this.bodyLenis.raf(time);
             }
+
             ScrollTrigger.update();
             requestAnimationFrame(rafCallback);
         };
+
         requestAnimationFrame(rafCallback);
     }
 
@@ -141,7 +145,7 @@ class EffectShell {
     async init() {
         try {
             this.textures = await this.loadTextures(images);
-            this.setupScene();
+            setupScene(this);
             this.createMeshes();
             setupFBO(this);
             addObjects(this);
@@ -153,33 +157,6 @@ class EffectShell {
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
-    }
-
-
-    setupScene() {
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-        this.camera.position.z = this.defaultCameraZ;
-
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: document.getElementById('canvas') });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0xffffff, 1);
-        document.body.appendChild(this.renderer.domElement);
-
-        this.labelRenderer = new CSS2DRenderer();
-        this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        this.labelRenderer.domElement.style.position = 'fixed';
-        this.labelRenderer.domElement.style.top = '0px';
-        this.labelRenderer.domElement.style.pointerEvents = 'none';
-        this.labelRenderer.domElement.style.zIndex = '60';
-        document.body.appendChild(this.labelRenderer.domElement);
-
-        this.group = new THREE.Group();
-        this.scene.add(this.group);
-
-        this.cssGroup = new THREE.Group();
-        this.scene.add(this.cssGroup);
     }
 
     loadTextures(imageArray) {
@@ -246,29 +223,31 @@ class EffectShell {
             this.updatePointsPosition();
         }
 
-        if (this.points && this.points.material && this.points.material.uniforms && this.points.material.uniforms.colorMode) {
-            if (newWidth <= 640) {
-                this.points.material.uniforms.colorMode.value = 1; // Light color scheme for mobile
-            } else {
-                this.points.material.uniforms.colorMode.value = 0; // Original color scheme for desktop
-            }
-        }
+        /*        if (this.points && this.points.material && this.points.material.uniforms && this.points.material.uniforms.colorMode) {
+                   if (newWidth <= 640) {
+                       this.points.material.uniforms.colorMode.value = 1;
+                   } else {
+                       this.points.material.uniforms.colorMode.value = 1;
+                   }
+               } */
 
     }
 
     createMeshes() {
+        // Opprett et stort plan
         const largePlane = this.createLargePlane();
         this.scene.add(largePlane);
 
+        // Opprett en gruppe for alle små plan
+        this.group = new THREE.Group();
+
         this.textures.forEach((texture, i) => {
-            const planeMesh = this.createPlaneMesh(texture, i);
-            this.group.add(planeMesh);
+            const planeMesh = createPlaneMesh(this, texture, i); // Bruker eksisterende funksjon
+            this.group.add(planeMesh); // Legger til i gruppen
         });
-    }
 
-
-    createPlaneMesh(texture, index) {
-        return createPlaneMesh(this, texture, index);
+        // Legg til gruppen i scenen
+        this.scene.add(this.group);
     }
 
     setMeshPosition(mesh, projectsElement) {
@@ -297,6 +276,7 @@ class EffectShell {
         const largeGeometry = new THREE.PlaneGeometry(1, 1, 24, 24);
         this.largePlane = new THREE.Mesh(largeGeometry, largeShaderMaterial);
         this.largeShaderMaterial = largeShaderMaterial;
+
 
         this.onWindowResize();
 
@@ -371,8 +351,7 @@ class EffectShell {
         this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
 
-        this.time += 0.05; // Increment time once
-
+        this.time += 0.05;
 
 
         requestAnimationFrame(this.animate.bind(this));

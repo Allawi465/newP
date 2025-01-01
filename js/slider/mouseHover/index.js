@@ -3,8 +3,10 @@ export function onMouseMoveHover(event, context) {
     context.raycaster.setFromCamera(context.mouse, context.camera);
 
     const intersects = context.raycaster.intersectObjects(context.group.children);
+
     context.group.children.forEach(child => {
         const isIntersected = intersects.length > 0 && intersects[0].object === child;
+
         if (isIntersected && !child.userData.hovered) {
             child.userData.hovered = true;
             child.userData.tl.play();

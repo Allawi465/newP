@@ -6,129 +6,133 @@ import { horizontalLoop } from "./animation";
 gsap.registerPlugin(ScrollTrigger);
 
 function showAbout(context) {
-    gsap.killTweensOf(context.largeShaderMaterial.uniforms.progress);
-    context.meshArray.forEach(mesh => gsap.killTweensOf(mesh.material.uniforms.opacity));
 
-    if (context.typeSplit) context.typeSplit.revert();
-    if (context.typeSplit_2) context.typeSplit_2.revert();
+    reset(context);
 
+    context.tm = setupTimeline(context);
+
+    animateProgress(context);
+
+    const aboutDiv = document.getElementById('about');
+    aboutDiv.style.zIndex = 60
+    aboutDiv.classList.add('show');
+    gsap.to(aboutDiv, { opacity: 1, duration: 1 });
+
+    context.aboutLenis.resize();
+    setupScrollTriggers(context, aboutDiv);
+
+    context.stopBodyScrolling();
+    context.isDivOpen = true;
+
+    document.getElementById('openAbout').style.display = 'none';
+    document.getElementById('close').style.display = 'block';
+}
+
+
+export function animateProgress(context) {
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 0,
         duration: 2,
-        ease: 'power2.inOut'
-    });
+        ease: 'power2.inOut',
+        onUpdate: () => {
+            const progress = context.largeShaderMaterial.uniforms.progress.value;
 
-    context.meshArray.forEach(mesh => {
-        gsap.to(mesh.material.uniforms.opacity, {
-            value: 0,
-            duration: 0.3,
-            onComplete: () => {
-                mesh.visible = false;
-            }
-        });
+            context.cssObjects.forEach(meshText => {
+                const domElement = meshText.element;
+                domElement.style.opacity = progress;
+            });
+        },
     });
+}
 
-    context.cssObjects.forEach(meshText => {
-        gsap.to(meshText.element, {
-            opacity: 0,
-            duration: 0.3,
-            onComplete: () => {
-                meshText.visible = false;
-            }
-        });
-    });
+function reset(context) {
+    gsap.killTweensOf([
+        context.largeShaderMaterial.uniforms.progress,
+        context.material.uniforms.opacity,
+        ".about-parent",
+        ".about_headings .char",
+        ".about_headings2 .char",
+        ".text_about",
+        ".contact_info",
+        ".title_play",
+        ".skills_text_wrap",
+        ".skill_container"
+    ]);
 
-    let typeSplit = new SplitType('.about_headings', {
-        types: 'words, chars',
-        tagName: 'span',
-    });
+    if (context.tm) context.tm.kill();
+}
 
-    let typeSplit_2 = new SplitType('.about_headings2', {
-        types: 'words, chars',
-        tagName: 'span',
-    });
 
+// Helper: Setup main timeline
+function setupTimeline(context) {
+    if (context.typeSplit) context.typeSplit.revert();
+    if (context.typeSplit_2) context.typeSplit_2.revert();
 
     context.typeSplit = new SplitType('.about_headings', { types: 'words, chars', tagName: 'span' });
     context.typeSplit_2 = new SplitType('.about_headings2', { types: 'words, chars', tagName: 'span' });
 
-    gsap.set(".text_about", { opacity: 0 });
-    gsap.set(".contact_info", { opacity: 0 });
-    gsap.set(".rolling_h1", { opacity: 0 });
-    gsap.set(".skills_text_wrap", { opacity: 0 });
-    gsap.set(".skill_container", { opacity: 0 });
-    /*     gsap.set(context.material.uniforms.opacity, { opacity: 0 }); */
+    const timeline = gsap.timeline({
+        onStart: () => {
+            context.toggleAboutfbo(true);
+        },
+    });
 
-    if (context.tm) {
-        context.tm.kill();
-    }
 
-    context.tm = gsap.timeline({});
+    timeline.to(context.largeShaderMaterial.uniforms.progress, {
+        value: 0,
+        duration: 2,
+        ease: 'power2.inOut',
+    });
 
-    context.tm
-        .to(".about-parent", {
-            opacity: 1,
-            ease: "power2.inOut",
-        }, 0.5)
-        .fromTo(
-            '.about_headings .char',
-            { opacity: 0, x: "-1em" },
-            {
-                opacity: 1, x: 0, duration: 0.5,
-                ease: "power2.out",
-                stagger: { amount: 0.2 },
-            },
-            0.5
-        )
-        .fromTo(
-            '.about_headings2 .char',
-            { opacity: 0, x: "1em" },
-            {
-                opacity: 1, x: 0, duration: 0.5,
-                ease: "power2.out",
-                stagger: { amount: 0.2 },
-            },
-            0.5
-        )
-        .to(".text_about", {
-            opacity: 1,
-            duration: 1.1,
-            ease: "power2.inOut",
-        }, 0.7)
-        .to(".contact_info", {
-            opacity: 1,
-            duration: 1.1,
-            ease: "power2.inOut",
-        }, 0.9).to(".rolling_h1", {
-            opacity: 1,
-            duration: 1.1,
-            ease: "power2.inOut",
-        }, 1).to(context.material.uniforms.opacity, {
-            value: 1,
-            duration: 2,
-            ease: 'power2.inOut',
-        }, 0.8).to(".skills_text_wrap", {
-            opacity: 1,
-            duration: 1.1,
-            ease: "power2.inOut",
-        }, 1).to(".skill_container", {
-            opacity: 1,
-            duration: 1.1,
-            ease: "power2.inOut",
-        }, 1)
 
-    document.getElementById('openAbout').style.display = 'none';
-    document.getElementById('close').style.display = 'block';
+    timeline.to(
+        ".about-parent",
+        { opacity: 1, ease: "power2.inOut" },
+        0.8
+    );
 
-    const aboutDiv = document.getElementById('about');
-    aboutDiv.style.zIndex = 60;
-    aboutDiv.classList.add('show');
-    gsap.to(aboutDiv, { opacity: 1, duration: 1 });
 
-    context.stopBodyScrolling();
-    context.toggleAboutfbo(true);
-    context.isDivOpen = true;
+    timeline.fromTo(
+        '.about_headings .char',
+        { opacity: 0, x: "-1em" },
+        { opacity: 1, x: 0, duration: 0.5, ease: "power2.out", stagger: { amount: 0.2 } },
+        0.8
+    ).fromTo(
+        '.about_headings2 .char',
+        { opacity: 0, x: "1em" },
+        { opacity: 1, x: 0, duration: 0.5, ease: "power2.out", stagger: { amount: 0.2 } },
+        0.8
+    ).fromTo(
+        '.text_about',
+        { opacity: 0, },
+        { opacity: 1, duration: 1.1, ease: "power2.inOut" },
+        0.7
+    ).fromTo(
+        '.contact_info',
+        { opacity: 0, },
+        { opacity: 1, duration: 1.1, ease: "power2.inOut" },
+        0.9
+    ).fromTo(
+        '.title_play',
+        { opacity: 0, },
+        { opacity: 1, duration: 1.1, ease: "power2.inOut" },
+        1
+    )
 
+    timeline.to(context.material.uniforms.opacity, {
+        value: 1,
+        duration: 2,
+        ease: 'power2.inOut',
+    }, 0.8);
+
+    timeline.to(".skills_text_wrap", { opacity: 1, duration: 1.1, ease: "power2.inOut" }, 1);
+    timeline.to(".skill_container", { opacity: 1, duration: 1.1, ease: "power2.inOut" }, 1);
+
+    return timeline;
+}
+
+// Helper: Setup scroll triggers
+function setupScrollTriggers(context, aboutDiv) {
     const boxes = gsap.utils.toArray(".rolling_h1");
     if (!context.tl) {
         context.tl = horizontalLoop(boxes, { repeat: -1, speed: 0.8 });
@@ -155,6 +159,7 @@ function showAbout(context) {
     const skillsSplit = new SplitType('.skills_headings_skills', { types: 'words, chars', tagName: 'span' });
     const expertiseSplit = new SplitType('.skills_headings_expertise', { types: 'words, chars', tagName: 'span' });
 
+    // Animate skill headings and wrappers
     gsap.timeline({
         scrollTrigger: {
             trigger: ".skills_headings",
@@ -162,47 +167,29 @@ function showAbout(context) {
             start: "top bottom",
             end: "bottom top",
         },
-    }).fromTo(
-        '.skills_headings_skills .char',
-        { opacity: 0, x: "-1em" },
-        {
-            opacity: 1,
-            x: 0,
-            duration: 0.5,
-            ease: "power2.out",
-            stagger: { amount: 0.2 },
-        }
-    ).fromTo(
-        '.skills_headings_and',
-        { opacity: 0 },
-        {
-            opacity: 1,
-            duration: 0.5,
-            ease: "power2.out",
-        }, "-=0.5"
-    ).fromTo(
-        '.skills_headings_expertise .char',
-        { opacity: 0, x: "1em" },
-        {
-            opacity: 1,
-            x: 0,
-            duration: 0.5,
-            ease: "power2.out",
-            stagger: { amount: 0.2 },
-        },
-        "-=0.6"
-    ).fromTo(
-        '.skills_parf',
-        { opacity: 0, y: 50 },
-        {
-            opacity: 1,
-            y: 0,
-            duration: 0.5,
-            ease: "power2.out",
-        }, "-=0.6"
-    )
+    })
+        .fromTo(
+            '.skills_headings_skills .char',
+            { opacity: 0, x: "-1em" },
+            { opacity: 1, x: 0, duration: 0.5, ease: "power2.out", stagger: { amount: 0.2 } }
+        )
+        .fromTo('.skills_headings_and', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, "-=0.5")
+        .fromTo(
+            '.skills_headings_expertise .char',
+            { opacity: 0, x: "1em" },
+            { opacity: 1, x: 0, duration: 0.5, ease: "power2.out", stagger: { amount: 0.2 } },
+            "-=0.6"
+        )
+        .fromTo(
+            '.skills_parf',
+            { opacity: 0, y: 50 },
+            { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+            "-=0.6"
+        );
 
-    gsap.utils.toArray('.skill_wraper').forEach((wrapper) => {
+    gsap.utils.toArray('.skill_wraper').forEach(wrapper => {
+        const isMobile = window.innerWidth <= 768; // Detect mobile
+
         gsap.fromTo(
             wrapper,
             { opacity: 0, y: 50 },
@@ -214,16 +201,14 @@ function showAbout(context) {
                 scrollTrigger: {
                     trigger: wrapper,
                     scroller: "#about",
-                    start: "top 100%",
-                    end: "top 92%",
+                    start: isMobile ? "top 90%" : "top 100%",
+                    end: isMobile ? "top 85%" : "top 92%",
                     scrub: true,
-                    markers: true,
+                    invalidateOnRefresh: true, // Fixes resizing issues
                 },
             }
         );
     });
-
-    ScrollTrigger.refresh();
 }
 
 export default showAbout;

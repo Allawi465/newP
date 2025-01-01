@@ -4,7 +4,7 @@ import simFragment from '../glsl/moon/simFragment.js';
 import simVertex from '../glsl/moon/simVertex.js';
 
 export function setupFBO(context) {
-    context.size = 206;
+    context.size = 356;
     context.fbo = context.getRenderTarget();
     context.fbo1 = context.getRenderTarget();
 
@@ -16,16 +16,14 @@ export function setupFBO(context) {
     const geometry = new THREE.PlaneGeometry(2, 2);
     context.data = new Float32Array(context.size * context.size * 4);
 
-    // Fill data array with random positions
+    context.infoArray = new Float32Array(context.size * context.size * 4);
     for (let i = 0; i < context.size; i++) {
         for (let j = 0; j < context.size; j++) {
             const index = (i + j * context.size) * 4;
-            const theta = Math.random() * Math.PI * 2;
-            const r = 0.5 + 0.5 * Math.random();
-            context.data[index] = r * Math.cos(theta);
-            context.data[index + 1] = r * Math.sin(theta);
-            context.data[index + 2] = 1.0;
-            context.data[index + 3] = 1.0;
+            context.infoArray[index] = 0.5 * Math.random();
+            context.infoArray[index + 1] = 0.5 * Math.random();
+            context.infoArray[index + 2] = 1.0;
+            context.infoArray[index + 3] = 1.0;
         }
     }
 
@@ -45,7 +43,6 @@ export function setupFBO(context) {
             time: { value: 0 },
             uPositions: { value: context.fboTexture },
             uInfo: { value: null },
-            uMouse: { value: new THREE.Vector2(0, 0) },
         },
         vertexShader: simVertex,
         fragmentShader: simFragment,

@@ -27,13 +27,13 @@ export function createPlaneMesh(content, texture, index) {
         },
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
-        transparent: true,
+        transparent: true
     });
+
 
     const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
     planeMesh.position.x = calculatePositionX(index, 0, content.meshSpacing);
-    planeMesh.position.y = -50;
-    planeMesh.userData = { index, hovered: false, tl: gsap.timeline({ paused: true }) };
+    planeMesh.userData = { index, hovered: false, tl: gsap.timeline({ paused: true }), id: `slider_${index + 1}` };
 
     planeMesh.userData.tl.to(planeMesh.rotation, { z: -0.09, duration: 0.5, ease: "power2.inOut" })
         .to(shaderMaterial.uniforms.uzom, { value: 0.9, duration: 0.5, ease: "power2.inOut" }, 0);

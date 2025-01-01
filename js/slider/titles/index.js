@@ -6,6 +6,8 @@ export function createCSS2DObjects(content, images) {
         element.className = 'slider-project';
         element.dataset.index = index;
 
+        element.id = image.id;
+
         const container = document.createElement('div');
         container.className = 'slider-project__container';
 
@@ -16,7 +18,7 @@ export function createCSS2DObjects(content, images) {
 
         const description = document.createElement('div');
         description.className = 'slider-project__description';
-        description.textContent = image.description || '';
+        description.textContent = image.slogan || '';
         container.appendChild(description);
 
         element.appendChild(container);
