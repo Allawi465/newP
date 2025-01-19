@@ -32,6 +32,7 @@ export function createPlaneMesh(content, texture, index) {
 
 
     const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
+
     planeMesh.position.x = calculatePositionX(index, 0, content.meshSpacing);
     planeMesh.userData = { index, hovered: false, tl: gsap.timeline({ paused: true }), id: `slider_${index + 1}` };
 

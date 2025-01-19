@@ -4,7 +4,7 @@ import simFragment from '../glsl/moon/simFragment.js';
 import simVertex from '../glsl/moon/simVertex.js';
 
 export function setupFBO(context) {
-    context.size = 356;
+    context.size = 256;
     context.fbo = context.getRenderTarget();
     context.fbo1 = context.getRenderTarget();
 

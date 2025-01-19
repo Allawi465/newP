@@ -1,6 +1,5 @@
 const vertexParticles = /*glsl*/ `
 uniform float time;
-uniform int colorMode; // Uniform to switch between modes
 uniform float opacity; // Uniform for opacity animation
 uniform sampler2D uPositions; // Texture containing positions
 varying vec2 vUv; // Pass UV coordinates to fragment shader
@@ -13,7 +12,24 @@ void main() {
   float angle = atan(pos.y, pos.x);
   vec4 baseColor;
 
-  // Mode 0: Original Color Scheme
+    baseColor = vec4(0.05); // Gray base color
+    baseColor.rgb *= vec3(0.09, 0.09, 0.09); // Neutral gray
+    baseColor.rgb = mix(baseColor.rgb, vec3(0.09), 0.09);
+
+  // Apply opacity uniform to final color
+  baseColor.a *= opacity;
+
+  vColor = baseColor; // Pass final color to the fragment shader
+  vec4 mvPosition = modelViewMatrix * vec4(pos.xyz, 1.0); // Apply model-view matrix
+  gl_PointSize = 1.5 * (1. / -mvPosition.z); // Set point size
+  gl_Position = projectionMatrix * mvPosition; // Apply projection matrix
+}
+`;
+
+export default vertexParticles;
+
+
+/*   // Mode 0: Original Color Scheme
   if (colorMode == 0) {
     baseColor = 0.8 * vec4(0.5 + 0.35 * sin(angle + time * 0.35), 
                        0.5 + 0.35, 
@@ -32,16 +48,4 @@ void main() {
     baseColor = vec4(0.05); // Gray base color
     baseColor.rgb *= vec3(0.09, 0.09, 0.09); // Neutral gray
     baseColor.rgb = mix(baseColor.rgb, vec3(0.09), 0.09);
-  }
-
-  // Apply opacity uniform to final color
-  baseColor.a *= opacity;
-
-  vColor = baseColor; // Pass final color to the fragment shader
-  vec4 mvPosition = modelViewMatrix * vec4(pos.xyz, 1.0); // Apply model-view matrix
-  gl_PointSize = 1.5 * (1. / -mvPosition.z); // Set point size
-  gl_Position = projectionMatrix * mvPosition; // Apply projection matrix
-}
-`;
-
-export default vertexParticles;
+  } */

@@ -1,19 +1,20 @@
 import gsap from "gsap";
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 function closeInfoDiv(context) {
     const infoDiv = document.getElementById('projects_info');
     const aboutDiv = document.getElementById('about');
 
-    // Check which div is currently open
     const isInfoDivOpen = infoDiv && infoDiv.classList.contains('show');
     const isAboutDivOpen = aboutDiv && aboutDiv.classList.contains('show');
 
-    // Kill any ongoing GSAP animations
     gsap.killTweensOf([
         context.largeShaderMaterial.uniforms.progress,
         ...context.meshArray.map(mesh => mesh.material.uniforms.opacity),
         context.material.uniforms.opacity,
     ]);
+
+    gsap.killTweensOf("*");
 
     if (isInfoDivOpen) {
         context.tm = projectCloseTimeline();
@@ -24,7 +25,6 @@ function closeInfoDiv(context) {
             }
         });
     }
-
 
     if (isAboutDivOpen) {
         context.tm = aboutCloseTimeline(context);
@@ -40,8 +40,8 @@ function closeInfoDiv(context) {
 
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
-        duration: 2,
-        ease: 'power2.inOut',
+        duration: 1.2,
+        ease: "sine.out",
         onUpdate: () => {
             const progress = context.largeShaderMaterial.uniforms.progress.value;
 
@@ -50,12 +50,21 @@ function closeInfoDiv(context) {
                 domElement.style.opacity = progress;
             });
         },
+        onComplete: () => {
+            context.aboutLenis.scrollTo(0, { immediate: true });
+            context.projectsLenis.scrollTo(0, { immediate: true });
+
+        },
     });
 
     document.getElementById('openAbout').style.display = 'block';
     document.getElementById('close').style.display = 'none';
+    gsap.set(".scroll_line", { opacity: 1, "--scaleY": 1 });
 
     context.startBodyScrolling();
+    context.setupScrollAnimation();
+    ScrollTrigger.refresh();
+
     context.isDivOpen = false;
     context.isProjectsOpen = false;
 
@@ -70,25 +79,25 @@ function aboutCloseTimeline(context) {
             }
         }
     })
-        .to(".about-parent", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, 0.2)
-        .to(".contact_info", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
-        .to(".title_play", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
-        .to(context.material.uniforms.opacity, { value: 0, duration: 0.8, ease: 'power2.inOut' }, "<")
-        .to(".skills_text_wrap", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
-        .to(".skill_container", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
+        .to(".about-parent", { opacity: 0, duration: 0.5, ease: "power2.out" }, 0.1)
+        .to(".contact_info", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
+        /*   .to(".title_play", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<") */
+        .to(context.material.uniforms.opacity, { value: 0, duration: 0.5, ease: 'power2.out' }, "<")
+        .to(".skills_text_wrap", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
+        .to(".skill_container", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
         .set("#about", { zIndex: 0 }, ">");
 }
 
 
 function projectCloseTimeline() {
     return gsap.timeline({})
-        .to(".projects_titles", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, 0.2)
-        .to(".projects_title", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
-        .to(".project_slogan", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
-        .to(".projects_detils", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
-        .to(".hidden_link", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
-        .to(".projectsImg", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
-        .to(".projects_description", { opacity: 0, duration: 1.1, ease: "power2.inOut" }, "<")
+        .to(".projects_titles", { opacity: 0, duration: 0.5, ease: "power2.out" }, 0.1)
+        .to(".projects_title", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
+        .to(".project_slogan", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
+        .to(".projects_detils", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
+        .to(".hidden_link", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
+        .to(".projectsImg", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
+        .to(".projects_description", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
         .set("#projects_info", { zIndex: 0 }, ">");
 }
 

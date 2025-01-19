@@ -8,6 +8,8 @@ import { animateProgress } from "../about";
 
 function showDivWithContent(index, context) {
 
+    reset(context);
+
     const selectedImage = context.images[index];
 
     setInfoDivContent(selectedImage)
@@ -89,10 +91,29 @@ function setupTimeline() {
     ];
 
     elements.forEach(selector => {
-        timeline.to(selector, { opacity: 1, ease: "power2.inOut", duration: 1.1 }, 0.8);
+        timeline.to(selector, { opacity: 1, ease: "power2.inOut", duration: 1.1 }, 0.9);
     });
 
     return timeline;
+}
+
+function reset(context) {
+    gsap.killTweensOf([
+        context.largeShaderMaterial.uniforms.progress,
+        context.material.uniforms.opacity,
+        ...context.meshArray.map(mesh => mesh.material.uniforms.opacity),
+        ".projects_titles",
+        ".projects_title",
+        ".project_slogan",
+        ".projects_detils",
+        ".hidden_link",
+        ".projectsImg",
+        ".projects_description"
+    ]);
+
+    gsap.killTweensOf("*");
+
+    if (context.tm) context.tm.kill();
 }
 
 

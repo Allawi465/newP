@@ -1,6 +1,105 @@
 import gsap from "gsap";
 import SplitType from 'split-type';
 
+export default function initLoadingSequence(context) {
+
+    context.bodyLenis.scrollTo(0, { immediate: true });
+
+    let typeSplit = new SplitType('.hero_heading', {
+        types: 'words, chars',
+        tagName: 'span',
+    });
+
+    let typeSplit_2 = new SplitType('.hero_heading2', {
+        types: 'words, chars',
+        tagName: 'span',
+    });
+
+
+    context.stopBodyScrolling();
+
+    const timeline = gsap.timeline({
+        duration: 1,
+        ease: "power2.inOut",
+    });
+
+    timeline.add(() => animateCounters(), 0);
+
+    timeline.to("#canvas", {
+        zIndex: 50
+    }).to("#path1", {
+        duration: 1.5,
+        y: 300,
+        delay: 1,
+        ease: "power2.inOut",
+
+    }, 0).to(context.largeShaderMaterial.uniforms.progress, {
+        value: 1,
+        duration: 1.2,
+        ease: "sine.out",
+        onComplete: () => {
+            context.startBodyScrolling();
+        },
+        onUpdate: () => {
+            const progress = context.largeShaderMaterial.uniforms.progress.value;
+
+            gsap.to(".loading_logo", {
+                opacity: -progress,
+                duration: 1,
+            })
+
+            gsap.to(".counter", {
+                opacity: -progress,
+                duration: 1,
+            })
+        },
+    },).to(".header ", {
+        opacity: 1,
+        duration: 1,
+    }, 3.7).to(".about ", {
+        opacity: 1,
+        visibility: "visible",
+    }, 3.7).to(".hero-parent", {
+        opacity: 1,
+    }, 3.7).fromTo(
+        '.hero_heading .char',
+        {
+            opacity: 0,
+            x: "-1em"
+        },
+        {
+            opacity: 1,
+            x: 0,
+            duration: 0.5,
+            ease: "power2.out",
+            stagger: { amount: 0.2 },
+        }, 3.7
+    ).fromTo(
+        '.hero_heading2 .char',
+        {
+            opacity: 0,
+            x: "1em"
+        },
+        {
+            opacity: 1,
+            x: 0,
+            duration: 0.5,
+            ease: "power2.out",
+            stagger: { amount: 0.2 },
+        }, 3.7
+    ).to(".text_hero", {
+        opacity: 1,
+    }, 3.7).to(".scroll ", {
+        opacity: 1,
+
+    }, 3.7).to(".scroll-line ", {
+        opacity: 1,
+        onComplete: () => {
+            context.isLoading = false;
+        },
+    }, 3.7)
+}
+
 export const animateCounters = () => {
     return new Promise((resolve) => {
         const tl = gsap.timeline({ onComplete: resolve });
@@ -38,100 +137,3 @@ export const animateCounters = () => {
     });
 };
 
-
-export default function initLoadingSequence(context) {
-
-    let typeSplit = new SplitType('.hero_heading', {
-        types: 'words, chars',
-        tagName: 'span',
-    });
-
-    let typeSplit_2 = new SplitType('.hero_heading2', {
-        types: 'words, chars',
-        tagName: 'span',
-    });
-
-
-    context.stopBodyScrolling();
-    const timeline = gsap.timeline({
-        duration: 1.1,          // Default duration
-        ease: "power2.inOut",   // Default ease
-    });
-
-    // Step 1: Animate the counter
-    timeline.add(() => animateCounters(), 0);
-
-    timeline.to("#canvas", {
-        zIndex: 50
-    }, 2.1).to(context.largeShaderMaterial.uniforms.progress, {
-        value: 1,
-        duration: 2,
-        ease: "power2.inOut",
-    });
-
-    timeline.to(".loading_logo", {
-        opacity: 0,
-        duration: 1.1,
-        ease: "power2.inOut"
-    }, 3).to(".logo_section ", {
-        opacity: 0,
-        duration: 1.1,
-        ease: "power2.inOut"
-    }, 3).to(".counter", {
-        opacity: 0,
-        duration: 1.1,
-        ease: "power2.inOut"
-    }, 3).to(".header ", {
-        opacity: 1,
-        duration: 1.1,
-        ease: "power2.inOut"
-    }, 4.1).to(".about ", {
-        opacity: 1,
-        duration: 1.1,
-        ease: "power2.inOut"
-    }, 4.2).to(".hero-parent", {
-        opacity: 1,
-        ease: "power2.inOut",
-    }, 4.2).fromTo(
-        '.hero_heading .char',
-        {
-            opacity: 0,
-            x: "-1em"
-        },
-        {
-            opacity: 1,
-            x: 0,
-            duration: 0.5,
-            ease: "power2.out",
-            stagger: { amount: 0.2 },
-        }, 4.5
-    ).fromTo(
-        '.hero_heading2 .char',
-        {
-            opacity: 0,
-            x: "1em"
-        },
-        {
-            opacity: 1,
-            x: 0,
-            duration: 0.5,
-            ease: "power2.out",
-            stagger: { amount: 0.2 },
-        }, 4.5
-    ).to(".text_hero", {
-        opacity: 1,
-        duration: 1.1,
-        ease: "power2.inOut",
-    }, 4.7).to(".scroll ", {
-        opacity: 1,
-        ease: "power2.inOut",
-    }, 4.8).to(".scroll-line ", {
-        opacity: 1,
-        ease: "power2.inOut",
-    }, 4.8)
-
-    timeline.eventCallback("onComplete", () => {
-        context.startBodyScrolling();
-
-    });
-}

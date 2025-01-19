@@ -12,7 +12,7 @@ ${noise}
 
 void main() {
   vec4 resolution = vec4(1.0);
-
+  
   float dt = parabola(progress, 1.0);
   float border = 1.0;
   vec2 newUV = (vUv - vec2(0.5)) * resolution.zw + vec2(0.5);

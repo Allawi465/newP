@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import Lenis from 'lenis'
 import gsap from 'gsap';
+import { CustomEase } from "gsap/CustomEase";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import SplitType from 'split-type';
 import { setupScene } from './scene/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { setupFBO } from './moon/setupFBO.js';
@@ -48,6 +50,7 @@ class EffectShell {
         this.maxDistanceScale = 0.7;
         this.velocityScale = 0.20;
         this.largePlane = null;
+        this.isLoading = true;
         this.time = 0;
         this.isOverlayVisible = false;
         this.aspect = window.innerWidth / window.innerHeight;
@@ -59,6 +62,7 @@ class EffectShell {
         this.moonShaderMaterial = null;
         this.baseMeshSpacing = 6.3;
         this.thetaMultiplier = 0;
+        this.scrollAnimation = null;
 
         this.objectScene = new THREE.Scene();
         this.objectCamera = new THREE.OrthographicCamera(
@@ -88,7 +92,6 @@ class EffectShell {
 
         this.init().then(() => this.onInitComplete());
 
-
         this.bodyLenis = new Lenis({
             smooth: true,
             direction: 'vertical',
@@ -97,7 +100,6 @@ class EffectShell {
             syncTouch: true,
             touchMultiplier: 0.5,
         });
-
 
         this.aboutLenis = new Lenis({
             smooth: true,
@@ -152,12 +154,72 @@ class EffectShell {
             createCSS2DObjects(this, images);
             this.setupEventListeners();
             this.animate();
+            this.setupScrollAnimation();
             this.onWindowResize();
             initLoadingSequence(this)
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
     }
+
+    setupScrollAnimation() {
+        gsap.registerPlugin(CustomEase);
+        CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
+
+
+        gsap.fromTo(".scroll_line",
+            {
+                "--scaleY": 0,
+                "--opacity": 0,
+            },
+            {
+                "--scaleY": 1,
+                "--opacity": 1,
+                duration: 2,
+                ease: "customBezier",
+                repeat: -1,
+                yoyo: true,
+            }
+        );
+
+        ScrollTrigger.create({
+            start: 'top top',
+            end: 'top+=100px top',
+            scrub: 1,
+            animation: gsap.to('.scroll_line', {
+                opacity: 0,
+                duration: 2,
+                ease: "customBezier",
+            }),
+        });
+
+        const scrollText = new SplitType('.scroll', { types: 'chars' });
+        ScrollTrigger.create({
+            start: 'top top',
+            end: 'top+=100px top',
+            scrub: 1,
+            animation: gsap.to('.scroll .char', {
+                color: 'rgba(255, 255, 255, 0)',
+                stagger: 0.05,
+            }),
+        });
+
+        const scrollNameText = new SplitType('.name_scroll', { types: 'chars' });
+        ScrollTrigger.create({
+            trigger: ".hero",
+            start: 'bottom 25%',
+            end: 'bottom 25%',
+            scrub: 2,
+            animation: gsap.to('.name_scroll .char', {
+                color: 'rgba(255, 255, 255, 1)',
+                stagger: 0.05,
+                ease: "power3.inOut",
+            }),
+        });
+
+        ScrollTrigger.refresh();
+    }
+
 
     loadTextures(imageArray) {
         const textureLoader = new THREE.TextureLoader();
@@ -222,14 +284,6 @@ class EffectShell {
         if (this.points) {
             this.updatePointsPosition();
         }
-
-        /*        if (this.points && this.points.material && this.points.material.uniforms && this.points.material.uniforms.colorMode) {
-                   if (newWidth <= 640) {
-                       this.points.material.uniforms.colorMode.value = 1;
-                   } else {
-                       this.points.material.uniforms.colorMode.value = 1;
-                   }
-               } */
 
     }
 
@@ -297,7 +351,7 @@ class EffectShell {
     updatePointsPosition() {
         // Set an offset to position points near the right edge of the screen
         const screenOffsetX = 0.95 * window.innerWidth / 2;  // Move 95% to the right
-        const screenOffsetY = 0.25 * window.innerHeight / 2; // Adjust as needed
+        const screenOffsetY = 0.1 * window.innerHeight / 2; // Adjust as needed
 
         // Convert screen position to normalized device coordinates (-1 to +1)
         const ndcX = (screenOffsetX / (window.innerWidth / 2));
@@ -387,6 +441,19 @@ class EffectShell {
         window.addEventListener('touchend', (event) => onPointerUp(event, this), { passive: false });
         document.getElementById('openAbout').addEventListener('click', () => showAbout(this));
         document.getElementById('close').addEventListener('click', () => closeInfoDiv(this));
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                // Ensure body scroll resets properly
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+
+                // Force Lenis to reset scroll position
+                if (this.bodyLenis) {
+                    this.bodyLenis.scrollTo(0, { immediate: true });
+                    this.bodyLenis.start();
+                }
+            }, 100);
+        });
     }
 
     onInitComplete() {

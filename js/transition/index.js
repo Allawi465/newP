@@ -31,14 +31,3 @@ export function createLargePlane() {
 
     return largePlane;
 }
-
-export function updateLargePlaneGeometry(largePlane, camera, newWidth, newHeight) {
-    if (!largePlane) return;  // Add a check to avoid errors if largePlane is null
-
-    const aspect = newWidth / newHeight;
-    const planeHeight = 2 * Math.tan((camera.fov * Math.PI) / 360) * Math.abs(camera.position.z - largePlane.position.z);
-    const planeWidth = planeHeight * aspect;
-
-    largePlane.geometry.dispose();
-    largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
-}

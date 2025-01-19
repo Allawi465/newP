@@ -11,7 +11,6 @@ export function addObjects(context) {
             time: { value: 0 },
             uPositions: { value: null },
             resolution: { value: new THREE.Vector4() },
-            colorMode: { value: 0 },
             opacity: { value: 0.0 },
         },
         transparent: true,
