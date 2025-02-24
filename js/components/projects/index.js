@@ -91,7 +91,7 @@ function setupTimeline() {
     ];
 
     elements.forEach(selector => {
-        timeline.to(selector, { opacity: 1, ease: "power2.inOut", duration: 1.1 }, 0.9);
+        timeline.to(selector, { opacity: 1, ease: "power2.inOut", duration: 1.1 }, 0.5);
     });
 
     return timeline;

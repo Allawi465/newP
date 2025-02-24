@@ -19,9 +19,10 @@ function closeInfoDiv(context) {
     if (isInfoDivOpen) {
         context.tm = projectCloseTimeline();
         gsap.to(infoDiv, {
-            opacity: 0, duration: 1, onComplete: () => {
+            opacity: 0, duration: 0.5, onComplete: () => {
                 infoDiv.style.zIndex = 0;
                 infoDiv.classList.remove('show');
+                context.isProjectsOpen = false;
             }
         });
     }
@@ -30,7 +31,7 @@ function closeInfoDiv(context) {
         context.tm = aboutCloseTimeline(context);
 
         gsap.to(aboutDiv, {
-            opacity: 0, duration: 1, onComplete: () => {
+            opacity: 0, duration: 0.5, onComplete: () => {
                 aboutDiv.style.zIndex = 0;
                 aboutDiv.classList.remove('show');
                 if (context.fboMesh) context.fboMesh.visible = false;
@@ -40,20 +41,11 @@ function closeInfoDiv(context) {
 
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
-        duration: 1.2,
+        duration: 1.1,
         ease: "sine.out",
-        onUpdate: () => {
-            const progress = context.largeShaderMaterial.uniforms.progress.value;
-
-            context.cssObjects.forEach(meshText => {
-                const domElement = meshText.element;
-                domElement.style.opacity = progress;
-            });
-        },
         onComplete: () => {
             context.aboutLenis.scrollTo(0, { immediate: true });
             context.projectsLenis.scrollTo(0, { immediate: true });
-
         },
     });
 
@@ -66,8 +58,6 @@ function closeInfoDiv(context) {
     ScrollTrigger.refresh();
 
     context.isDivOpen = false;
-    context.isProjectsOpen = false;
-
 }
 
 function aboutCloseTimeline(context) {
@@ -81,7 +71,6 @@ function aboutCloseTimeline(context) {
     })
         .to(".about-parent", { opacity: 0, duration: 0.5, ease: "power2.out" }, 0.1)
         .to(".contact_info", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
-        /*   .to(".title_play", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<") */
         .to(context.material.uniforms.opacity, { value: 0, duration: 0.5, ease: 'power2.out' }, "<")
         .to(".skills_text_wrap", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
         .to(".skill_container", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")

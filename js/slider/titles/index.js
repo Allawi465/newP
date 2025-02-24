@@ -29,6 +29,5 @@ export function createCSS2DObjects(content, images) {
 
         content.cssGroup.add(objectCSS);
         content.cssObjects.push(objectCSS);
-        document.body.appendChild(element);
     });
 }

@@ -1,9 +1,11 @@
 import gsap from "gsap";
 import SplitType from 'split-type';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 export default function initLoadingSequence(context) {
 
     context.bodyLenis.scrollTo(0, { immediate: true });
+
 
     let typeSplit = new SplitType('.hero_heading', {
         types: 'words, chars',
@@ -14,7 +16,6 @@ export default function initLoadingSequence(context) {
         types: 'words, chars',
         tagName: 'span',
     });
-
 
     context.stopBodyScrolling();
 
@@ -27,15 +28,10 @@ export default function initLoadingSequence(context) {
 
     timeline.to("#canvas", {
         zIndex: 50
-    }).to("#path1", {
-        duration: 1.5,
-        y: 300,
-        delay: 1,
-        ease: "power2.inOut",
-
-    }, 0).to(context.largeShaderMaterial.uniforms.progress, {
+    },).to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
-        duration: 1.2,
+        duration: 1.1,
+        delay: 1.7,
         ease: "sine.out",
         onComplete: () => {
             context.startBodyScrolling();
@@ -43,25 +39,20 @@ export default function initLoadingSequence(context) {
         onUpdate: () => {
             const progress = context.largeShaderMaterial.uniforms.progress.value;
 
-            gsap.to(".loading_logo", {
-                opacity: -progress,
-                duration: 1,
-            })
-
             gsap.to(".counter", {
                 opacity: -progress,
                 duration: 1,
             })
         },
-    },).to(".header ", {
+    }, 0).to(".header ", {
         opacity: 1,
         duration: 1,
-    }, 3.7).to(".about ", {
+    }, 2.5).to(".about ", {
         opacity: 1,
         visibility: "visible",
-    }, 3.7).to(".hero-parent", {
+    }, 2.5).to(".hero-parent", {
         opacity: 1,
-    }, 3.7).fromTo(
+    }, 2.5).fromTo(
         '.hero_heading .char',
         {
             opacity: 0,
@@ -73,7 +64,7 @@ export default function initLoadingSequence(context) {
             duration: 0.5,
             ease: "power2.out",
             stagger: { amount: 0.2 },
-        }, 3.7
+        }, 2.5
     ).fromTo(
         '.hero_heading2 .char',
         {
@@ -86,18 +77,18 @@ export default function initLoadingSequence(context) {
             duration: 0.5,
             ease: "power2.out",
             stagger: { amount: 0.2 },
-        }, 3.7
+        }, 2.5
     ).to(".text_hero", {
         opacity: 1,
-    }, 3.7).to(".scroll ", {
+    }, 2.5).to(".scroll ", {
         opacity: 1,
 
-    }, 3.7).to(".scroll-line ", {
+    }, 2.5).to(".scroll-line ", {
         opacity: 1,
         onComplete: () => {
             context.isLoading = false;
         },
-    }, 3.7)
+    }, 2.5)
 }
 
 export const animateCounters = () => {
@@ -131,9 +122,9 @@ export const animateCounters = () => {
             });
         }
 
-        tl.add(animate('.counter-3', 2.5), 0)
-            .add(animate('.counter-2', 3), '<')
-            .add(animate('.counter-1', 2, 1.2), '<');
+        tl.add(animate('.counter-3', 1.5), 0)
+            .add(animate('.counter-2', 2.5), '<')
+            .add(animate('.counter-1', 1.5, 1), '<');
     });
 };
 

@@ -1,4 +1,4 @@
-import curlNoise from "./curlGlsl";
+import curlNoise from "../noise/curlGlsl.js";
 
 const simFragment = /*glsl*/ `
 uniform float time; 
@@ -26,14 +26,13 @@ void main() {
     float angle = atan(pos.y, pos.x) - info.y * 0.22 * mix(0.5, 1., circlularForce);
 
     float targetRadius = mix(
-    info.x, 2.2, 
+    info.x, 2.5, 
     0.5 + 0.05 * sin(angle*2. + time*0.2)
     );
 
     radius +=(targetRadius - radius) * mix(0.2,0.5,circlularForce);
 
     vec3 targetPos = vec3(cos(angle), sin(angle), 0.0) * radius;
-
 
     pos.xy += (targetPos.xy - pos.xy) * 0.16;
 

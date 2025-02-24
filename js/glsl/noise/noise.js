@@ -1,4 +1,4 @@
-const noise = /*glsl*/ `
+export const noise = /*glsl*/ `
 
 		//	Classic Perlin 3D Noise 
 		//	by Stefan Gustavson

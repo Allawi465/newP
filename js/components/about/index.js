@@ -5,13 +5,15 @@ import SplitType from 'split-type';
 gsap.registerPlugin(ScrollTrigger);
 
 function showAbout(context) {
-    if (context.isLoading || context.isDivOpen) {
+    if (context.isLoading || context.isDivOpen || context.isProjectsOpen) {
         return;
     }
 
     reset(context);
 
     context.tm = setupTimeline(context);
+
+    document.getElementsByClassName('.projects__title').mixBlendMode = "normal";
 
     animateProgress(context);
 
@@ -21,29 +23,21 @@ function showAbout(context) {
     gsap.to(aboutDiv, { opacity: 1, duration: 1 });
 
     context.aboutLenis.resize();
-    setupScrollTriggers(context, aboutDiv);
+    setupScrollTriggers();
 
     context.stopBodyScrolling();
     context.isDivOpen = true;
 
     document.getElementById('openAbout').style.display = 'none';
     document.getElementById('close').style.display = 'block';
-}
 
+}
 
 export function animateProgress(context) {
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 0,
-        duration: 1.2,
+        duration: 1.1,
         ease: "sine.in",
-        onUpdate: () => {
-            const progress = context.largeShaderMaterial.uniforms.progress.value;
-
-            context.cssObjects.forEach(meshText => {
-                const domElement = meshText.element;
-                domElement.style.opacity = progress;
-            });
-        },
     });
 }
 
@@ -80,65 +74,47 @@ function setupTimeline(context) {
         },
     });
 
-
     timeline.to(
         ".about-parent",
         { opacity: 1, ease: "power2.inOut" },
-        0.9
+        0.5
     );
 
     timeline.fromTo(
         '.about_headings .char',
         { opacity: 0, x: "-1em" },
         { opacity: 1, x: 0, duration: 0.5, ease: "power2.out", stagger: { amount: 0.2 } },
-        0.9
+        0.5
     ).fromTo(
         '.about_headings2 .char',
         { opacity: 0, x: "1em" },
         { opacity: 1, x: 0, duration: 0.5, ease: "power2.out", stagger: { amount: 0.2 } },
-        0.9
+        0.5
     ).fromTo(
         '.text_about',
         { opacity: 0, },
         { opacity: 1, duration: 1, ease: "power2.inOut" },
-        0.9
+        0.5
     ).fromTo(
         '.contact_info',
         { opacity: 0, },
         { opacity: 1, duration: 1, ease: "power2.inOut" },
-        0.9
+        0.5
     )
 
     timeline.to(context.material.uniforms.opacity, {
         value: 1,
         duration: 1,
         ease: 'power2.inOut',
-    }, 0.9);
+    }, 0.5);
 
-    timeline.to(".skills_text_wrap", { opacity: 1, duration: 1, ease: "power2.inOut" }, 0.9);
-    timeline.to(".skill_container", { opacity: 1, duration: 1, ease: "power2.inOut" }, 0.9);
+    timeline.to(".skills_text_wrap", { opacity: 1, duration: 1, ease: "power2.inOut" }, 0.5);
+    timeline.to(".skill_container", { opacity: 1, duration: 1, ease: "power2.inOut" }, 0.5);
 
     return timeline;
 }
 
-function setupScrollTriggers(context, aboutDiv) {
-    /* const boxes = gsap.utils.toArray(".rolling_h1"); */
-    /*  context.tl = horizontalLoop(boxes, { repeat: -1, speed: 0.8 });
-     const titlePlayElement = document.querySelector(".title_play");
-     let speedTween;
- 
-     ScrollTrigger.create({
-         scroller: aboutDiv,
-         trigger: titlePlayElement,
-         start: "top bottom",
-         end: "bottom top",
-         onUpdate: (self) => {
-             if (speedTween) speedTween.kill();
-             speedTween = gsap.timeline()
-                 .to(context.tl, { timeScale: 3 * self.direction, duration: 0.25 })
-                 .to(context.tl, { timeScale: 1 * self.direction, duration: 1.5 }, "+=0.5");
-         },
-     }); */
+function setupScrollTriggers() {
 
     const skillsSplit = new SplitType('.skills_headings_skills', { types: 'words, chars', tagName: 'span' });
     const expertiseSplit = new SplitType('.skills_headings_expertise', { types: 'words, chars', tagName: 'span' });
@@ -156,7 +132,6 @@ function setupScrollTriggers(context, aboutDiv) {
             { opacity: 0, x: "-1em" },
             { opacity: 1, x: 0, duration: 0.5, ease: "power2.out", stagger: { amount: 0.2 } }
         )
-        .fromTo('.skills_headings_and', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, "-=0.5")
         .fromTo(
             '.skills_headings_expertise .char',
             { opacity: 0, x: "1em" },

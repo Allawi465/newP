@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { calculatePositionX } from '../../utils';
 import { vertexShader, fragmentShader } from '../../glsl/shader';
 
@@ -30,7 +31,6 @@ export function createPlaneMesh(content, texture, index) {
         transparent: true
     });
 
-
     const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
 
     planeMesh.position.x = calculatePositionX(index, 0, content.meshSpacing);
@@ -43,17 +43,30 @@ export function createPlaneMesh(content, texture, index) {
     content.setMeshPosition(planeMesh, projectsElement);
 
     content.meshArray = content.meshArray || [];
-
     content.meshArray.push(planeMesh);
+
+    const titleElement = document.querySelector(".projects__title");
+    const titleLabel = new CSS2DObject(titleElement);
+
+    titleElement.style.transform = 'none';
+
+    content.scene.add(titleLabel);
 
     ScrollTrigger.create({
         trigger: ".projects",
-        start: 'top 100%',
-        end: 'bottom top',
+        start: "top bottom",
+        end: "bottom top",
         scrub: true,
         onUpdate: (self) => {
             const progress = self.progress;
-            planeMesh.position.y = THREE.MathUtils.lerp(-30, 30, progress);
+            planeMesh.position.y = THREE.MathUtils.lerp(-35, 35, progress);
+
+            const projectsPosition = projectsElement.getBoundingClientRect();
+            const titlePositionX = projectsPosition.left - (projectsElement.offsetWidth) / 2.69;
+
+            titleLabel.position.y = planeMesh.position.y;
+            titleElement.style.left = `${titlePositionX}px`;
+
         }
     });
 

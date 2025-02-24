@@ -20,8 +20,10 @@ export function setupScene(context) {
     context.labelRenderer.setSize(window.innerWidth, window.innerHeight);
     context.labelRenderer.domElement.style.position = 'fixed';
     context.labelRenderer.domElement.style.top = '0px';
+    context.labelRenderer.domElement.style.left = '0px';
     context.labelRenderer.domElement.style.pointerEvents = 'none';
-    context.labelRenderer.domElement.style.zIndex = '60';
+    context.labelRenderer.domElement.style.zIndex = '55';
+    context.labelRenderer.domElement.style.overflow = 'hidden';
     document.body.appendChild(context.labelRenderer.domElement);
 
     context.group = new THREE.Group();

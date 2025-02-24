@@ -12,11 +12,10 @@ void main() {
   float angle = atan(pos.y, pos.x);
   vec4 baseColor;
 
-    baseColor = vec4(0.05); // Gray base color
-    baseColor.rgb *= vec3(0.09, 0.09, 0.09); // Neutral gray
-    baseColor.rgb = mix(baseColor.rgb, vec3(0.09), 0.09);
-
-  // Apply opacity uniform to final color
+    baseColor = vec4(0.08); // Gray base color
+    baseColor.rgb *= vec3(1.0);
+    baseColor.rgb = mix(baseColor.rgb, vec3(0.08), 1.0);
+    
   baseColor.a *= opacity;
 
   vColor = baseColor; // Pass final color to the fragment shader

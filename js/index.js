@@ -44,7 +44,7 @@ class EffectShell {
         this.scaleFactor = 1;
         this.slideHeight = 10.4;
         this.slideWidth = 5.1;
-        this.meshSpacing = 6.3;
+        this.meshSpacing = 6.5;
         this.initialDistanceScale = 0;
         this.targetFov = 75;
         this.maxDistanceScale = 0.7;
@@ -54,17 +54,16 @@ class EffectShell {
         this.time = 0;
         this.isOverlayVisible = false;
         this.aspect = window.innerWidth / window.innerHeight;
-        this.frustumSize = 5;
+        this.frustumSize = 4;
         this.isDivOpen = false;
         this.isProjectsOpen = false;
         this.isAnimating = false;
         this.largeShaderMaterial = null;
         this.moonShaderMaterial = null;
         this.baseMeshSpacing = 6.3;
-        this.thetaMultiplier = 0;
-        this.scrollAnimation = null;
 
         this.objectScene = new THREE.Scene();
+
         this.objectCamera = new THREE.OrthographicCamera(
             (this.frustumSize * this.aspect) / -2,
             (this.frustumSize * this.aspect) / 2,
@@ -87,7 +86,6 @@ class EffectShell {
         this.overlayRenderer.setSize(window.innerWidth, window.innerHeight);
         this.overlayRenderer.setPixelRatio(window.devicePixelRatio);
 
-        document.getElementById('container').appendChild(this.overlayRenderer.domElement);
         this.overlayRenderer.domElement.style.display = 'none';
 
         this.init().then(() => this.onInitComplete());
@@ -150,11 +148,10 @@ class EffectShell {
             setupScene(this);
             this.createMeshes();
             setupFBO(this);
-            addObjects(this);
             createCSS2DObjects(this, images);
+            addObjects(this);
             this.setupEventListeners();
             this.animate();
-            this.setupScrollAnimation();
             this.onWindowResize();
             initLoadingSequence(this)
         } catch (error) {
@@ -213,9 +210,30 @@ class EffectShell {
             animation: gsap.to('.name_scroll .char', {
                 color: 'rgba(255, 255, 255, 1)',
                 stagger: 0.05,
-                ease: "power3.inOut",
+                ease: "customBezier",
             }),
         });
+
+        const typeSplit = new SplitType(".projects__title", { types: 'char', tagName: 'span' });
+
+        gsap.fromTo(
+            ".projects__title .char",
+            {
+                color: 'rgba(255, 255, 255, 0)',
+                y: -50
+            },
+            {
+                color: 'rgba(255, 255, 255, 1)',
+                y: 0,
+                ease: "customBezier",
+                stagger: 0.05,
+                scrollTrigger: {
+                    trigger: ".projects",
+                    start: "top 30%",
+                    end: "top 30%",
+                }
+            }
+        );
 
         ScrollTrigger.refresh();
     }
@@ -249,12 +267,6 @@ class EffectShell {
         updateCameraProperties(this.camera, targetFov, newHeight, this.defaultCameraZ);
 
         if (!this.isDragging) {
-            const baseWidth = 1707;
-            const baseHeight = 1024;
-            const baseOffset = 10;
-            const horizontalOffset = newWidth < baseWidth ? baseOffset * (baseWidth - newWidth) / baseWidth : 0;
-            const verticalOffset = newHeight < baseHeight ? baseOffset * (baseHeight - newHeight) / baseHeight : 0;
-            this.currentPosition += (horizontalOffset + verticalOffset) / this.meshSpacing;
             this.updatePositions();
         }
 
@@ -272,12 +284,13 @@ class EffectShell {
         const projectsElement = document.querySelector('.projects');
         this.meshes.forEach(mesh => this.setMeshPosition(mesh, projectsElement));
 
+        const newFrustumSize = this.frustumSize * (newHeight / 1080);
 
+        this.objectCamera.left = -newFrustumSize * aspect / 2;
+        this.objectCamera.right = newFrustumSize * aspect / 2;
+        this.objectCamera.top = newFrustumSize / 2;
+        this.objectCamera.bottom = -newFrustumSize / 2;
 
-        this.objectCamera.left = (this.frustumSize * aspect) / -2;
-        this.objectCamera.right = (this.frustumSize * aspect) / 2;
-        this.objectCamera.top = this.frustumSize / 2;
-        this.objectCamera.bottom = this.frustumSize / -2;
         this.overlayRenderer.setSize(newWidth, newHeight);
         this.objectCamera.updateProjectionMatrix();
 
@@ -288,19 +301,16 @@ class EffectShell {
     }
 
     createMeshes() {
-        // Opprett et stort plan
         const largePlane = this.createLargePlane();
         this.scene.add(largePlane);
 
-        // Opprett en gruppe for alle små plan
         this.group = new THREE.Group();
 
         this.textures.forEach((texture, i) => {
-            const planeMesh = createPlaneMesh(this, texture, i); // Bruker eksisterende funksjon
-            this.group.add(planeMesh); // Legger til i gruppen
+            const planeMesh = createPlaneMesh(this, texture, i);
+            this.group.add(planeMesh);
         });
 
-        // Legg til gruppen i scenen
         this.scene.add(this.group);
     }
 
@@ -388,27 +398,23 @@ class EffectShell {
         });
 
         this.syncHtmlWithSlider();
+
     }
 
     syncHtmlWithSlider() {
         syncHtmlWithSlider(this);
+        this.labelRenderer.render(this.scene, this.camera);
     }
 
     animate() {
-        // Update positions if there is dragging or movement
-        if (this.isDragging || Math.abs(this.velocity) > 0) {
-            this.updatePositions();
-        }
 
-        // Render to main scene
+        this.updatePositions();
         this.syncHtmlWithSlider();
         this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
 
         this.time += 0.05;
 
-
-        requestAnimationFrame(this.animate.bind(this));
 
         if (this.isOverlayVisible) {
             this.material.uniforms.time.value = this.time;
@@ -428,6 +434,8 @@ class EffectShell {
             this.fbo1 = temp;
 
         }
+
+        requestAnimationFrame(this.animate.bind(this));
     }
 
     setupEventListeners() {
@@ -446,12 +454,12 @@ class EffectShell {
                 // Ensure body scroll resets properly
                 document.documentElement.scrollTop = 0;
                 document.body.scrollTop = 0;
-
-                // Force Lenis to reset scroll position
                 if (this.bodyLenis) {
                     this.bodyLenis.scrollTo(0, { immediate: true });
                     this.bodyLenis.start();
                 }
+
+                this.setupScrollAnimation();
             }, 100);
         });
     }
@@ -461,4 +469,4 @@ class EffectShell {
     }
 }
 
-new EffectShell();
+/* new EffectShell(); */
