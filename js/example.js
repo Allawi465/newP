@@ -23,13 +23,10 @@ class Sketch {
         this.raycaster = new THREE.Raycaster();
         this.pointer = new THREE.Vector2();
         this.pointerPrev = new THREE.Vector2();
-
         this.clock = new THREE.Clock();
-
 
         document.getElementById("container").appendChild(this.renderer.domElement);
 
-        // --- Camera Setup ---
         this.camera = new THREE.OrthographicCamera(
             window.innerWidth / -500,
             window.innerWidth / 500,
@@ -44,41 +41,42 @@ class Sketch {
         this.height = 1024;
         this.scene.position.set(0, 0, 0);
 
-        // --- Render Layers ---
-        this.PARTICLE_LAYER = 1; // Definerer et lag for partikler
-        this.camera.layers.enable(this.PARTICLE_LAYER); // Aktiverer partikellaget på kameraet
+        this.scene.background = new THREE.Color(0x141414);
 
-        this.setupEvents();
+        this.PARTICLE_LAYER = 1;
+        this.camera.layers.enable(this.PARTICLE_LAYER);
+
         this.getRenderTarget();
         this.setupFBO();
         this.addObjects();
+        this.setupEvents();
         this.setupResize();
         this.setupPostProcessing();
 
         this.time = 0;
+        this.targetPosition = new THREE.Vector3(0, 0, 0); // Store target position for lerp
         this.render();
     }
 
-    setupEvents() {
-        this.dummy = new THREE.Mesh(
-            new THREE.PlaneGeometry(100, 100),
-            new THREE.MeshBasicMaterial()
-        );
-        this.dummy.layers.set(0); // Legg dummyen på standard laget (lag 0)
 
+    setupEvents() {
         document.addEventListener("pointermove", (e) => {
             this.pointerPrev.copy(this.pointer);
             this.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
             this.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-            this.raycaster.setFromCamera(this.pointer, this.camera);
-            let intersects = this.raycaster.intersectObject(this.dummy);
-            if (intersects.length > 0) {
-                let { x, y } = intersects[0].point;
-                this.fboMaterial.uniforms.uMouse.value.set(x, y);
-            }
+            // Convert 2D pointer position to 3D space
+            let targetPos = new THREE.Vector3(this.pointer.x, this.pointer.y, 0);
+            targetPos.unproject(this.camera); // Convert to world coordinates
+
+            // Keep the ball at the same depth (z position) as before
+            targetPos.z = this.glassBall.position.z;
+
+            // Smoothly move towards the new position
+            this.targetPosition.lerp(targetPos, 0.2);
         });
     }
+
 
     setupResize() {
         window.addEventListener("resize", this.resize.bind(this));
@@ -113,6 +111,18 @@ class Sketch {
         });
     }
 
+    yN(e, t, n, i) {
+        var r = Math.random();
+        var a = Math.random();
+        var s = 2 * Math.PI * r;
+        var o = Math.acos(2 * a - 1);
+        var l = e + i * Math.sin(o) * Math.cos(s);
+        var c = t + i * Math.sin(o) * Math.sin(s);
+        var u = n + i * Math.cos(o);
+
+        return [l, c, u];
+    }
+
     setupFBO() {
         // (FBO-oppsettet forblir stort sett det samme)
         this.size = 1024;
@@ -127,13 +137,15 @@ class Sketch {
         let geometry = new THREE.PlaneGeometry(2, 2);
         this.data = new Float32Array(this.size * this.size * 4);
 
-        this.data = new Float32Array(this.size * this.size * 4);
+
 
         for (let i = 0; i < this.size * this.size; i++) {
             let index = i * 4;
-            this.data[index] = (Math.random() * 2 - 1) * 0.05;
-            this.data[index + 1] = (Math.random() * 2 - 1);
-            this.data[index + 2] = (Math.random() * 2 - 1);
+            const r = this.yN(0, 0, 0, 0.2 + Math.random() * .2); // Returns an array
+
+            this.data[index] = r[0];
+            this.data[index + 1] = r[1];
+            this.data[index + 2] = r[2];
             this.data[index + 3] = Math.random();
         }
 
@@ -152,12 +164,11 @@ class Sketch {
             uniforms: {
                 time: { value: 0 },
                 uMouse: { value: new THREE.Vector2(0, 0) },
-                uRandom: { value: Math.random() },
-                uRandom2: { value: Math.random() },
+                uRandom: { value: 0 },
+                uRandom2: { value: 0 },
                 resolution: { value: new THREE.Vector2(this.width, this.height) },
                 uPositions: { value: this.fboTexture }, // Position texture
-                uSpherePos: { value: new THREE.Vector3(0, 1, 0) },
-                uCameraPos: { value: this.camera.position },
+                uSpherePos: { value: new THREE.Vector3(0, 0, 0) },
                 uDelta: { value: 0. },
             },
             vertexShader: simVertex,
@@ -192,17 +203,31 @@ class Sketch {
     }
 
     addObjects() {
+        const glassGeometry = new THREE.IcosahedronGeometry(0.27, 27);
+        this.glassMaterial = new THREE.MeshPhysicalMaterial({
+            thickness: 0.0,
+            roughness: 0.0,
+            metalness: 1.0,
+            envMapIntensity: 50.0,
+            transparent: true,
+            color: new THREE.Color(0x202323),
+        });
+
+        this.glassBall = new THREE.Mesh(glassGeometry, this.glassMaterial);
+        this.glassBall.position.set(0, 0, 0);
+        this.glassBall.layers.set(this.SPHERE_LAYER);
+        this.scene.add(this.glassBall);
+
         this.material = new THREE.ShaderMaterial({
             extensions: { derivatives: "#extension GL_OES_standard_derivatives : enable" },
             uniforms: {
-                time: { value: 0 },
+                time: { value: 1 },
                 uPositions: { value: this.fboTexture },
                 uMouse: { value: new THREE.Vector2() },
                 uMousePrev: { value: new THREE.Vector2() },
-                pointSize: { value: 3.1 },
                 iResolution: { value: new THREE.Vector2(this.width, this.height) },
-                iChannel0: { value: this.fbo.texture },
-                pointColor: { value: new THREE.Vector4(.5, 1., 1., 1.) },
+                pointColor: { value: new THREE.Vector4(0.3, .5, 1., 1.) },
+                uCameraPos: { value: this.camera.position },
             },
             vertexShader: vertex,
             fragmentShader: fragment,
@@ -215,26 +240,62 @@ class Sketch {
         let geometry = new THREE.BufferGeometry();
         let positions = new Float32Array(this.count * 3);
         let uv = new Float32Array(this.count * 2);
+        let indices = new Float32Array(this.count * 2);  // For `aIndex`
+        let ids = new Float32Array(this.count);         // For `aId`
 
         for (let i = 0; i < this.size; i++) {
             for (let j = 0; j < this.size; j++) {
                 let index = (i * this.size + j);
+
+                // Randomized position data
                 positions[index * 3] = (Math.random() - 0.5) * 2;
                 positions[index * 3 + 1] = (Math.random() - 0.5) * 2;
                 positions[index * 3 + 2] = (Math.random() - 0.5) * 2;
 
+                // UV Mapping
                 uv[index * 2] = j / this.size;
                 uv[index * 2 + 1] = i / this.size;
+
+                // Assign aIndex as UV values (for texture lookup)
+                indices[index * 2] = j / this.size;
+                indices[index * 2 + 1] = i / this.size;
+
+                // Unique ID for each point
+                ids[index] = index;
             }
         }
 
+        // Set the attributes
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+        geometry.setAttribute('aIndex', new THREE.BufferAttribute(indices, 2));  // Add aIndex
+        geometry.setAttribute('aId', new THREE.BufferAttribute(ids, 1));        // Add aId
 
         this.points = new THREE.Points(geometry, this.material);
-        this.points.layers.set(this.PARTICLE_LAYER);
+        this.points.layers.set(0);
         this.scene.add(this.points);
+
+        this.SPHERE_LAYER = 2;
+
+        this.cubeRenderTarget = new THREE.WebGLCubeRenderTarget(512, {
+            format: THREE.RGBAFormat,
+            generateMipmaps: true,
+            minFilter: THREE.LinearMipmapLinearFilter
+        });
+        this.cubeCamera = new THREE.CubeCamera(0.01, 50, this.cubeRenderTarget);
+        this.scene.add(this.cubeCamera);
+
+        this.glassMaterial.envMap = this.cubeRenderTarget.texture;
+        this.glassMaterial.needsUpdate = true;
+
+        new THREE.TextureLoader().load('/empty_warehouse_01.webp', (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            this.scene.environment = texture;
+        });
+
+        this.fboMaterial.uniforms.uSpherePos.value = this.glassBall.position;
     }
+
 
     setupPostProcessing() {
         this.composer = new EffectComposer(this.renderer);
@@ -261,7 +322,7 @@ class Sketch {
         const chromaticAberrationShader = {
             uniforms: {
                 "tDiffuse": { value: null },
-                "offset": { value: new THREE.Vector2(0.002, 0.001) }
+                "offset": { value: new THREE.Vector2(0.001, 0.001) }
             },
             vertexShader: `
               varying vec2 vUv;
@@ -299,36 +360,42 @@ class Sketch {
         this.material.uniforms.uMouse.value.copy(this.pointer);
         this.material.uniforms.uMousePrev.value.copy(this.pointerPrev);
 
+        this.cubeCamera.position.copy(this.glassBall.position);
+        this.cubeCamera.update(this.renderer, this.scene);
+
         let deltaTime = this.clock.getDelta();
         this.fboMaterial.uniforms.uDelta.value = deltaTime;
 
-        this.time += 0.05;
+        this.time += deltaTime;
         this.material.uniforms.time.value = this.time;
         this.fboMaterial.uniforms.time.value = this.time;
 
-        // FBO-pass
+        this.fboMaterial.uniforms.uRandom.value = Math.random();
+        this.fboMaterial.uniforms.uRandom2.value = Math.random();
+        this.material.uniforms.uCameraPos.value.copy(this.camera.position);
+
         this.renderer.setRenderTarget(this.fbo);
         this.renderer.render(this.fboScene, this.fboCamera);
         this.renderer.setRenderTarget(null);
 
-        // Oppdaterer teksturer
         this.material.uniforms.uPositions.value = this.fbo1.texture;
         this.fboMaterial.uniforms.uPositions.value = this.fbo.texture;
 
-        // Før rendering, sørg for at alle lag er aktivert.
-        this.camera.layers.enableAll();
+        this.fboMaterial.uniforms.uSpherePos.value.copy(this.glassBall.position);
 
-        // Render med composer (post-processing)
+        // Smoothly interpolate glassBall position towards targetPosition
+        this.glassBall.position.lerp(this.targetPosition, 0.1);
+
+        this.camera.layers.enableAll();
         this.composer.render();
 
-        // Bytt FBO-er
         let temp = this.fbo;
         this.fbo = this.fbo1;
         this.fbo1 = temp;
 
-
         requestAnimationFrame(this.render.bind(this));
     }
+
 }
 
 new Sketch();

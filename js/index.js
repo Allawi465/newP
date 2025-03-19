@@ -469,4 +469,4 @@ class EffectShell {
     }
 }
 
-/* new EffectShell(); */
+/* new EffectShell();  */
