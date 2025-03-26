@@ -90,7 +90,7 @@ uniform float uDelta;
 varying vec2 vUv;
 varying vec4 vPosition;
 
-float PI = 3.141592653589793238;
+#define PI acos(-1.0)
 
 ${AW}
 
@@ -103,47 +103,61 @@ float rand2(vec2 co){ return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5
  vec3 snoiseVec3( vec3 x ){
     float s  = snoise3(vec3( x ));
     float s1 = snoise3(vec3( x.y - 19.1 , x.z + 33.4 , x.x + 47.2 ));
-    float s2 = snoise3(vec3( x.z + 74.2 , x.x - 124.5 , x.y + 99.4 ));
+    float s2 = snoise3(vec3( x.z + 74.2 , x.x - 114.5 , x.y + 99.4 ));
     vec3 c = vec3( s , s1 , s2 );
     return c;
 }
 
 // Function to generate a random point on a sphere
-  vec3 randomSpherePoint(vec3 center, float radius, vec3 pos){
+vec3 randomSpherePoint(vec3 center, float radius, vec3 pos){
     float u = rand2(vec2(uRandom, pos.x));
     float v = rand2(vec2(uRandom2, pos.y * pos.z));
+    float w = rand2(vec2(uRandom, pos.z * pos.y)); // Additional random value for radius
     float theta = 2.0 * PI * u;
     float phi = acos(2.0 * v - 1.0);
-    float x = center.x + (radius * sin(phi) * cos(theta));
-    float y = center.y + (radius * sin(phi) * sin(theta));
-    float z = center.z + (radius * cos(phi));
+    float r = radius * pow(w, 1.0 / 3.0); // Cube root ensures uniform distribution in volume
+    float x = center.x + (r * sin(phi) * cos(theta));
+    float y = center.y + (r * sin(phi) * sin(theta));
+    float z = center.z + (r * cos(phi));
     return vec3(x, y, z);
 }
 
-
 void main() {
-  vec2 uv = gl_FragCoord.xy / resolution.xy;
+    vec2 uv = gl_FragCoord.xy / resolution.xy;
     vec4 data = texture2D(uPositions, uv);
     vec3 pos = data.rgb;
     float age = data.a;
 
     // Reset particles
     bool condition = age >= 1.0;
-    float spawnRadius = 0.4 + rand1(pos.x) * 0.1; // Larger spawn area
+    float spawnRadius = 0.5 + rand1(pos.x) * 0.5; // Larger radius: 0.5 to 1.0
     vec3 spawnPosition = randomSpherePoint(vec3(0.0), spawnRadius, pos);
+    // Optional: Add small random offset for extra spread
+    spawnPosition += vec3(
+        rand2(vec2(uRandom, pos.y)) - 0.2,
+        rand2(vec2(uRandom2, pos.z)) - 0.25,
+        rand2(vec2(uRandom, pos.x)) - 0.3
+    ) * 0.2;
     pos = mix(pos, spawnPosition, float(condition));
     age = mix(age, 0.0, float(condition));
 
-    // Enhanced noise-driven motion with multiple layers
-    vec3 curl1 = snoiseVec3(pos * 0.5 + vec3(time * 0.2, time * 0.1, time * 0.05)) * 0.3;
-    vec3 curl2 = snoiseVec3(pos * 2.0 + vec3(time * 0.5)) * 0.01;
-    vec3 newpos = pos + curl1 + curl2;
+    // Compute noise-based motion
+    vec3 curl1 = snoiseVec3(pos * 0.5 + vec3(time * 0.2, time * 0.3, time * 0.09)) * 0.3;
+    vec3 curl2 = snoiseVec3(pos * 2.0 + vec3(time * 0.5)) * 0.025;
+    vec3 noiseMotion = curl1 + curl2;
 
-    // Relaxed bounding
-    newpos = mix(newpos, pos, distance(vec3(0.0), newpos) / 3.);
+    // Compute directional attraction toward a central point
+    vec3 direction = normalize(uSpherePos + pos);
+    float attractionStrength = smoothstep(1., 0.1, length(pos + uSpherePos)); // Stronger near center
+    vec3 attraction = direction * attractionStrength * 0.1; // Scale effect
+
+    // Combine noise with attraction for more purposeful motion
+    vec3 newpos = pos + noiseMotion + attraction;
+
+    // Keep movement controlled within a relaxed boundary
+    newpos = mix(newpos, pos, distance(vec3(0.0), newpos) / 3.0);
     pos = mix(pos, newpos, 0.1);
-
-    age += uDelta * 0.09;
+    age = clamp(age + uDelta * 0.11, 0.0, 1.0);
     
     float dist = length(pos.xy - uSpherePos.xy);
     vec2 dir = normalize(pos.xy - uSpherePos.xy);
@@ -155,142 +169,3 @@ void main() {
 `;
 
 export default simFragment;
-
-
-
-/* 
-
-uniform float time;
-uniform float progress;
-uniform sampler2D uPositions;
-uniform vec4 resolution;
-uniform vec2 uMouse;
-
-
-// Randomization Uniforms
-uniform float uRandom;
-uniform float uRandom2;
-uniform vec3 uSpherePos;
-uniform vec3 uCameraPos;
-uniform float uDelta;
-
-varying vec2 vUv;
-varying vec4 vPosition;
-
-float PI = 3.141592653589793238;
-
-${AW}
-
-// Random Function
-float rand1(float n){return fract(sin(n) * 43758.5453123);}
-
-float rand2(vec2 co){ return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);}
-
-// 3D Simplex Noise Vector Motion
-vec3 snoiseVec3(vec3 x) {
-    float s  = snoise3(x);
-    float s1 = snoise3(vec3(x.y - 19.1, x.z + 33.4, x.x + 47.2));
-    float s2 = snoise3(vec3(x.z + 74.2, x.x - 124.5, x.y + 99.4));
-    vec3 c = vec3(s, s1, s2);
-    return c;
-}
-
-// Function to generate a random point on a sphere
-vec3 randomSpherePoint(vec3 center, float radius, vec3 pos) {
-    float u = rand2(vec2(uRandom, pos.x));
-    float v = rand2(vec2(uRandom2, pos.y * pos.z));
-    float theta = 2.0 * PI * u;
-    float phi = acos(2.0 * v - 1.0);
-    float x = center.x + (radius * sin(phi) * cos(theta));
-    float y = center.y + (radius * sin(phi) * sin(theta));
-    float z = center.z + (radius * cos(phi));
-    return vec3(x, y, z);
-}
-
-vec3 repel(vec3 position, vec3 repulsionVector, float minDistance) {
-    float distance = length(position - repulsionVector);
-    vec3 direction = normalize(position - repulsionVector);
-    float adjustedDistance = clamp(distance, minDistance, distance);
-    position = mix(position, repulsionVector + direction * minDistance, step(distance, minDistance));
-    return position;
-}
-
-vec3 closestPointOnLine(vec3 linePointA, vec3 linePointB, vec3 position) {
-    vec3 lineDirection = normalize(linePointB - linePointA);
-    float t = dot(position - linePointA, lineDirection);
-    return linePointA + t * lineDirection;
-}
-
-
-float noise1(float p){
-    float fl = floor(p);
-    float fc = fract(p);
-    return mix(rand1(fl), rand1(fl + 1.0), fc);
-}
-
-vec3 curlNoise(vec3 p) {
-    float eps = 0.1;
-    vec3 dx = vec3(eps, 0.0, 0.0);
-    vec3 dy = vec3(0.0, eps, 0.0);
-    vec3 dz = vec3(0.0, 0.0, eps);
-
-    float x = snoise3(p + dx) - snoise3(p - dx);
-    float y = snoise3(p + dy) - snoise3(p - dy);
-    float z = snoise3(p + dz) - snoise3(p - dz);
-
-    return normalize(vec3(x, y, z)) * 1.5;
-}
-
-
-vec3 orbitalMotion(vec3 pos, vec3 center, float speed, float radius) {
-    vec3 toCenter = pos - center;
-    float dist = length(toCenter);
-    vec3 normal = normalize(toCenter);
-    vec3 up = vec3(0.0, 1.0, 0.0);
-    vec3 tangent = normalize(cross(normal, up));
-    float angle = time * speed * (1.0 + rand1(pos.x));
-    vec3 orbit = tangent * cos(angle) + cross(tangent, normal) * sin(angle);
-    return center + normal * radius + orbit * radius * 0.5;
-}
-
-
-void main() {
-    vec2 uv = gl_FragCoord.xy / resolution.xy;
-    vec4 data = texture2D(uPositions, uv);
-    vec3 pos = data.rgb;
-    float age = data.a;
-
-    bool condition = age >= 1.0;
-    float repulsion_radius = 0.2;
-    float spawnRadius = repulsion_radius + rand1(pos.x) * 0.2;
-    vec3 spawnPosition = randomSpherePoint(vec3(0.), spawnRadius, pos);
-
-    pos = mix(pos, spawnPosition, float(condition));
-    age = mix(age, 0.0, float(condition));
-
-    // **Kombiner Curl Noise, Simplex Noise og Flow Direction**
-    vec3 curl = curlNoise(pos + time * 0.1) * 0.001; 
-    vec3 noise = snoiseVec3(pos + time * 0.1) * 0.008;
-
-    vec3 newpos = pos + curl + noise;
-
-    float minDistance = repulsion_radius;
-
-    pos = newpos;
-    newpos = mix(newpos, pos, distance(vec3(0.0), newpos) / 1.5);
-    pos = mix(pos, newpos, 0.1); 
-
-    vec3 repulsionVector = closestPointOnLine(uCameraPos, uSpherePos, pos);
-    pos = repel(pos, repulsionVector, minDistance);
-
-    age += uDelta * 0.05;
-
-    float dist = length(pos.xy - uMouse);
-    vec2 dir = normalize(pos.xy - uMouse);
-    pos.xy += dir * 0.1 * smoothstep(0.4, 0.0, dist);
-
-    gl_FragColor = vec4(pos, age);
-}
-`;
-
-*/

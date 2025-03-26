@@ -16,7 +16,10 @@ class Sketch {
     constructor() {
         this.scene = new THREE.Scene();
         this.isPlaying = true;
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true, alpha: true,               // Enable transparency
+            premultipliedAlpha: true
+        });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -54,7 +57,7 @@ class Sketch {
         this.setupPostProcessing();
 
         this.time = 0;
-        this.targetPosition = new THREE.Vector3(0, 0, 0); // Store target position for lerp
+        this.targetPosition = new THREE.Vector3(0, 0, 0);
         this.render();
     }
 
@@ -141,7 +144,7 @@ class Sketch {
 
         for (let i = 0; i < this.size * this.size; i++) {
             let index = i * 4;
-            const r = this.yN(0, 0, 0, 0.2 + Math.random() * .2); // Returns an array
+            const r = this.yN(0, 0, 0, 0.5 + Math.random() * .2); // Returns an array
 
             this.data[index] = r[0];
             this.data[index + 1] = r[1];
@@ -221,36 +224,36 @@ class Sketch {
         this.material = new THREE.ShaderMaterial({
             extensions: { derivatives: "#extension GL_OES_standard_derivatives : enable" },
             uniforms: {
-                time: { value: 1 },
+                time: { value: 0 },
                 uPositions: { value: this.fboTexture },
                 uMouse: { value: new THREE.Vector2() },
                 uMousePrev: { value: new THREE.Vector2() },
                 iResolution: { value: new THREE.Vector2(this.width, this.height) },
-                pointColor: { value: new THREE.Vector4(0.3, .5, 1., 1.) },
-                uCameraPos: { value: this.camera.position },
+                uCameraPos: { value: new THREE.Vector3() },
             },
             vertexShader: vertex,
             fragmentShader: fragment,
+            blending: THREE.AdditiveBlending,
             transparent: true,
             depthWrite: false,
-            blending: THREE.AdditiveBlending,
         });
 
         this.count = this.size * this.size;
         let geometry = new THREE.BufferGeometry();
-        let positions = new Float32Array(this.count * 3);
+        let positions = new Float32Array(this.count * 4);
         let uv = new Float32Array(this.count * 2);
-        let indices = new Float32Array(this.count * 2);  // For `aIndex`
-        let ids = new Float32Array(this.count);         // For `aId`
+        let indices = new Float32Array(this.count * 2);
+        let ids = new Float32Array(this.count * 1);
 
         for (let i = 0; i < this.size; i++) {
             for (let j = 0; j < this.size; j++) {
                 let index = (i * this.size + j);
 
                 // Randomized position data
-                positions[index * 3] = (Math.random() - 0.5) * 2;
-                positions[index * 3 + 1] = (Math.random() - 0.5) * 2;
-                positions[index * 3 + 2] = (Math.random() - 0.5) * 2;
+                positions[index * 4] = (Math.random() - 0.5) * 2;
+                positions[index * 4 + 1] = (Math.random() - 0.5) * 2;
+                positions[index * 4 + 2] = (Math.random() - 0.5) * 2;
+                positions[index * 4 + 3] = 1.0; // Extra component for vec4 support (w = 1)
 
                 // UV Mapping
                 uv[index * 2] = j / this.size;
@@ -266,10 +269,10 @@ class Sketch {
         }
 
         // Set the attributes
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 4));
         geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
-        geometry.setAttribute('aIndex', new THREE.BufferAttribute(indices, 2));  // Add aIndex
-        geometry.setAttribute('aId', new THREE.BufferAttribute(ids, 1));        // Add aId
+        geometry.setAttribute('aIndex', new THREE.BufferAttribute(indices, 2));
+        geometry.setAttribute('aId', new THREE.BufferAttribute(ids, 1));
 
         this.points = new THREE.Points(geometry, this.material);
         this.points.layers.set(0);
@@ -282,7 +285,7 @@ class Sketch {
             generateMipmaps: true,
             minFilter: THREE.LinearMipmapLinearFilter
         });
-        this.cubeCamera = new THREE.CubeCamera(0.01, 50, this.cubeRenderTarget);
+        this.cubeCamera = new THREE.CubeCamera(0.01, 10, this.cubeRenderTarget);
         this.scene.add(this.cubeCamera);
 
         this.glassMaterial.envMap = this.cubeRenderTarget.texture;
@@ -300,99 +303,144 @@ class Sketch {
     setupPostProcessing() {
         this.composer = new EffectComposer(this.renderer);
 
+        // Scene pass (renders the entire scene)
         const scenePass = new RenderPass(this.scene, this.camera);
         this.composer.addPass(scenePass);
 
-        // --- Render Pass for ONLY the particles ---
+        // Render pass for only the particles
         const particlePass = new RenderPass(this.scene, this.camera);
-        particlePass.camera = this.camera; // Bruk hovedkameraet
-        this.camera.layers.set(this.PARTICLE_LAYER);   // Render kun partikkel-laget
-
+        this.camera.layers.set(this.PARTICLE_LAYER);
+        this.composer.addPass(particlePass);
+        this.camera.layers.set(0);
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.01,
-            0.01,
-            0.1
+            0.001,  // Strength: Increased for more glow
+            0.01,  // Radius: Spreads the glow
+            0.01   // Threshold: Lowered to include more areas
         );
-        -
-            this.composer.addPass(particlePass);
+        this.composer.addPass(particlePass);
         this.composer.addPass(bloomPass);
 
-        // --- Chromatic Aberration Pass ---
+        // Tone mapping pass (new shader with maxBrightness)
+        const toneMappingShader = {
+            uniforms: {
+                "tDiffuse": { value: null },
+                "maxBrightness": { value: 1. } // Define the uniform here
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+
+            uniform sampler2D tDiffuse;
+            uniform float maxBrightness;
+            varying vec2 vUv;
+
+            void main() {
+            vec4 color = texture2D(tDiffuse, vUv);
+    
+            // Reinhard tone mapping (preserves highlights better)
+            color.rgb = color.rgb / (color.rgb + vec3(maxBrightness));
+
+            gl_FragColor = color;
+            }`
+        };
+        const toneMappingPass = new ShaderPass(toneMappingShader);
+        toneMappingPass.uniforms.maxBrightness.value = 10;
+        this.composer.addPass(toneMappingPass);
+
+        // Chromatic aberration pass (using the original shader)
         const chromaticAberrationShader = {
             uniforms: {
                 "tDiffuse": { value: null },
                 "offset": { value: new THREE.Vector2(0.001, 0.001) }
             },
             vertexShader: `
-              varying vec2 vUv;
-              void main() {
-                vUv = uv;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-              }
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
             `,
             fragmentShader: `
-              uniform sampler2D tDiffuse;
-              uniform vec2 offset;
-              varying vec2 vUv;
-              
-              void main() {
-                float extraDown = smoothstep(0.5, 0.0, vUv.y) * 0.005;
-                vec2 finalOffset = vec2(offset.x, offset.y + extraDown);
-                
-                float r = texture2D(tDiffuse, vUv + finalOffset).r;
-                float g = texture2D(tDiffuse, vUv).g;
-                float b = texture2D(tDiffuse, vUv - finalOffset).b;
-                
-                gl_FragColor = vec4(r, g, b, 1.0);
-              }
+                uniform sampler2D tDiffuse;
+                uniform vec2 offset;
+                varying vec2 vUv;
+                void main() {
+                    float extraDown = smoothstep(0.5, 0.0, vUv.y) * 0.005;
+                    vec2 finalOffset = vec2(offset.x, offset.y + extraDown);
+                    float r = texture2D(tDiffuse, vUv + finalOffset).r;
+                    float g = texture2D(tDiffuse, vUv).g;
+                    float b = texture2D(tDiffuse, vUv - finalOffset).b;
+                    gl_FragColor = vec4(r, g, b, 1.0);
+                }
             `
         };
         const chromaticAberrationPass = new ShaderPass(chromaticAberrationShader);
         this.composer.addPass(chromaticAberrationPass);
 
+        // Output pass
         this.composer.addPass(new OutputPass());
     }
 
     render() {
         if (!this.isPlaying) return;
 
+        // Update mouse positions for the particle material
         this.material.uniforms.uMouse.value.copy(this.pointer);
         this.material.uniforms.uMousePrev.value.copy(this.pointerPrev);
 
+        // Update cube camera for environment mapping
         this.cubeCamera.position.copy(this.glassBall.position);
         this.cubeCamera.update(this.renderer, this.scene);
 
+        // Calculate delta time
         let deltaTime = this.clock.getDelta();
         this.fboMaterial.uniforms.uDelta.value = deltaTime;
 
+        // Update time
         this.time += deltaTime;
         this.material.uniforms.time.value = this.time;
         this.fboMaterial.uniforms.time.value = this.time;
 
-        this.fboMaterial.uniforms.uRandom.value = Math.random();
-        this.fboMaterial.uniforms.uRandom2.value = Math.random();
+        // Update random values and camera position for particle material
+        this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random() * .9; // Range: [0.1, 1.0]
+        this.fboMaterial.uniforms.uRandom2.value = 0.5 + Math.random() * .9;
         this.material.uniforms.uCameraPos.value.copy(this.camera.position);
 
+        // Add mouse position to FBO material (key integration step)
+        this.fboMaterial.uniforms.uMouse.value.copy(this.pointer);
+
+        // Optional: Add camera position to FBO material if needed by simFragment shader
+        // this.fboMaterial.uniforms.uCameraPos.value.copy(this.camera.position);
+
+        // Update sphere position and interpolate glassBall position
+        this.fboMaterial.uniforms.uSpherePos.value.copy(this.glassBall.position);
+        this.glassBall.position.lerp(this.targetPosition, 0.1);
+
+        // Render to FBO (the simulation step)
         this.renderer.setRenderTarget(this.fbo);
         this.renderer.render(this.fboScene, this.fboCamera);
         this.renderer.setRenderTarget(null);
 
+        // Update texture references for double-buffering
         this.material.uniforms.uPositions.value = this.fbo1.texture;
         this.fboMaterial.uniforms.uPositions.value = this.fbo.texture;
 
-        this.fboMaterial.uniforms.uSpherePos.value.copy(this.glassBall.position);
-
-        // Smoothly interpolate glassBall position towards targetPosition
-        this.glassBall.position.lerp(this.targetPosition, 0.1);
-
+        // Render the full scene with post-processing
         this.camera.layers.enableAll();
         this.composer.render();
 
+        // Swap FBOs for double-buffering
         let temp = this.fbo;
         this.fbo = this.fbo1;
         this.fbo1 = temp;
 
+        // Request next frame
         requestAnimationFrame(this.render.bind(this));
     }
 
