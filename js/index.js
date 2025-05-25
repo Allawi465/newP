@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+/* import * as THREE from 'three';
 import setupScrollAnimation from './scrollstrigger/index.js';
 import { setupScene } from './scene/index.js';
 import initLoadingSequence from './components/loader/index.js';
@@ -15,7 +15,7 @@ import { createPlaneMesh } from './slider/planeMesh/index.js';
 import showAbout from "./components/about/index.js"
 import closeInfoDiv from './components/close/index.js';
 import { defaultConfig } from './utils/config.js';
-import { setupLenis } from './scrollstrigger/lenis.js';
+import { setupLenis } from './scrollstrigger/lenis.js'; */
 
 
 class EffectShell {

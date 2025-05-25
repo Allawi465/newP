@@ -9,3 +9,4 @@ export { default as setupPostProcessing } from './bloomPass/index.js';
 export { default as onWindowResize } from './resize/index.js';
 export { default as setupEventListeners } from './listeners/index.js';
 export { default as createLargePlane } from './transition/index.js';
+export { default as createMeshes } from './slider/planeMesh/createMeshes.js';

@@ -3,10 +3,21 @@ import * as THREE from 'three';
 import simFragment from '../glsl/dust/simFragment.js';
 import simVertex from '../glsl/dust/simVertex.js';
 
+function getRenderTarget() {
+    const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+        format: THREE.RGBAFormat,
+        type: THREE.FloatType,
+        minFilter: THREE.NearestFilter,
+        magFilter: THREE.NearestFilter,
+    });
+    return renderTarget;
+}
+
+
 export default function setupFBO(context) {
     context.size = 1024;
-    context.fbo = context.getRenderTarget();
-    context.fbo1 = context.getRenderTarget();
+    context.fbo = getRenderTarget();
+    context.fbo1 = getRenderTarget();
 
     context.fboScene = new THREE.Scene();
     context.fboCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
