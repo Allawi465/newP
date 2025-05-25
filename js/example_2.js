@@ -1,25 +1,12 @@
 import * as THREE from 'three';
-import { setupScene } from './scene/index.js';
-import initLoadingSequence from './components/loader/index.js';
-import { setupFBO } from './dust/setupFBO.js';
-import { addObjects } from './dust/addObjects.js';
-import { calculatePositionX, images } from './utils/index.js';
-import transitionFragment from './glsl/transition/transition_frag.js';
-import transitionVertex from './glsl/transition/transition_vertex.js';
-import { createCSS2DObjects } from './slider/titles/index.js';
-import { syncHtmlWithSlider } from './slider/titles/syncHtml.js';
-import { createPlaneMesh } from './slider/planeMesh/index.js';
-import { defaultConfig } from './utils/config.js';
-import { setupLenis } from './scrollstrigger/lenis.js';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import { setupPostProcessing } from './bloomPass/index.js';
-import { onWindowResize } from './resize/index.js';
-import { setupEventListeners } from './listeners/index.js';
+import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, createPlaneMesh, setupLenis, setupPostProcessing, onWindowResize, setupEventListeners, createLargePlane } from './threeJS/index.js';
+import { defaultConfig, calculatePositionX, images, loadTextures } from './utils/index.js';
+import initLoadingSequence from './components/loader/index.js';
 
 class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
-
 
         this.init().then(() => this.onInitComplete());
 
@@ -38,7 +25,7 @@ class EffectShell {
     async init() {
         try {
             setupScene(this);
-            this.textures = await this.loadTextures(images);
+            this.textures = await loadTextures(images, this);
             setupPostProcessing(this);
             this.createMeshes();
             setupFBO(this);
@@ -54,29 +41,8 @@ class EffectShell {
     }
 
 
-    loadTextures(imageArray) {
-        const textureLoader = new THREE.TextureLoader();
-        return Promise.all(imageArray.map(image => new Promise((resolve, reject) => {
-            textureLoader.load(image.src, (texture) => {
-                texture.wrapS = THREE.ClampToEdgeWrapping;
-                texture.wrapT = THREE.ClampToEdgeWrapping;
-
-                texture.generateMipmaps = true;
-                texture.minFilter = THREE.LinearMipMapLinearFilter;
-                texture.magFilter = THREE.LinearFilter;
-                texture.anisotropy = Math.min(this.renderer.capabilities.getMaxAnisotropy(), 8);
-                texture.needsUpdate = true;
-
-                resolve(texture);
-            }, undefined, (err) => {
-                console.error(`Failed to load texture: ${image.src}`, err);
-                reject(err);
-            });
-        })));
-    }
-
     createMeshes() {
-        const largePlane = this.createLargePlane();
+        const largePlane = createLargePlane(this);
         this.scene.add(largePlane);
         largePlane.layers.set(this.PLANE_LAYER);
         largePlane.renderOrder = 0;
@@ -111,30 +77,6 @@ class EffectShell {
 
         mesh.position.x = 0;
         mesh.position.y = -(viewportHeight / 2 - rect.top - projectsHeight / 2);
-    }
-
-    createLargePlane() {
-        const largeShaderMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                width: { value: 5 },
-                scaleX: { value: 4.7 },
-                scaleY: { value: 2.9 },
-                progress: { value: 0 },
-                time: { value: 1 }
-            },
-            vertexShader: transitionVertex,
-            fragmentShader: transitionFragment,
-            transparent: true
-        });
-
-        const largeGeometry = new THREE.PlaneGeometry(1, 1, 24, 24);
-        this.largePlane = new THREE.Mesh(largeGeometry, largeShaderMaterial);
-        this.largeShaderMaterial = largeShaderMaterial;
-
-
-        onWindowResize(this);
-
-        return this.largePlane;
     }
 
     getRenderTarget() {

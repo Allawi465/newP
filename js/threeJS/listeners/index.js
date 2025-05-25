@@ -2,12 +2,12 @@ import * as THREE from 'three';
 import { onPointerDown, onPointerMove, onPointerUp } from '../slider/index.js';
 import { onMouseMoveHover } from '../slider/mouseHover/index.js';
 import setupScrollAnimation from '../scrollstrigger/index.js';
-import showAbout from '../components/about/index.js';
-import closeInfoDiv from '../components/close/index.js';
-import { onWindowResize } from '../resize/index.js';
+import showAbout from '../../components/about/index.js';
+import closeInfoDiv from '../../components/close/index.js';
+import { onWindowResize } from '../index.js';
 
 
-export function setupEventListeners(context) {
+export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
     window.addEventListener('mousemove', (event) => onMouseMoveHover(event, context));
     window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: false });

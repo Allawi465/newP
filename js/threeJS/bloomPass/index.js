@@ -5,7 +5,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { ClearPass } from 'three/examples/jsm/postprocessing/ClearPass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 
-export function setupPostProcessing(context) {
+export default function setupPostProcessing(context) {
     context.composer = new EffectComposer(context.renderer);
 
     // Clear to white

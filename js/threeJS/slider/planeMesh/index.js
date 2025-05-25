@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { calculatePositionX } from '../../utils';
+import { calculatePositionX } from '../../../utils/index.js';
 import { vertexShader, fragmentShader } from '../../glsl/shader';
 
 gsap.registerPlugin(ScrollTrigger);
 
 
-export function createPlaneMesh(content, texture, index, renderer) {
+export default function createPlaneMesh(content, texture, index, renderer) {
 
     const planeGeometry = new THREE.PlaneGeometry(
         content.slideWidth * content.scaleFactor,

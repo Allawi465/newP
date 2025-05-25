@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+/* import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
@@ -10,7 +10,7 @@ import simFragment from './glsl/dust/simFragment.js';
 import simVertex from './glsl/dust/simVertex.js';
 
 import fragment from './glsl/dust/fragment.js';
-import vertex from './glsl/dust/vertex.js';
+import vertex from './glsl/dust/vertex.js'; */
 
 class Sketch {
     constructor() {

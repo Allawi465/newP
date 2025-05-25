@@ -1,4 +1,4 @@
-export function syncHtmlWithSlider(content) {
+export default function syncHtmlWithSlider(content) {
     const followSpeed = 0.09;
 
     content.group.children.forEach((mesh, index) => {

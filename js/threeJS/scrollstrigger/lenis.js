@@ -4,7 +4,7 @@ import gsap from "gsap";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function setupLenis(effectShell) {
+export default function setupLenis(effectShell) {
     effectShell.bodyLenis = new Lenis({
         smooth: true,
         direction: 'vertical',

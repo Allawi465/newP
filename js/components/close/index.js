@@ -1,6 +1,6 @@
 import gsap from "gsap";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import setupScrollAnimation from "../../scrollstrigger";
+import setupScrollAnimation from "../../threeJS/scrollstrigger/index.js";
 
 function closeInfoDiv(context) {
     const infoDiv = document.getElementById('projects_info');

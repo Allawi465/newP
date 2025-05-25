@@ -1,4 +1,4 @@
-import showDivWithContent from "../../components/projects";
+import showDivWithContent from "../../../components/projects";
 
 export function handleClick(event, context) {
     if (context.isLoading || context.isProjectsOpen || context.isDivOpen) return;

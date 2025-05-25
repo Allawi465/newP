@@ -1,6 +1,6 @@
 import { CSS2DObject } from 'three/examples/jsm/Addons.js';
 
-export function createCSS2DObjects(content, images) {
+export default function createCSS2DObjects(content, images) {
     images.forEach((image, index) => {
         const element = document.createElement('div');
         element.className = 'slider-project';

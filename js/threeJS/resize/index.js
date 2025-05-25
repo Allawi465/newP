@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export function onWindowResize(context) {
+export default function onWindowResize(context) {
     const BREAKPOINT = 1000;
     const MIN_WIDTH = 420;
     const DEFAULT_VIEW_WIDTH = 4.5;

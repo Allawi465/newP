@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import fragment from '../glsl/dust/fragment.js';
 import vertex from '../glsl/dust/vertex.js';
-import * as dat from 'dat.gui';
 
-export function addObjects(context) {
+export default function addObjects(context) {
     /*     const gui = new dat.GUI();
         const PartFolder = gui.addFolder('Particles'); */
     const glassGeometry = new THREE.IcosahedronGeometry(0.22, 22);

@@ -10,7 +10,6 @@ import transitionVertex from './glsl/transition/transition_vertex.js';
 import { onPointerDown, onPointerMove, onPointerUp } from './slider/index.js';
 import { onMouseMoveHover } from './slider/mouseHover/index.js';
 import { createCSS2DObjects } from './slider/titles/index.js';
-/*   */
 import { syncHtmlWithSlider } from './slider/titles/syncHtml.js';
 import { createPlaneMesh } from './slider/planeMesh/index.js';
 import showAbout from "./components/about/index.js"

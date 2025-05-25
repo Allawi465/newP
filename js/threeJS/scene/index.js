@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { CSS2DRenderer } from 'three/examples/jsm/Addons.js';
 
-export function setupScene(context) {
+export default function setupScene(context) {
     context.scene = new THREE.Scene();
     const VIEW_WIDTH = 4.5;
     const aspect = window.innerWidth / window.innerHeight;

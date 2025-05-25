@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import simFragment from '../glsl/dust/simFragment.js';
 import simVertex from '../glsl/dust/simVertex.js';
 
-export function setupFBO(context) {
+export default function setupFBO(context) {
     context.size = 1024;
     context.fbo = context.getRenderTarget();
     context.fbo1 = context.getRenderTarget();
