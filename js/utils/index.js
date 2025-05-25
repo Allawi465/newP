@@ -19,8 +19,8 @@ export const images = [
     },
     {
         id: 'slider_3',
-        src: '3.jpg',
-        src2: '3.jpg',
+        src: '1.jpg',
+        src2: '1.jpg',
         title: 'NoxB',
         slogan: 'Innovating Tomorrow',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
@@ -73,8 +73,8 @@ export const images = [
     },
     {
         id: 'slider_3',
-        src: '3.jpg',
-        src2: '3.jpg',
+        src: '1.jpg',
+        src2: '1.jpg',
         title: 'NoxB',
         slogan: 'Innovating Tomorrow',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
@@ -127,8 +127,8 @@ export const images = [
     },
     {
         id: 'slider_3',
-        src: '3.jpg',
-        src2: '3.jpg',
+        src: '1.jpg',
+        src2: '1.jpg',
         title: 'NoxB',
         slogan: 'Innovating Tomorrow',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',

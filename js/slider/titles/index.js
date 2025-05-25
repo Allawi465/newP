@@ -28,6 +28,7 @@ export function createCSS2DObjects(content, images) {
         objectCSS.position.copy(mesh.position);
 
         content.cssGroup.add(objectCSS);
+        objectCSS.layers.set(content.slider_mesh);
         content.cssObjects.push(objectCSS);
     });
 }

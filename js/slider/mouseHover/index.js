@@ -1,5 +1,11 @@
 export function onMouseMoveHover(event, context) {
-    context.mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+    context.mouse.set(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+    );
+
+    // Raycast only against slider layer
+    context.raycaster.layers.set(context.slider_mesh);
     context.raycaster.setFromCamera(context.mouse, context.camera);
 
     const intersects = context.raycaster.intersectObjects(context.group.children);

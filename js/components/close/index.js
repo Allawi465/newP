@@ -1,5 +1,6 @@
 import gsap from "gsap";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import setupScrollAnimation from "../../scrollstrigger";
 
 function closeInfoDiv(context) {
     const infoDiv = document.getElementById('projects_info');
@@ -11,7 +12,6 @@ function closeInfoDiv(context) {
     gsap.killTweensOf([
         context.largeShaderMaterial.uniforms.progress,
         ...context.meshArray.map(mesh => mesh.material.uniforms.opacity),
-        context.material.uniforms.opacity,
     ]);
 
     gsap.killTweensOf("*");
@@ -34,14 +34,13 @@ function closeInfoDiv(context) {
             opacity: 0, duration: 0.5, onComplete: () => {
                 aboutDiv.style.zIndex = 0;
                 aboutDiv.classList.remove('show');
-                if (context.fboMesh) context.fboMesh.visible = false;
             }
         });
     }
 
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
-        duration: 1.1,
+        duration: 1,
         ease: "sine.out",
         onComplete: () => {
             context.aboutLenis.scrollTo(0, { immediate: true });
@@ -54,7 +53,7 @@ function closeInfoDiv(context) {
     gsap.set(".scroll_line", { opacity: 1, "--scaleY": 1 });
 
     context.startBodyScrolling();
-    context.setupScrollAnimation();
+    setupScrollAnimation();
     ScrollTrigger.refresh();
 
     context.isDivOpen = false;
@@ -62,16 +61,9 @@ function closeInfoDiv(context) {
 
 function aboutCloseTimeline(context) {
     return gsap.timeline({
-        onComplete: () => {
-            context.toggleAboutfbo(false);
-            if (context.fboMesh) {
-                context.fboMesh.visible = false;
-            }
-        }
     })
         .to(".about-parent", { opacity: 0, duration: 0.5, ease: "power2.out" }, 0.1)
         .to(".contact_info", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
-        .to(context.material.uniforms.opacity, { value: 0, duration: 0.5, ease: 'power2.out' }, "<")
         .to(".skills_text_wrap", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
         .to(".skill_container", { opacity: 0, duration: 0.5, ease: "power2.out" }, "<")
         .set("#about", { zIndex: 0 }, ">");

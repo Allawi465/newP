@@ -103,7 +103,7 @@ float rand2(vec2 co){ return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5
  vec3 snoiseVec3( vec3 x ){
     float s  = snoise3(vec3( x ));
     float s1 = snoise3(vec3( x.y - 19.1 , x.z + 33.4 , x.x + 47.2 ));
-    float s2 = snoise3(vec3( x.z + 74.2 , x.x - 114.5 , x.y + 99.4 ));
+    float s2 = snoise3(vec3( x.z + 74.2 , x.x - 124.5 , x.y + 99.4 ));
     vec3 c = vec3( s , s1 , s2 );
     return c;
 }
@@ -128,44 +128,43 @@ void main() {
     vec3 pos = data.rgb;
     float age = data.a;
 
-    // Reset particles
+    // Reset particles when age is too high
     bool condition = age >= 1.0;
-    float spawnRadius = 0.5 + rand1(pos.x) * 0.5; // Larger radius: 0.5 to 1.0
+    float spawnRadius = 0.5 + rand1(pos.x) * 0.5;
     vec3 spawnPosition = randomSpherePoint(vec3(0.0), spawnRadius, pos);
-    // Optional: Add small random offset for extra spread
+
     spawnPosition += vec3(
         rand2(vec2(uRandom, pos.y)) - 0.2,
         rand2(vec2(uRandom2, pos.z)) - 0.25,
         rand2(vec2(uRandom, pos.x)) - 0.3
     ) * 0.2;
+
     pos = mix(pos, spawnPosition, float(condition));
     age = mix(age, 0.0, float(condition));
 
-    // Compute noise-based motion
-    vec3 curl1 = snoiseVec3(pos * 0.5 + vec3(time * 0.2, time * 0.3, time * 0.09)) * 0.3;
-    vec3 curl2 = snoiseVec3(pos * 2.0 + vec3(time * 0.5)) * 0.025;
-    vec3 noiseMotion = curl1 + curl2;
+    // Subtle noise for organic variation
+    vec3 noise = snoiseVec3(pos * 0.5 + vec3(time * 0.2, time * 0.2, time * 0.1)) * 0.2;
 
-    // Compute directional attraction toward a central point
-    vec3 direction = normalize(uSpherePos + pos);
-    float attractionStrength = smoothstep(1., 0.1, length(pos + uSpherePos)); // Stronger near center
-    vec3 attraction = direction * attractionStrength * 0.1; // Scale effect
+    // Attract particles slightly to stay near the orbit radius
+    float desiredRadius = .5;
+    float currentRadius = length(pos - uSpherePos);
+    float radiusDiff = desiredRadius - currentRadius;
+    vec3 correction = normalize(pos - uSpherePos) * radiusDiff * 0.05;
 
-    // Combine noise with attraction for more purposeful motion
-    vec3 newpos = pos + noiseMotion + attraction;
+    // Combine motion vectors
+    vec3 newpos = pos + noise + correction;
 
-    // Keep movement controlled within a relaxed boundary
-    newpos = mix(newpos, pos, distance(vec3(0.0), newpos) / 3.0);
-    pos = mix(pos, newpos, 0.1);
-    age = clamp(age + uDelta * 0.11, 0.0, 1.0);
-    
     float dist = length(pos.xy - uSpherePos.xy);
     vec2 dir = normalize(pos.xy - uSpherePos.xy);
     pos.xy += dir * 0.1 * smoothstep(0.5, 0.0, dist);
 
+
+    // Smooth motion blending
+    pos = mix(pos, newpos, 0.1);
+    age = clamp(age + uDelta * 0.1, 0.0, 1.0);
+
     gl_FragColor = vec4(pos, age);
-}
-    
+} 
 `;
 
 export default simFragment;

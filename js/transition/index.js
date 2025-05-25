@@ -16,12 +16,13 @@ export function createLargePlane() {
         vertexShader: transitionVertex,
         fragmentShader: transitionFragment,
         transparent: true,
-        depthWrite: false,
+        depthWrite: false, // Add this to prevent depth conflicts
+        depthTest: true
     });
 
     const largeGeometry = new THREE.PlaneGeometry(1, 1, 24, 24);
     const largePlane = new THREE.Mesh(largeGeometry, largeShaderMaterial);
-    largePlane.position.z = -10;
+    largePlane.position.z = 10;
 
     gsap.to(largeShaderMaterial.uniforms.progress, {
         value: 1,

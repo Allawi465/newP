@@ -17,9 +17,10 @@ class Sketch {
         this.scene = new THREE.Scene();
         this.isPlaying = true;
         this.renderer = new THREE.WebGLRenderer({
-            antialias: true, alpha: true,               // Enable transparency
+            antialias: true, alpha: true,
             premultipliedAlpha: true
         });
+
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -38,6 +39,7 @@ class Sketch {
             0.01,
             1000
         );
+
         this.camera.position.set(0, 0, 2);
 
         this.width = 1024;
@@ -446,4 +448,4 @@ class Sketch {
 
 }
 
-new Sketch();
+/* new Sketch();  */

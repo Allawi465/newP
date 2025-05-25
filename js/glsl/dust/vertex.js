@@ -5,13 +5,10 @@ attribute vec2 aIndex;
 attribute float aId;
 
 uniform sampler2D uPositions;
-uniform float uTime;
 uniform float pointSize;
-uniform vec3 uCameraPos;
 
 varying vec4 vData;
 varying vec2 vIndex;
-varying float vDist;
 
 void main() {
     vec4 data = texture2D(uPositions, aIndex);
@@ -22,10 +19,9 @@ void main() {
 
     vData = data;
     vIndex = aIndex;
-    vDist = distance(pos, uCameraPos);
 
-    // Adjust point size dynamically
     gl_PointSize = 1. + aIndex.x * 4.;
 }
 `;
+
 export default vertex;

@@ -11,11 +11,12 @@ export function addObjects(context) {
             time: { value: 0 },
             uPositions: { value: null },
             resolution: { value: new THREE.Vector4() },
-            opacity: { value: 0.0 },
+            opacity: { value: 1.0 },
         },
         transparent: true,
         vertexShader: vertexParticles,
         fragmentShader: fragment,
+        depthTest: false,
     });
 
     context.count = context.size ** 2;
@@ -41,9 +42,7 @@ export function addObjects(context) {
     context.material.uniforms.uPositions.value = context.fboTexture;
 
     context.points = new THREE.Points(geometry, context.material);
-    context.objectScene.add(context.points);
+    context.scene.add(context.points);
 
     context.points.position.set(4.1, 0.4, 0);
-
-    context.fboMesh.visible = false;
 }

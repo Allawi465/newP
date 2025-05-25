@@ -11,11 +11,11 @@ function showAbout(context) {
 
     reset(context);
 
+    animateProgress(context)
+
     context.tm = setupTimeline(context);
 
     document.getElementsByClassName('.projects__title').mixBlendMode = "normal";
-
-    animateProgress(context);
 
     const aboutDiv = document.getElementById('about');
     aboutDiv.style.zIndex = 60
@@ -36,7 +36,7 @@ function showAbout(context) {
 export function animateProgress(context) {
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 0,
-        duration: 1.1,
+        duration: 1,
         ease: "sine.in",
     });
 }
@@ -44,7 +44,6 @@ export function animateProgress(context) {
 function reset(context) {
     gsap.killTweensOf([
         context.largeShaderMaterial.uniforms.progress,
-        context.material.uniforms.opacity,
         ".about-parent",
         ".about_headings .char",
         ".about_headings2 .char",
@@ -69,9 +68,7 @@ function setupTimeline(context) {
     context.typeSplit_2 = new SplitType('.about_headings2', { types: 'words, chars', tagName: 'span' });
 
     const timeline = gsap.timeline({
-        onStart: () => {
-            context.toggleAboutfbo(true);
-        },
+
     });
 
     timeline.to(
@@ -101,12 +98,6 @@ function setupTimeline(context) {
         { opacity: 1, duration: 1, ease: "power2.inOut" },
         0.5
     )
-
-    timeline.to(context.material.uniforms.opacity, {
-        value: 1,
-        duration: 1,
-        ease: 'power2.inOut',
-    }, 0.5);
 
     timeline.to(".skills_text_wrap", { opacity: 1, duration: 1, ease: "power2.inOut" }, 0.5);
     timeline.to(".skill_container", { opacity: 1, duration: 1, ease: "power2.inOut" }, 0.5);

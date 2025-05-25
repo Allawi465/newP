@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import simFragment from '../glsl/moon/simFragment.js';
-import simVertex from '../glsl/moon/simVertex.js';
+import simFragment from '../glsl/dust/simFragment.js';
+import simVertex from '../glsl/dust/simVertex.js';
 
 export function setupFBO(context) {
     context.size = 1024;
@@ -16,14 +16,16 @@ export function setupFBO(context) {
     const geometry = new THREE.PlaneGeometry(2, 2);
     context.data = new Float32Array(context.size * context.size * 4);
 
-    context.infoArray = new Float32Array(context.size * context.size * 4);
+
     for (let i = 0; i < context.size; i++) {
         for (let j = 0; j < context.size; j++) {
             const index = (i + j * context.size) * 4;
-            context.infoArray[index] = 0.5 * Math.random();
-            context.infoArray[index + 1] = 0.5 * Math.random();
-            context.infoArray[index + 2] = 1.0;
-            context.infoArray[index + 3] = 1.0;
+            const r = yN(0, 0, 0, 0.5 + Math.random() * 0.2);
+
+            context.data[index] = r[0];
+            context.data[index + 1] = r[1];
+            context.data[index + 2] = r[2];
+            context.data[index + 3] = Math.random();
         }
     }
 
@@ -34,6 +36,7 @@ export function setupFBO(context) {
         THREE.RGBAFormat,
         THREE.FloatType
     );
+
     context.fboTexture.magFilter = THREE.NearestFilter;
     context.fboTexture.minFilter = THREE.NearestFilter;
     context.fboTexture.needsUpdate = true;
@@ -41,36 +44,28 @@ export function setupFBO(context) {
     context.fboMaterial = new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0 },
+            uMouse: { value: new THREE.Vector2(0, 0) },
+            uRandom: { value: 0 },
+            uRandom2: { value: 0 },
+            resolution: { value: new THREE.Vector2(context.width, context.height) },
             uPositions: { value: context.fboTexture },
-            uInfo: { value: null },
+            uSpherePos: { value: new THREE.Vector3(0, 0, 0) },
+            uDelta: { value: 0. },
         },
         vertexShader: simVertex,
         fragmentShader: simFragment,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.NoBlending,
+        transparent: true
     });
 
     context.infoArray = new Float32Array(context.size * context.size * 4);
-    for (let i = 0; i < context.size; i++) {
-        for (let j = 0; j < context.size; j++) {
-            const index = (i + j * context.size) * 4;
-            context.infoArray[index] = 0.5 * Math.random();
-            context.infoArray[index + 1] = 0.5 * Math.random();
-            context.infoArray[index + 2] = 1.0;
-            context.infoArray[index + 3] = 1.0;
-        }
-    }
-
-    context.info = new THREE.DataTexture(
-        context.infoArray,
-        context.size,
-        context.size,
-        THREE.RGBAFormat,
-        THREE.FloatType
-    );
+    context.info = new THREE.DataTexture(context.infoArray, context.size, context.size, THREE.RGBAFormat, THREE.FloatType);
 
     context.info.magFilter = THREE.NearestFilter;
     context.info.minFilter = THREE.NearestFilter;
     context.info.needsUpdate = true;
-    context.fboMaterial.uniforms.uInfo.value = context.info;
 
     context.fboMesh = new THREE.Mesh(geometry, context.fboMaterial);
     context.fboScene.add(context.fboMesh);
@@ -80,4 +75,16 @@ export function setupFBO(context) {
     context.renderer.setRenderTarget(context.fbo1);
     context.renderer.render(context.fboScene, context.fboCamera);
 
+}
+
+function yN(e, t, n, i) {
+    var r = Math.random();
+    var a = Math.random();
+    var s = 2 * Math.PI * r;
+    var o = Math.acos(2 * a - 1);
+    var l = e + i * Math.sin(o) * Math.cos(s);
+    var c = t + i * Math.sin(o) * Math.sin(s);
+    var u = n + i * Math.cos(o);
+
+    return [l, c, u];
 }

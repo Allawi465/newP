@@ -1,11 +1,9 @@
 import gsap from "gsap";
 import SplitType from 'split-type';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 export default function initLoadingSequence(context) {
 
     context.bodyLenis.scrollTo(0, { immediate: true });
-
 
     let typeSplit = new SplitType('.hero_heading', {
         types: 'words, chars',
@@ -30,8 +28,8 @@ export default function initLoadingSequence(context) {
         zIndex: 50
     },).to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
-        duration: 1.1,
-        delay: 1.7,
+        duration: 1,
+        delay: 2.1,
         ease: "sine.out",
         onComplete: () => {
             context.startBodyScrolling();
@@ -47,12 +45,12 @@ export default function initLoadingSequence(context) {
     }, 0).to(".header ", {
         opacity: 1,
         duration: 1,
-    }, 2.5).to(".about ", {
+    }, 2.7).to(".about ", {
         opacity: 1,
         visibility: "visible",
-    }, 2.5).to(".hero-parent", {
+    }, 2.7).to(".hero-parent", {
         opacity: 1,
-    }, 2.5).fromTo(
+    }, 2.7).fromTo(
         '.hero_heading .char',
         {
             opacity: 0,
@@ -64,7 +62,7 @@ export default function initLoadingSequence(context) {
             duration: 0.5,
             ease: "power2.out",
             stagger: { amount: 0.2 },
-        }, 2.5
+        }, 2.7
     ).fromTo(
         '.hero_heading2 .char',
         {
@@ -77,18 +75,29 @@ export default function initLoadingSequence(context) {
             duration: 0.5,
             ease: "power2.out",
             stagger: { amount: 0.2 },
-        }, 2.5
+        }, 2.7
     ).to(".text_hero", {
         opacity: 1,
-    }, 2.5).to(".scroll ", {
+    }, 2.7).to(".scroll ", {
         opacity: 1,
 
-    }, 2.5).to(".scroll-line ", {
+    }, 2.7).to(".scroll-line ", {
         opacity: 1,
         onComplete: () => {
             context.isLoading = false;
         },
-    }, 2.5)
+    }, 2.7).to(context.glassMaterial, {
+        opacity: 1.0,
+        duration: 0.5,
+        ease: "power2.out",
+        onUpdate: () => {
+            context.glassMaterial.needsUpdate = true;
+        }
+    }, 2.7).to(context.material.uniforms.uOpacity, {
+        value: 1.0,
+        duration: 0.5,
+        ease: "power2.out"
+    }, 2.7);
 }
 
 export const animateCounters = () => {

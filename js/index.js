@@ -1,9 +1,5 @@
 import * as THREE from 'three';
-import Lenis from 'lenis'
-import gsap from 'gsap';
-import { CustomEase } from "gsap/CustomEase";
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SplitType from 'split-type';
+import setupScrollAnimation from './scrollstrigger/index.js';
 import { setupScene } from './scene/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { setupFBO } from './moon/setupFBO.js';
@@ -14,53 +10,18 @@ import transitionVertex from './glsl/transition/transition_vertex.js';
 import { onPointerDown, onPointerMove, onPointerUp } from './slider/index.js';
 import { onMouseMoveHover } from './slider/mouseHover/index.js';
 import { createCSS2DObjects } from './slider/titles/index.js';
-import { calculateTargetFov, updateCameraProperties } from './camera/index.js';
+/*   */
 import { syncHtmlWithSlider } from './slider/titles/syncHtml.js';
 import { createPlaneMesh } from './slider/planeMesh/index.js';
 import showAbout from "./components/about/index.js"
 import closeInfoDiv from './components/close/index.js';
+import { defaultConfig } from './utils/config.js';
+import { setupLenis } from './scrollstrigger/lenis.js';
 
-gsap.registerPlugin(ScrollTrigger);
 
 class EffectShell {
     constructor() {
-        this.textures = [];
-        this.cssObjects = [];
-        this.meshes = [];
-        this.meshArray = [];
-        this.images = images;
-        this.mouse = new THREE.Vector2();
-        this.raycaster = new THREE.Raycaster();
-        this.movementSensitivity = 60;
-        this.velocity = 0;
-        this.defaultCameraZ = 9.5;
-        this.friction = 0.95;
-        this.startX = 0;
-        this.isDragging = false;
-        this.currentPosition = 0;
-        this.dragDelta = 0;
-        this.lastX = 0;
-        this.dragSpeed = 0;
-        this.scaleFactor = 1;
-        this.slideHeight = 10.4;
-        this.slideWidth = 5.1;
-        this.meshSpacing = 6.5;
-        this.initialDistanceScale = 0;
-        this.targetFov = 75;
-        this.maxDistanceScale = 0.7;
-        this.velocityScale = 0.20;
-        this.largePlane = null;
-        this.isLoading = true;
-        this.time = 0;
-        this.isOverlayVisible = false;
-        this.aspect = window.innerWidth / window.innerHeight;
-        this.frustumSize = 4;
-        this.isDivOpen = false;
-        this.isProjectsOpen = false;
-        this.isAnimating = false;
-        this.largeShaderMaterial = null;
-        this.moonShaderMaterial = null;
-        this.baseMeshSpacing = 6.3;
+        Object.assign(this, defaultConfig);
 
         this.objectScene = new THREE.Scene();
 
@@ -90,47 +51,7 @@ class EffectShell {
 
         this.init().then(() => this.onInitComplete());
 
-        this.bodyLenis = new Lenis({
-            smooth: true,
-            direction: 'vertical',
-            wrapper: document.body,
-            content: document.documentElement,
-            syncTouch: true,
-            touchMultiplier: 0.5,
-        });
-
-        this.aboutLenis = new Lenis({
-            smooth: true,
-            direction: 'vertical',
-            wrapper: document.getElementById('about'),
-            content: document.getElementById('about'),
-            syncTouch: true,
-            touchMultiplier: 0.5,
-        });
-
-        this.projectsLenis = new Lenis({
-            smooth: true,
-            direction: 'vertical',
-            wrapper: document.getElementById('projects_info'),
-            content: document.getElementById('projects_info'),
-            syncTouch: true,
-            touchMultiplier: 0.5,
-        });
-
-        const rafCallback = (time) => {
-            if (this.isProjectsOpen) {
-                this.projectsLenis.raf(time);
-            } else if (this.isDivOpen) {
-                this.aboutLenis.raf(time);
-            } else {
-                this.bodyLenis.raf(time);
-            }
-
-            ScrollTrigger.update();
-            requestAnimationFrame(rafCallback);
-        };
-
-        requestAnimationFrame(rafCallback);
+        setupLenis(this);
     }
 
 
@@ -157,85 +78,6 @@ class EffectShell {
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
-    }
-
-    setupScrollAnimation() {
-        gsap.registerPlugin(CustomEase);
-        CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
-
-
-        gsap.fromTo(".scroll_line",
-            {
-                "--scaleY": 0,
-                "--opacity": 0,
-            },
-            {
-                "--scaleY": 1,
-                "--opacity": 1,
-                duration: 2,
-                ease: "customBezier",
-                repeat: -1,
-                yoyo: true,
-            }
-        );
-
-        ScrollTrigger.create({
-            start: 'top top',
-            end: 'top+=100px top',
-            scrub: 1,
-            animation: gsap.to('.scroll_line', {
-                opacity: 0,
-                duration: 2,
-                ease: "customBezier",
-            }),
-        });
-
-        const scrollText = new SplitType('.scroll', { types: 'chars' });
-        ScrollTrigger.create({
-            start: 'top top',
-            end: 'top+=100px top',
-            scrub: 1,
-            animation: gsap.to('.scroll .char', {
-                color: 'rgba(255, 255, 255, 0)',
-                stagger: 0.05,
-            }),
-        });
-
-        const scrollNameText = new SplitType('.name_scroll', { types: 'chars' });
-        ScrollTrigger.create({
-            trigger: ".hero",
-            start: 'bottom 25%',
-            end: 'bottom 25%',
-            scrub: 2,
-            animation: gsap.to('.name_scroll .char', {
-                color: 'rgba(255, 255, 255, 1)',
-                stagger: 0.05,
-                ease: "customBezier",
-            }),
-        });
-
-        const typeSplit = new SplitType(".projects__title", { types: 'char', tagName: 'span' });
-
-        gsap.fromTo(
-            ".projects__title .char",
-            {
-                color: 'rgba(255, 255, 255, 0)',
-                y: -50
-            },
-            {
-                color: 'rgba(255, 255, 255, 1)',
-                y: 0,
-                ease: "customBezier",
-                stagger: 0.05,
-                scrollTrigger: {
-                    trigger: ".projects",
-                    start: "top 30%",
-                    end: "top 30%",
-                }
-            }
-        );
-
-        ScrollTrigger.refresh();
     }
 
 
@@ -451,7 +293,6 @@ class EffectShell {
         document.getElementById('close').addEventListener('click', () => closeInfoDiv(this));
         window.addEventListener('load', () => {
             setTimeout(() => {
-                // Ensure body scroll resets properly
                 document.documentElement.scrollTop = 0;
                 document.body.scrollTop = 0;
                 if (this.bodyLenis) {
@@ -459,7 +300,7 @@ class EffectShell {
                     this.bodyLenis.start();
                 }
 
-                this.setupScrollAnimation();
+                setupScrollAnimation();
             }, 100);
         });
     }
@@ -469,4 +310,4 @@ class EffectShell {
     }
 }
 
-/* new EffectShell();  */
+/* new EffectShell(); */

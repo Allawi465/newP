@@ -12,9 +12,9 @@ void main() {
   float angle = atan(pos.y, pos.x);
   vec4 baseColor;
 
-    baseColor = vec4(0.08); // Gray base color
+    baseColor = vec4(1.); // Gray base color
     baseColor.rgb *= vec3(1.0);
-    baseColor.rgb = mix(baseColor.rgb, vec3(0.08), 1.0);
+    baseColor.rgb = mix(baseColor.rgb, vec3(0.5), 1.0);
     
   baseColor.a *= opacity;
 

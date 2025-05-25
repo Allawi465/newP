@@ -3,17 +3,33 @@ import { CSS2DRenderer } from 'three/examples/jsm/Addons.js';
 
 export function setupScene(context) {
     context.scene = new THREE.Scene();
-    context.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
+    const VIEW_WIDTH = 4.5;
+    const aspect = window.innerWidth / window.innerHeight;
+    const viewHeight = VIEW_WIDTH / aspect;
+
+    context.camera = new THREE.OrthographicCamera(
+        -VIEW_WIDTH / 2,
+        VIEW_WIDTH / 2,
+        viewHeight / 2,
+        -viewHeight / 2,
+        0.01,
+        1000
+    );
     context.camera.position.z = context.defaultCameraZ;
+    context.camera.updateProjectionMatrix();
 
     context.renderer = new THREE.WebGLRenderer({
         antialias: true,
         canvas: document.getElementById('canvas'),
         alpha: true,
+        powerPreference: 'high-performance',
+        precision: 'highp',
+        dithering: true
     });
-    context.renderer.setPixelRatio(window.devicePixelRatio);
+
+    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     context.renderer.setSize(window.innerWidth, window.innerHeight);
-    context.renderer.setClearColor(0xffffff, 1);
+    context.renderer.autoClear = false;
     document.body.appendChild(context.renderer.domElement);
 
     context.labelRenderer = new CSS2DRenderer();
