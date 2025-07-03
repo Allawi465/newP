@@ -20,7 +20,7 @@ void main() {
     vData = data;
     vIndex = aIndex;
 
-    gl_PointSize = 1. + aIndex.x * 4.;
+    gl_PointSize = 1. + aIndex.x * 6.;
 }
 `;
 

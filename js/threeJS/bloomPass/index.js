@@ -6,26 +6,32 @@ import { ClearPass } from 'three/examples/jsm/postprocessing/ClearPass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 
 export default function setupPostProcessing(context) {
+    // Create EffectComposer
     context.composer = new EffectComposer(context.renderer);
 
-    // Clear to white
+    // 1) Clear Pass (white)
     const clearPass = new ClearPass();
     clearPass.clearColor = new THREE.Color(0xffffff);
     clearPass.clearAlpha = 1.0;
     context.composer.addPass(clearPass);
 
-    // Render PARTICLE_LAYER
-    const particlePass = new RenderPass(context.scene, context.camera);
-    particlePass.clear = false;
-    particlePass.clearDepth = true;
-    context.composer.addPass(particlePass);
+    // 2) Render the scene normally
+    const renderPass = new RenderPass(context.scene, context.camera);
+    renderPass.clear = false;
+    renderPass.clearDepth = true;
+    context.composer.addPass(renderPass);
 
-    const bendPass = new ShaderPass({
+    // 3) Chromatic Bend (with delayed object reveal)
+    const chromaticBendPass = new ShaderPass({
         uniforms: {
             tDiffuse: { value: null },
             uPower: { value: 0.2 },
-            uLiftAmount: { value: 0.02 },
-            uBendRegion: { value: 0.075 }
+            uLiftAmount: { value: 0.0 },
+            uBendRegion: { value: 0.075 },
+            offset: { value: new THREE.Vector2(0.0025, 0.0025) },
+            uExtraDown: { value: 0.005 },
+            uFade: { value: 1.0 },
+            uObjectOpacity: { value: 0.09 }
         },
         vertexShader: `
             varying vec2 vUv;
@@ -36,58 +42,73 @@ export default function setupPostProcessing(context) {
         `,
         fragmentShader: `
             uniform sampler2D tDiffuse;
+            uniform vec2 offset;
+            uniform float uExtraDown;
             uniform float uPower;
             uniform float uLiftAmount;
             uniform float uBendRegion;
+            uniform float uFade;
+            uniform float uObjectOpacity;
             varying vec2 vUv;
 
             void main() {
-                float strength = 1.0 - smoothstep(0.0, uBendRegion, vUv.y);
+                vec2 uv = vUv;
+
+                // Sample original color
+                vec4 origColor = texture2D(tDiffuse, uv);
+
+                // Compute base strength from Y-position for bending
+                float raw = 1.0 - smoothstep(0.0, uBendRegion, uv.y);
+                float strength = raw * raw;
+                float effective = strength * uFade;
+
+                // Compute bend displacement
                 vec2 displacement = vec2(
-                    (0.5 - vUv.x) * strength * uPower,
+                    (.5 - uv.x) * strength * uPower,
                     strength * uLiftAmount
                 );
-                vec2 finalUv = vUv + displacement;
-                gl_FragColor = texture2D(tDiffuse, finalUv);
+
+                // Extra vertical pull for chromatic offset
+                float extraDown = smoothstep(0.5, 0.0, uv.y) * uExtraDown;
+                vec2 baseOffset = vec2(offset.x, offset.y + extraDown);
+
+                // Displaced UV
+                vec2 displacedUV = uv + displacement;
+
+                // Chromatic offsets
+                vec2 redOffset = baseOffset;
+                vec2 blueOffset = -baseOffset;
+
+                // Sample each channel for bent color (reflection)
+                vec4 sampleR = texture2D(tDiffuse, displacedUV + redOffset);
+                vec4 sampleG = texture2D(tDiffuse, displacedUV);
+                vec4 sampleB = texture2D(tDiffuse, displacedUV + blueOffset);
+                vec3 bentColor = vec3(sampleR.r, sampleG.g, sampleB.b);
+
+                // Base color starts as the reflection at the bottom
+                vec3 finalRGB = bentColor;
+
+                // Define the region below the reflection where the object appears
+                float objectRegionStart = uBendRegion * 0.5; // Adjust this to control where object starts
+                float objectRaw = smoothstep(objectRegionStart, 0.0, uv.y); // 1.0 below, 0.0 above
+                float objectFade = objectRaw * uObjectOpacity; // Fade in object based on uObjectOpacity
+
+                // Blend original color (object) with reflection, but only below the reflection
+                if (uv.y < uBendRegion) {
+                    finalRGB = mix(bentColor, origColor.rgb, objectFade);
+                }
+
+                // Output with original alpha
+                gl_FragColor = vec4(finalRGB, origColor.a);
             }
         `
     });
-    context.composer.addPass(bendPass);
-
-    // Chromatic aberration
-    const chromatic = new ShaderPass({
-        uniforms: {
-            tDiffuse: { value: null },
-            offset: { value: new THREE.Vector2(0.001, 0.001) },
-            uExtraDown: { value: 0.005 }
-        },
-        vertexShader: `
-            varying vec2 vUv;
-            void main(){
-                vUv = uv;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-            }
-        `,
-        fragmentShader: `
-            uniform sampler2D tDiffuse;
-            uniform vec2 offset;
-            uniform float uExtraDown;
-            varying vec2 vUv;
-            void main(){
-                float extraDown = smoothstep(0.5, 0.0, vUv.y) * uExtraDown;
-                vec2 off = vec2(offset.x, offset.y + extraDown);
-                float r = texture2D(tDiffuse, vUv + off).r;
-                float g = texture2D(tDiffuse, vUv).g;
-                float b = texture2D(tDiffuse, vUv - off).b;
-                gl_FragColor = vec4(r,g,b,1.0);
-            }
-        `
-    });
-    context.chromaticPass = chromatic;
-
-    context.composer.addPass(chromatic);
 
 
+    context.composer.addPass(chromaticBendPass);
+    context.chromaticBendPass = chromaticBendPass; // Keep reference
+
+    // 4) FXAA (anti-alias)
     const fxaaPass = new ShaderPass(FXAAShader);
     fxaaPass.material.uniforms['resolution'].value.set(
         1 / window.innerWidth,

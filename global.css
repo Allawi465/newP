@@ -970,3 +970,15 @@ html.lenis body {
     }
 
 }
+
+.lil-gui.autoPlace {
+    max-height: 80%;
+    position: absolute;
+    bottom: 0;
+    top: auto;
+    left: 26px;
+    z-index: 1001;
+    border: 1px solid #2a2a2a;
+    --title-background-color: #262626;
+    overflow-y: auto;
+}

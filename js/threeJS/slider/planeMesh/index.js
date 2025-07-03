@@ -87,12 +87,12 @@ export default function createPlaneMesh(content, texture, index, renderer) {
         end: '+=60',
         scroller: document.body,
         onEnter: () => {
-            content.chromaticPass.uniforms.offset.value.set(0, 0);
-            content.chromaticPass.uniforms.uExtraDown.value = 0.0;
+            content.chromaticBendPass.uniforms.offset.value.set(0, 0);
+            content.chromaticBendPass.uniforms.uExtraDown.value = 0.0;
         },
         onLeaveBack: () => {
-            content.chromaticPass.uniforms.offset.value.set(0.001, 0.001);
-            content.chromaticPass.uniforms.uExtraDown.value = 0.005;
+            content.chromaticBendPass.uniforms.offset.value.set(0.001, 0.001);
+            content.chromaticBendPass.uniforms.uExtraDown.value = 0.005;
         }
     });
 

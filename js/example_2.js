@@ -70,18 +70,10 @@ class EffectShell {
 
         this.material.uniforms.uMouse.value.copy(this.pointer);
         this.material.uniforms.uMousePrev.value.copy(this.pointerPrev);
-
-        const prevMask = this.camera.layers.mask;
-        const prevAutoClear = this.renderer.autoClear;
-
-        this.camera.layers.set(this.PARTICLE_LAYER);
         this.renderer.autoClear = true;
 
         this.cubeCamera.position.copy(this.glassBall.position);
         this.cubeCamera.update(this.renderer, this.scene);
-
-        this.camera.layers.mask = prevMask;
-        this.renderer.autoClear = prevAutoClear;
 
         // Delta time
         let deltaTime = this.clock.getDelta();
@@ -111,7 +103,6 @@ class EffectShell {
         this.fboMaterial.uniforms.uPositions.value = this.fbo.texture;
 
         this.camera.layers.enableAll();
-        this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
         this.composer.render();
 

@@ -1,21 +1,36 @@
 import * as THREE from 'three';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import GUI from 'lil-gui';
 import fragment from '../glsl/dust/fragment.js';
 import vertex from '../glsl/dust/vertex.js';
 
 export default function addObjects(context) {
-    /*     const gui = new dat.GUI();
-        const PartFolder = gui.addFolder('Particles'); */
+    const gui = new GUI({ width: 200 }); // Don't reuse any existing instance
+    gui.title('Particles Color');
+
+    // Add only one folder
+    const colorParams = { particleColor: '#ffffff' };
+    const fogColorParams = { uFogColor: '#175454' };
+
+    // Add controls directly to root (not in a folder)
+    gui.addColor(colorParams, 'particleColor').onChange((value) => {
+        context.material.uniforms.uColor.value.set(new THREE.Color(value));
+    });
+
+    gui.addColor(fogColorParams, 'uFogColor').name('Fog Color').onChange((value) => {
+        context.material.uniforms.uFogColor.value.set(new THREE.Color(value));
+    });
+
     const glassGeometry = new THREE.IcosahedronGeometry(0.22, 22);
     context.glassMaterial = new THREE.MeshPhysicalMaterial({
-        thickness: 0.1,
-        roughness: 0.1,
-        metalness: 0.2,
+        thickness: 0.15,
+        roughness: 0.2,
+        metalness: 0.35,
         opacity: 0.0,
         envMapIntensity: 10,
         transparent: true,
         color: new THREE.Color(0x141414),
-        emissive: new THREE.Color(0x141414),
+        emissive: new THREE.Color(0x2D3E40),
         depthWrite: false,
         depthTest: true
     });
@@ -24,6 +39,7 @@ export default function addObjects(context) {
     context.glassBall.position.set(0, 0, 0);
     context.glassBall.layers.set(context.SPHERE_LAYER);
     context.scene.add(context.glassBall);
+
 
     context.material = new THREE.ShaderMaterial({
         extensions: { derivatives: "#extension GL_OES_standard_derivatives : enable" },
@@ -36,6 +52,8 @@ export default function addObjects(context) {
             uScrollProgress: { value: 0.0 },
             uOpacity: { value: 0.0 },
             uCameraPos: { value: new THREE.Vector3() },
+            uColor: { value: new THREE.Color(colorParams.particleColor) },
+            uFogColor: { value: new THREE.Color(fogColorParams.uFogColor) },
         },
         vertexShader: vertex,
         fragmentShader: fragment,
@@ -44,15 +62,6 @@ export default function addObjects(context) {
         depthWrite: false,
         depthTest: true
     });
-
-
-    /*     PartFolder.add(pointColorParams, 'x', 0, 1).name('Color X').onChange(val => {
-            context.material.uniforms.pointColor.value.x = val;
-        });
-        PartFolder.add(pointColorParams, 'y', 0, 1).name('Color Y').onChange(val => {
-            context.material.uniforms.pointColor.value.y = val;
-    
-        PartFolder.open(); */
 
     context.count = context.size * context.size;
     let geometry = new THREE.BufferGeometry();
@@ -87,6 +96,7 @@ export default function addObjects(context) {
 
     context.points = new THREE.Points(geometry, context.material);
     context.points.layers.set(context.PARTICLE_LAYER);
+    context.points.frustumCulled = false;
     context.points.renderOrder = 3;
     context.scene.add(context.points);
 
@@ -95,12 +105,8 @@ export default function addObjects(context) {
         generateMipmaps: true,
         minFilter: THREE.LinearMipmapLinearFilter
     });
-    context.cubeCamera = new THREE.CubeCamera(0.08, 1000, context.cubeRenderTarget);
+    context.cubeCamera = new THREE.CubeCamera(0.01, 1000, context.cubeRenderTarget);
     context.scene.add(context.cubeCamera);
-
-    context.cubeCamera.layers.disable(context.PLANE_LAYER);
-    context.cubeCamera.layers.disable(context.slider_mesh);
-    context.cubeCamera.layers.enable(context.PARTICLE_LAYER);
 
     context.glassMaterial.envMap = context.cubeRenderTarget.texture;
     context.glassMaterial.needsUpdate = true;
@@ -111,6 +117,10 @@ export default function addObjects(context) {
         start: "top top",
         end: "55% top",
         scrub: true,
+        onEnterBack: () => {
+            // When scrolling back up to hero
+            context.chromaticBendPass.uniforms.offset.value.set(0.0025, 0.0025);
+        },
         onUpdate: self => {
             if (context.isLoading) return;
             context.material.uniforms.uScrollProgress.value = self.progress;
@@ -119,6 +129,7 @@ export default function addObjects(context) {
         },
         onLeave: () => {
             context.material.uniforms.uScrollProgress.value = 1;
+            context.chromaticBendPass.uniforms.offset.value.set(0.001, 0.001);
         },
     });
 }
