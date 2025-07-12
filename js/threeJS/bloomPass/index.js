@@ -28,10 +28,10 @@ export default function setupPostProcessing(context) {
             uPower: { value: 0.2 },
             uLiftAmount: { value: 0.0 },
             uBendRegion: { value: 0.075 },
-            offset: { value: new THREE.Vector2(0.0025, 0.0025) },
-            uExtraDown: { value: 0.005 },
+            offset: { value: new THREE.Vector2(0.0015, 0.0015) },
+            uExtraDown: { value: 0.0 },
             uFade: { value: 1.0 },
-            uObjectOpacity: { value: 0.09 }
+            uObjectOpacity: { value: 0.1 }
         },
         vertexShader: `
             varying vec2 vUv;
@@ -69,8 +69,8 @@ export default function setupPostProcessing(context) {
                 );
 
                 // Extra vertical pull for chromatic offset
-                float extraDown = smoothstep(0.5, 0.0, uv.y) * uExtraDown;
-                vec2 baseOffset = vec2(offset.x, offset.y + extraDown);
+                float extraDown = smoothstep(0.5, 0.0, uv.y);
+                vec2 baseOffset = vec2(offset.x, offset.y);
 
                 // Displaced UV
                 vec2 displacedUV = uv + displacement;
@@ -89,11 +89,10 @@ export default function setupPostProcessing(context) {
                 vec3 finalRGB = bentColor;
 
                 // Define the region below the reflection where the object appears
-                float objectRegionStart = uBendRegion * 0.5; // Adjust this to control where object starts
-                float objectRaw = smoothstep(objectRegionStart, 0.0, uv.y); // 1.0 below, 0.0 above
-                float objectFade = objectRaw * uObjectOpacity; // Fade in object based on uObjectOpacity
+                float objectRegionStart = uBendRegion * 0.5; 
+                float objectRaw = smoothstep(objectRegionStart, 0.0, uv.y); 
+                float objectFade = objectRaw * uObjectOpacity;
 
-                // Blend original color (object) with reflection, but only below the reflection
                 if (uv.y < uBendRegion) {
                     finalRGB = mix(bentColor, origColor.rgb, objectFade);
                 }
@@ -106,7 +105,7 @@ export default function setupPostProcessing(context) {
 
 
     context.composer.addPass(chromaticBendPass);
-    context.chromaticBendPass = chromaticBendPass; // Keep reference
+    context.chromaticBendPass = chromaticBendPass;
 
     // 4) FXAA (anti-alias)
     const fxaaPass = new ShaderPass(FXAAShader);

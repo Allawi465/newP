@@ -30,8 +30,8 @@ export default function createPlaneMesh(content, texture, index, renderer) {
             uOffset: { value: new THREE.Vector2(0.0, 0.0) },
             uzom: { value: 1.0 },
             uBorderRadius: { value: 0.01 },
-            uDistanceScale: { value: content.initialDistanceScale },
-            opacity: { value: 1 },
+            uGrayscale: { value: 0.0 },
+            opacity: { value: 0 },
             uAspectRatio: { value: aspectRatio },
             uRotation: { value: 0.0 },
         },
@@ -74,25 +74,22 @@ export default function createPlaneMesh(content, texture, index, renderer) {
         }
     });
 
+
     tl.to(planeMesh.position, {
         y: 8,
         ease: "none",
         immediateRender: false
     }, 0);
 
-
     ScrollTrigger.create({
-        trigger: '.projects',
-        start: 'top top',
-        end: '+=60',
+        trigger: '.hero',
+        start: 'bottom center',
+        end: '+=520',
+        scrub: true,
         scroller: document.body,
-        onEnter: () => {
-            content.chromaticBendPass.uniforms.offset.value.set(0, 0);
-            content.chromaticBendPass.uniforms.uExtraDown.value = 0.0;
-        },
-        onLeaveBack: () => {
-            content.chromaticBendPass.uniforms.offset.value.set(0.001, 0.001);
-            content.chromaticBendPass.uniforms.uExtraDown.value = 0.005;
+        onUpdate: (self) => {
+            planeMesh.material.uniforms.uGrayscale.value = self.progress;
+            planeMesh.material.uniforms.opacity.value = self.progress;
         }
     });
 

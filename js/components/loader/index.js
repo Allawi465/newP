@@ -1,5 +1,10 @@
 import gsap from "gsap";
 import SplitType from 'split-type';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
+
 
 export default function initLoadingSequence(context) {
 
@@ -15,8 +20,6 @@ export default function initLoadingSequence(context) {
         tagName: 'span',
     });
 
-    context.stopBodyScrolling();
-
     const timeline = gsap.timeline({
         duration: 1,
         ease: "power2.inOut",
@@ -29,11 +32,8 @@ export default function initLoadingSequence(context) {
     },).to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
         duration: 1,
-        delay: 2.1,
+        delay: 2.5,
         ease: "sine.out",
-        onComplete: () => {
-            context.startBodyScrolling();
-        },
         onUpdate: () => {
             const progress = context.largeShaderMaterial.uniforms.progress.value;
 
@@ -45,12 +45,12 @@ export default function initLoadingSequence(context) {
     }, 0).to(".header ", {
         opacity: 1,
         duration: 1,
-    }, 2.7).to(".about ", {
+    }, 3).to(".about ", {
         opacity: 1,
         visibility: "visible",
-    }, 2.7).to(".hero-parent", {
+    }, 3).to(".hero-parent", {
         opacity: 1,
-    }, 2.7).fromTo(
+    }, 3).fromTo(
         '.hero_heading .char',
         {
             opacity: 0,
@@ -62,7 +62,7 @@ export default function initLoadingSequence(context) {
             duration: 0.5,
             ease: "power2.out",
             stagger: { amount: 0.2 },
-        }, 2.7
+        }, 3
     ).fromTo(
         '.hero_heading2 .char',
         {
@@ -75,29 +75,31 @@ export default function initLoadingSequence(context) {
             duration: 0.5,
             ease: "power2.out",
             stagger: { amount: 0.2 },
-        }, 2.7
+        }, 3
     ).to(".text_hero", {
         opacity: 1,
-    }, 2.7).to(".scroll ", {
+    }, 3).to(".scroll ", {
         opacity: 1,
 
-    }, 2.7).to(".scroll-line ", {
+    }, 3).to(".scroll-line ", {
         opacity: 1,
-        onComplete: () => {
-            context.isLoading = false;
-        },
-    }, 2.7).to(context.glassMaterial, {
+    }, 3).to(context.glassMaterial, {
         opacity: 1.0,
         duration: 0.5,
         ease: "power2.out",
         onUpdate: () => {
             context.glassMaterial.needsUpdate = true;
         }
-    }, 2.7).to(context.material.uniforms.uOpacity, {
+    }, 3).to(context.material.uniforms.uOpacity, {
         value: 1.0,
         duration: 0.5,
-        ease: "power2.out"
-    }, 2.7);
+        ease: "power2.out",
+        onComplete: () => {
+            context.isLoading = false;
+            context.startBodyScrolling();
+            ScrollTrigger.refresh();
+        },
+    }, 3);
 }
 
 export const animateCounters = () => {
@@ -133,7 +135,16 @@ export const animateCounters = () => {
 
         tl.add(animate('.counter-3', 1.5), 0)
             .add(animate('.counter-2', 2.5), '<')
-            .add(animate('.counter-1', 1.5, 1), '<');
+            .add(animate('.counter-1', 1.5, 1), '<')
+            .to('.num', {
+                duration: 0.5,
+                opacity: 0,
+                delay: 1.,
+                ease: 'power2.out',
+            }, '<').to('.counter_percent', {
+                duration: 0.5,
+                opacity: 0,
+                ease: 'power2.out',
+            }, '<');
     });
 };
-

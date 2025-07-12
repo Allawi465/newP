@@ -27,7 +27,6 @@ export default function setupEventListeners(context) {
 
             if (context.bodyLenis) {
                 context.bodyLenis.scrollTo(0, { immediate: true });
-                context.bodyLenis.start();
             }
 
             setupScrollAnimation();
@@ -35,17 +34,22 @@ export default function setupEventListeners(context) {
     });
 
     window.addEventListener('pointermove', (event) => {
+        if (context.isDragging) return;
         context.pointerPrev.copy(context.pointer);
-
-        const currentX = (event.clientX / window.innerWidth) * 2 - 1;
-        const currentY = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        context.pointer.x = currentX;
-        context.pointer.y = currentY;
-
+        context.pointer.set(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1
+        );
         let targetPos = new THREE.Vector3(context.pointer.x, context.pointer.y, 0);
         targetPos.unproject(context.camera);
         targetPos.z = context.glassBall.position.z;
-        context.targetPosition.lerp(targetPos, 0.2);
+        context.targetPosition.lerp(targetPos, 0.05);
+    }, { passive: false });
+
+    // Visibility change to reset clock
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            context.clock.start(); // Reset clock to prevent large deltaTime
+        }
     });
 }

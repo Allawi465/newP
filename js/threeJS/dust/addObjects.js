@@ -5,41 +5,19 @@ import fragment from '../glsl/dust/fragment.js';
 import vertex from '../glsl/dust/vertex.js';
 
 export default function addObjects(context) {
-    const gui = new GUI({ width: 200 }); // Don't reuse any existing instance
-    gui.title('Particles Color');
-
-    // Add only one folder
-    const colorParams = { particleColor: '#ffffff' };
-    const fogColorParams = { uFogColor: '#175454' };
-
-    // Add controls directly to root (not in a folder)
-    gui.addColor(colorParams, 'particleColor').onChange((value) => {
-        context.material.uniforms.uColor.value.set(new THREE.Color(value));
-    });
-
-    gui.addColor(fogColorParams, 'uFogColor').name('Fog Color').onChange((value) => {
-        context.material.uniforms.uFogColor.value.set(new THREE.Color(value));
-    });
-
-    const glassGeometry = new THREE.IcosahedronGeometry(0.22, 22);
-    context.glassMaterial = new THREE.MeshPhysicalMaterial({
-        thickness: 0.15,
-        roughness: 0.2,
-        metalness: 0.35,
-        opacity: 0.0,
-        envMapIntensity: 10,
-        transparent: true,
-        color: new THREE.Color(0x141414),
-        emissive: new THREE.Color(0x2D3E40),
-        depthWrite: false,
-        depthTest: true
-    });
-
-    context.glassBall = new THREE.Mesh(glassGeometry, context.glassMaterial);
-    context.glassBall.position.set(0, 0, 0);
-    context.glassBall.layers.set(context.SPHERE_LAYER);
-    context.scene.add(context.glassBall);
-
+    /*  const gui = new GUI({ width: 200 }); // Don't reuse any existing instance
+     gui.title('Particles Color');
+ 
+     // Add controls directly to root (not in a folder)
+     gui.addColor(colorParams, 'particleColor').onChange((value) => {
+         context.material.uniforms.uColor.value.set(new THREE.Color(value));
+     });
+ 
+     gui.addColor(fogColorParams, 'uFogColor').name('Fog Color').onChange((value) => {
+         context.material.uniforms.uFogColor.value.set(new THREE.Color(value));
+     }); */
+    const colorParams = { particleColor: '#d0e2eb' };
+    const fogColorParams = { uFogColor: '#ffffff' };
 
     context.material = new THREE.ShaderMaterial({
         extensions: { derivatives: "#extension GL_OES_standard_derivatives : enable" },
@@ -100,6 +78,25 @@ export default function addObjects(context) {
     context.points.renderOrder = 3;
     context.scene.add(context.points);
 
+    const glassGeometry = new THREE.IcosahedronGeometry(0.22, 22);
+    context.glassMaterial = new THREE.MeshPhysicalMaterial({
+        thickness: 0.15,
+        roughness: 0.2,
+        metalness: 0.35,
+        opacity: 0.0,
+        envMapIntensity: 15,
+        transparent: true,
+        color: new THREE.Color(0x141414),
+        emissive: new THREE.Color(0x2D3E40),
+        depthWrite: false,
+        depthTest: true
+    });
+
+    context.glassBall = new THREE.Mesh(glassGeometry, context.glassMaterial);
+    context.glassBall.position.set(0, 0, 0);
+    context.glassBall.layers.set(context.SPHERE_LAYER);
+    context.scene.add(context.glassBall);
+
     context.cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
         format: THREE.RGBAFormat,
         generateMipmaps: true,
@@ -110,8 +107,8 @@ export default function addObjects(context) {
 
     context.glassMaterial.envMap = context.cubeRenderTarget.texture;
     context.glassMaterial.needsUpdate = true;
-
     context.fboMaterial.uniforms.uSpherePos.value = context.glassBall.position;
+
     ScrollTrigger.create({
         trigger: ".hero",
         start: "top top",
@@ -119,7 +116,7 @@ export default function addObjects(context) {
         scrub: true,
         onEnterBack: () => {
             // When scrolling back up to hero
-            context.chromaticBendPass.uniforms.offset.value.set(0.0025, 0.0025);
+            context.chromaticBendPass.uniforms.offset.value.set(0.0015, 0.0015);
         },
         onUpdate: self => {
             if (context.isLoading) return;
@@ -129,7 +126,8 @@ export default function addObjects(context) {
         },
         onLeave: () => {
             context.material.uniforms.uScrollProgress.value = 1;
-            context.chromaticBendPass.uniforms.offset.value.set(0.001, 0.001);
+            context.chromaticBendPass.uniforms.offset.value.set(0.000, 0.000);
+            context.glassMaterial.opacity = 0;
         },
     });
 }

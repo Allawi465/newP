@@ -6,18 +6,13 @@ class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
 
-        this.init().then(() => this.onInitComplete());
-
         setupLenis(this);
+
+        this.stopBodyScrolling();
+
+        this.init().then(() => this.onInitComplete());
     }
 
-    stopBodyScrolling() {
-        this.bodyLenis.stop();
-    }
-
-    startBodyScrolling() {
-        this.bodyLenis.start();
-    }
 
     async init() {
         try {
@@ -28,13 +23,23 @@ class EffectShell {
             setupFBO(this);
             createCSS2DObjects(this, images);
             addObjects(this);
-            initLoadingSequence(this)
             setupEventListeners(this);
             this.animate();
             onWindowResize(this);
+            initLoadingSequence(this)
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
+    }
+
+    stopBodyScrolling() {
+        this.bodyLenis?.stop()
+        document.body.classList.add('scroll-locked')
+    }
+
+    startBodyScrolling() {
+        this.bodyLenis?.start()
+        document.body.classList.remove('scroll-locked')
     }
 
     updateAdjustedMeshSpacing() {
@@ -77,13 +82,15 @@ class EffectShell {
 
         // Delta time
         let deltaTime = this.clock.getDelta();
+
         this.fboMaterial.uniforms.uDelta.value = deltaTime;
+        const maxDelta = 0.1;
+        this.fboMaterial.uniforms.uDelta.value = Math.min(deltaTime, maxDelta);
 
         // Update time
         this.time += deltaTime;
         this.material.uniforms.time.value = this.time;
         this.fboMaterial.uniforms.time.value = this.time;
-
         // Update FBO uniforms
         this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random() * 0.9;
         this.fboMaterial.uniforms.uRandom2.value = 0.5 + Math.random() * 0.9;
@@ -91,7 +98,7 @@ class EffectShell {
         this.material.uniforms.uCameraPos.value.copy(this.camera.position);
         this.fboMaterial.uniforms.uMouse.value.copy(this.pointer);
         this.fboMaterial.uniforms.uSpherePos.value.copy(this.glassBall.position);
-        this.glassBall.position.lerp(this.targetPosition, 0.1);
+        this.glassBall.position.lerp(this.targetPosition, 0.05);
 
         // Render to FBO
         this.renderer.setRenderTarget(this.fbo);

@@ -10,7 +10,7 @@ export function onPointerMove(event, context) {
     const delta = clientX - context.startX;
 
     // Apply some smoothing to the dragDelta to make it feel more constant
-    const smoothingFactor = 0.5; // Adjust this factor for more or less smoothness
+    const smoothingFactor = 0.1; // Adjust this factor for more or less smoothness
     context.dragDelta = context.dragDelta * (1 - smoothingFactor) + Math.abs(delta) * smoothingFactor;
 
     // Adjust the position with some easing to avoid abrupt jumps
@@ -21,7 +21,7 @@ export function onPointerMove(event, context) {
     context.dragSpeed = context.dragSpeed * (1 - smoothingFactor) + rawSpeed * smoothingFactor;
 
     // Limit the maximum speed for more control
-    context.dragSpeed = Math.max(Math.min(context.dragSpeed, 60), -60);
+    context.dragSpeed = Math.max(Math.min(context.dragSpeed, 25), -25);
 
     context.lastX = clientX;
 

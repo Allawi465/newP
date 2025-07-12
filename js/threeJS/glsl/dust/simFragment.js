@@ -129,7 +129,7 @@ void main() {
     float age = data.a;
 
     // Reset particles only when age >= 1.0
-    bool condition = age >= 1.0;
+    bool condition = age >= 1.;
     float spawnRadius = 0.5 + rand1(pos.x) * 0.5;
     vec3 spawnPosition = randomSpherePoint(uSpherePos, spawnRadius, pos);
 
@@ -143,24 +143,24 @@ void main() {
     age = mix(age, 0.0, float(condition));
 
     // Subtle noise for organic variation
-    vec3 noise = snoiseVec3(pos * 0.5 + vec3(time * 0.2, time * 0.2, time * 0.1)) * 0.2;
+    vec3 noise = snoiseVec3(pos * 0.5 + vec3(time * 0.2, time * 0.2, time * 0.1)) * 0.145;
 
     // Attract particles slightly to stay near the orbit radius
     float desiredRadius = .5;
     float currentRadius = length(pos - uSpherePos);
     float radiusDiff = desiredRadius - currentRadius;
-    vec3 correction = normalize(pos - uSpherePos) * radiusDiff * 0.06;
+    vec3 correction = normalize(pos - uSpherePos) * radiusDiff * 0.02;
 
     // Combine motion vectors
     vec3 newpos = pos + noise + correction;
 
     float dist = length(pos.xy - uSpherePos.xy);
     vec2 dir = normalize(pos.xy - uSpherePos.xy);
-    pos.xy += dir * 0.1 * smoothstep(0.5, 0.0, dist);
+    pos.xy += dir * 0.1 * smoothstep(0.59, 0.0, dist);
 
     // Smooth motion blending
     pos = mix(pos, newpos, 0.1);
-    age = clamp(age + uDelta * 0.07, 0.0, 1.0);
+    age = clamp(age + uDelta * 0.08, 0.0, 1.);
 
     gl_FragColor = vec4(pos, age);
 }

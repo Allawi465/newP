@@ -12,24 +12,25 @@ varying vec4 vData;
 varying vec2 vIndex;
 
 vec3 fog(vec3 color, float near, float far) {
-    float fogFactor = smoothstep(2.0, 10.0, distance(vData.xyz, uCameraPos)) * 0.5; // Adjusted range and intensity
+    float fogFactor = smoothstep(2.0, 10.0, distance(vData.xyz, uCameraPos)) * 0.5;
     return mix(color, uFogColor, fogFactor);
 }
 
 void main() {
     vec4 data = texture2D(uPositions, vIndex);
-    
     float dist = distance(vec2(0.5), gl_PointCoord);
     if (dist > 0.5) discard;
 
-    float y = pow((1. - data.a), 2.0);
-    float z = sin(y * PI);
-    float alpha = pow(z, 2.0);
+    float age = clamp(data.a, 0.0, .85);
+
+    // Adjusted for faster fade-out with higher exponents
+    float alpha = pow(sin(pow((1. - age), 2.8) * PI), 3.);
     alpha *= (1.0 - uScrollProgress) * uOpacity;
     alpha *= 0.1;
 
-    vec3 color = fog(uColor, 10.0, 2.0); 
+    if (alpha < 0.005) discard;
 
+    vec3 color = fog(uColor, 10.0, 2.0); 
     gl_FragColor = vec4(color, alpha);
 }
 `;
