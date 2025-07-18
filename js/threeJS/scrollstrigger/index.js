@@ -7,7 +7,6 @@ export default function setupScrollAnimation() {
     gsap.registerPlugin(CustomEase);
     CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
 
-
     gsap.fromTo(".scroll_line",
         {
             "--scaleY": 0,
@@ -60,23 +59,24 @@ export default function setupScrollAnimation() {
 
     const typeSplit = new SplitType(".projects__title", { types: 'char', tagName: 'span' });
 
-    gsap.fromTo(
-        ".projects__title .char",
-        {
-            color: 'rgba(255, 255, 255, 0)',
-            y: -50
-        },
-        {
-            color: 'rgba(255, 255, 255, 1)',
-            y: 0,
-            ease: "customBezier",
-            stagger: 0.05,
-            scrollTrigger: {
-                trigger: ".projects",
-                start: "bottom bottom",
+    ScrollTrigger.create({
+        trigger: '.hero',
+        start: 'bottom 25%',
+        scrub: 1,
+        animation: gsap.fromTo(
+            '.projects__title .char',
+            {
+                color: 'rgba(255, 255, 255, 0)',
+                ease: "customBezier",
+                stagger: 0.05,
+            },
+            {
+                color: 'rgba(255, 255, 255, 1)',
+                ease: "customBezier",
+                stagger: 0.05,
             }
-        }
-    );
+        ),
+    });
 
     ScrollTrigger.refresh();
 }

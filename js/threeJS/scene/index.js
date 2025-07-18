@@ -3,13 +3,12 @@ import { CSS2DRenderer } from 'three/examples/jsm/Addons.js';
 
 export default function setupScene(context) {
     context.scene = new THREE.Scene();
-    const VIEW_WIDTH = 4.5;
     const aspect = window.innerWidth / window.innerHeight;
-    const viewHeight = VIEW_WIDTH / aspect;
+    const viewHeight = context.VIEW_WIDTH / aspect;
 
     context.camera = new THREE.OrthographicCamera(
-        -VIEW_WIDTH / 2,
-        VIEW_WIDTH / 2,
+        -context.VIEW_WIDTH / 2,
+        context.VIEW_WIDTH / 2,
         viewHeight / 2,
         -viewHeight / 2,
         0.01,

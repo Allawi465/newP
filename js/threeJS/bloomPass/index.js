@@ -28,7 +28,7 @@ export default function setupPostProcessing(context) {
             uPower: { value: 0.2 },
             uLiftAmount: { value: 0.0 },
             uBendRegion: { value: 0.075 },
-            offset: { value: new THREE.Vector2(0.0015, 0.0015) },
+            offset: { value: new THREE.Vector2(0.001, 0.001) },
             uExtraDown: { value: 0.0 },
             uFade: { value: 1.0 },
             uObjectOpacity: { value: 0.1 }
@@ -75,7 +75,7 @@ export default function setupPostProcessing(context) {
                 // Displaced UV
                 vec2 displacedUV = uv + displacement;
 
-                // Chromatic offsets
+                // Chromatic offsets                
                 vec2 redOffset = baseOffset;
                 vec2 blueOffset = -baseOffset;
 

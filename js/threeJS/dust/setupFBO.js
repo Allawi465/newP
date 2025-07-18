@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-
 import simFragment from '../glsl/dust/simFragment.js';
 import simVertex from '../glsl/dust/simVertex.js';
 
@@ -13,7 +12,6 @@ function getRenderTarget() {
     return renderTarget;
 }
 
-
 export default function setupFBO(context) {
     context.size = 1024;
     context.fbo = getRenderTarget();
@@ -26,7 +24,6 @@ export default function setupFBO(context) {
 
     const geometry = new THREE.PlaneGeometry(2, 2);
     context.data = new Float32Array(context.size * context.size * 4);
-
 
     for (let i = 0; i < context.size; i++) {
         for (let j = 0; j < context.size; j++) {

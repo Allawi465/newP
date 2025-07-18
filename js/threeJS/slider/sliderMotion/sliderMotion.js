@@ -4,7 +4,6 @@ function startMomentumMotion(context) {
     if (!context.isMoving && !context.isDragging) return;
 
     context.currentPosition += context.velocity;
-
     context.velocity *= context.friction;
 
     let offsetValue = context.velocity * 50;

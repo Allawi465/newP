@@ -9,18 +9,16 @@ export function onPointerMove(event, context) {
 
     const delta = clientX - context.startX;
 
-    // Apply some smoothing to the dragDelta to make it feel more constant
-    const smoothingFactor = 0.1; // Adjust this factor for more or less smoothness
+    const smoothingFactor = 0.1;
     context.dragDelta = context.dragDelta * (1 - smoothingFactor) + Math.abs(delta) * smoothingFactor;
 
-    // Adjust the position with some easing to avoid abrupt jumps
     context.currentPosition += (delta / context.movementSensitivity) * smoothingFactor;
 
-    // Calculate drag speed and apply smoothing to it
+    // Calculate drag speed and apply smoothing 
     const rawSpeed = clientX - context.lastX;
     context.dragSpeed = context.dragSpeed * (1 - smoothingFactor) + rawSpeed * smoothingFactor;
 
-    // Limit the maximum speed for more control
+    // Limit the maximum speed 
     context.dragSpeed = Math.max(Math.min(context.dragSpeed, 25), -25);
 
     context.lastX = clientX;
@@ -32,7 +30,7 @@ export function onPointerMove(event, context) {
 
     context.updatePositions();
 
-    // Smooth the velocity as well
+    // Smooth the velocity 
     context.velocity = context.velocity * (1 - smoothingFactor) + (delta / context.movementSensitivity) * smoothingFactor;
     context.startX = clientX;
 }
@@ -57,7 +55,6 @@ export function onPointerUp(event, context) {
     const endY = event.clientY !== undefined
         ? event.clientY
         : (event.touches && event.touches[0] && event.touches[0].clientY);
-
 
     if (endX === undefined || endY === undefined) return;
 

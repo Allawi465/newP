@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import GUI from 'lil-gui';
 import fragment from '../glsl/dust/fragment.js';
 import vertex from '../glsl/dust/vertex.js';
+import onWindowResize from '../resize/index.js';
 
 export default function addObjects(context) {
     /*  const gui = new GUI({ width: 200 }); // Don't reuse any existing instance
@@ -115,14 +116,19 @@ export default function addObjects(context) {
         end: "55% top",
         scrub: true,
         onEnterBack: () => {
-            // When scrolling back up to hero
-            context.chromaticBendPass.uniforms.offset.value.set(0.0015, 0.0015);
+            context.chromaticBendPass.uniforms.offset.value.set(0.001, 0.001);
         },
         onUpdate: self => {
-            if (context.isLoading) return;
             context.material.uniforms.uScrollProgress.value = self.progress;
             context.glassMaterial.opacity = 1 - self.progress;
             context.glassMaterial.needsUpdate = true;
+
+            const progress = self.progress;
+
+            context.VIEW_WIDTH = 3.5 + (1.5 * progress);
+
+            onWindowResize(context);
+
         },
         onLeave: () => {
             context.material.uniforms.uScrollProgress.value = 1;

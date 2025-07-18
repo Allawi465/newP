@@ -143,7 +143,7 @@ void main() {
     age = mix(age, 0.0, float(condition));
 
     // Subtle noise for organic variation
-    vec3 noise = snoiseVec3(pos * 0.5 + vec3(time * 0.2, time * 0.2, time * 0.1)) * 0.145;
+    vec3 noise = snoiseVec3(pos * 0.5 + vec3(time * 0.2, time * 0.2, time * 0.1)) * 0.14;
 
     // Attract particles slightly to stay near the orbit radius
     float desiredRadius = .5;

@@ -11,8 +11,12 @@ class EffectShell {
         this.stopBodyScrolling();
 
         this.init().then(() => this.onInitComplete());
-    }
 
+        this.VIEW_WIDTH = 3.5;
+        this.baseMeshSpacing = 2.2;
+
+        this.bounceTween = null;
+    }
 
     async init() {
         try {
@@ -34,12 +38,10 @@ class EffectShell {
 
     stopBodyScrolling() {
         this.bodyLenis?.stop()
-        document.body.classList.add('scroll-locked')
     }
 
     startBodyScrolling() {
         this.bodyLenis?.start()
-        document.body.classList.remove('scroll-locked')
     }
 
     updateAdjustedMeshSpacing() {
@@ -59,7 +61,6 @@ class EffectShell {
     }
 
     animate() {
-        // Update positions and sync
         this.updatePositions();
         this.syncHtmlWithSlider();
 

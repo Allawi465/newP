@@ -4,8 +4,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-
-
 export default function initLoadingSequence(context) {
 
     context.bodyLenis.scrollTo(0, { immediate: true });
@@ -94,6 +92,9 @@ export default function initLoadingSequence(context) {
         value: 1.0,
         duration: 0.5,
         ease: "power2.out",
+        onUpdate: () => {
+            context.material.needsUpdate = true;
+        },
         onComplete: () => {
             context.isLoading = false;
             context.startBodyScrolling();

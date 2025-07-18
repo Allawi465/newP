@@ -19,7 +19,6 @@ export default function createMeshes(context) {
     });
 
     context.scene.add(context.group);
-
     context.titleElement = document.querySelector(".projects__title");
     context.titleElement.style.transform = 'none';
 
