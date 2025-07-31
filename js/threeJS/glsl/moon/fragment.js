@@ -1,14 +1,19 @@
 const fragment = /*glsl*/ `
-uniform float time; 
-uniform float progress;
-uniform sampler2D texture1;
-uniform vec4 resolution; 
+uniform vec3 uCameraPos;
+uniform vec3 uFogColor;
+
 varying vec2 vUv;
 varying vec4 vColor;
-float PI = 3.141592653589793238;
+varying vec3 vPositionWorld;
+
+vec3 fog(vec3 color, float near, float far) {
+    float fogFactor = smoothstep(near, far, distance(vPositionWorld, uCameraPos));
+    return mix(color, uFogColor, fogFactor);
+}
 
 void main() {
-gl_FragColor = vColor;
+    vec3 colorWithFog = fog(vColor.rgb, 2.0, 10.0);
+    gl_FragColor = vec4(colorWithFog, vColor.a);
 }
 `;
 

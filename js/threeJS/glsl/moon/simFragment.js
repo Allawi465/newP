@@ -1,11 +1,11 @@
 import curlNoise from "../noise/curlGlsl.js";
 
 const simFragment = /*glsl*/ `
-uniform float time; 
+uniform float time;
 uniform float progress;
 uniform sampler2D uPositions;
 uniform sampler2D uInfo;
-uniform vec4 resolution; 
+uniform vec4 resolution;
 uniform vec2 uMouse;
 varying vec2 vUv;
 varying vec4 vPosition;
@@ -17,33 +17,36 @@ void main() {
     vec4 pos = texture2D(uPositions, vUv);
     vec4 info = texture2D(uInfo, vUv);
 
-    vec2 mouse = uMouse;
-
+    // Circular force: Forms a circle when progress is high
     float radius = length(pos.xy);
+    float circularForce = (1. - clamp(abs(pos.x - radius) / 1., 0.0, 1.0));
 
-    float circlularForce = 1. - smoothstep(0.3, 1.4, abs(pos.x - radius));
-
-    float angle = atan(pos.y, pos.x) - info.y * 0.22 * mix(0.5, 1., circlularForce);
+    float angle = atan(pos.y, pos.x) - info.y * 0.2 * mix(0.5, 1.0, circularForce);
 
     float targetRadius = mix(
-    info.x, 2.5, 
-    0.5 + 0.05 * sin(angle*2. + time*0.2)
+        info.x, 2.2,
+        (0.5 + 0.05 * sin(angle * 2.0 + time * 2.0 * progress))
     );
 
-    radius +=(targetRadius - radius) * mix(0.2,0.5,circlularForce);
+    radius += (targetRadius - radius) * mix(0.2, 0.5, circularForce);
 
     vec3 targetPos = vec3(cos(angle), sin(angle), 0.0) * radius;
 
-    pos.xy += (targetPos.xy - pos.xy) * 0.16;
+    // Scattering force: Disperses particles when progress is low
+    vec2 scatterPos = pos.xy + vec2(
+        sin(vUv.x * PI * 2.) * .5,
+        sin(vUv.y * PI * -2.) *.5
+    ) * (1. - progress);
 
-    pos.xy += curl(pos.xyz * 4., time * 0.1, 0.1).xy * 0.0034;
+    // Blend positions
+    pos.xy += (targetPos.xy - pos.xy) * 0.1 * progress;
+    pos.xy += (scatterPos - pos.xy) * 0.02;
 
-    float dist = length(pos.xy - mouse);
-    vec2 dir = normalize(pos.xy - mouse);
-    pos.xy += dir * 0.1 * smoothstep(0.2,0.0, dist);
+    // Apply curl noise for subtle motion
+    pos.xy += curl(pos.xyz * 2.0, time * 0.1, 0.1).xy * 0.003;
 
-    gl_FragColor = vec4(pos.xy, 1., 1.);
+    gl_FragColor = vec4(pos.xy, 1.0, 1.0);
 }
 `;
 
-export default simFragment;
+export default simFragment; 

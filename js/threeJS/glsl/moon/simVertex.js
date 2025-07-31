@@ -1,14 +1,10 @@
 
 const simVertex = /*glsl*/ `
-uniform float time; 
 varying vec2 vUv;
-varying vec3 uPositions;
-uniform vec2 pixels; 
-float PI = 3.141592653589793238;
 
 void main() {
-  vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vUv = uv;
+    gl_Position = vec4(position.xy, 0.0, 1.0);
 }
 `;
 

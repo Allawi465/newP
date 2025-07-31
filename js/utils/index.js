@@ -184,8 +184,10 @@ export const defaultConfig = {
     height: window.innerHeight,
     PARTICLE_LAYER: 0,
     SPHERE_LAYER: 1,
-    PLANE_LAYER: 2,
-    slider_mesh: 3,
+    PLANE_LAYER: 3,
+    slider_mesh: 4,
+    size: 1024,
+    moon_LAYER: 5,
     aspect: window.innerWidth / window.innerHeight,
     movementSensitivity: 150,
     defaultCameraZ: 10.5,
@@ -210,6 +212,7 @@ export const defaultConfig = {
     isAnimating: false,
     largeShaderMaterial: null,
     moonShaderMaterial: null,
+    followMouse: true,
 };
 
 export function calculatePositionX(index, currentPosition, meshSpacing) {

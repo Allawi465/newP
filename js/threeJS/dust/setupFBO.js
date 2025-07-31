@@ -2,20 +2,10 @@ import * as THREE from 'three';
 import simFragment from '../glsl/dust/simFragment.js';
 import simVertex from '../glsl/dust/simVertex.js';
 
-function getRenderTarget() {
-    const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-        format: THREE.RGBAFormat,
-        type: THREE.FloatType,
-        minFilter: THREE.NearestFilter,
-        magFilter: THREE.NearestFilter,
-    });
-    return renderTarget;
-}
-
 export default function setupFBO(context) {
-    context.size = 1024;
-    context.fbo = getRenderTarget();
-    context.fbo1 = getRenderTarget();
+    context.size = 512;
+    context.fbo = context.getRenderTarget();
+    context.fbo1 = context.getRenderTarget();
 
     context.fboScene = new THREE.Scene();
     context.fboCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
@@ -28,7 +18,7 @@ export default function setupFBO(context) {
     for (let i = 0; i < context.size; i++) {
         for (let j = 0; j < context.size; j++) {
             const index = (i + j * context.size) * 4;
-            const r = yN(0, 0, 0, 0.5 + Math.random() * 0.2);
+            var r = context.yN(0, 0, 0, 1.0 + Math.random() * 0.2);
 
             context.data[index] = r[0];
             context.data[index + 1] = r[1];
@@ -52,21 +42,25 @@ export default function setupFBO(context) {
     context.fboMaterial = new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0 },
-            uMouse: { value: new THREE.Vector2(0, 0) },
             uRandom: { value: 0 },
             uRandom2: { value: 0 },
             resolution: { value: new THREE.Vector2(context.width, context.height) },
             uPositions: { value: context.fboTexture },
             uSpherePos: { value: new THREE.Vector3(0, 0, 0) },
-            uDelta: { value: 0. },
+            uDelta: { value: 0.0 },
+            uReset: { value: 0.0 },
+            uFooter: { value: 0.0 },
+            uInfo: { value: null },
         },
         vertexShader: simVertex,
         fragmentShader: simFragment,
+        transparent: true,
         depthWrite: false,
-        depthTest: false,
+        depthTest: true,
         blending: THREE.NoBlending,
-        transparent: true
     });
+
+    context.fboMaterial.uniforms.uInfo.value = context.fboTexture;
 
     context.infoArray = new Float32Array(context.size * context.size * 4);
     context.info = new THREE.DataTexture(context.infoArray, context.size, context.size, THREE.RGBAFormat, THREE.FloatType);
@@ -82,17 +76,4 @@ export default function setupFBO(context) {
     context.renderer.render(context.fboScene, context.fboCamera);
     context.renderer.setRenderTarget(context.fbo1);
     context.renderer.render(context.fboScene, context.fboCamera);
-
-}
-
-function yN(e, t, n, i) {
-    var r = Math.random();
-    var a = Math.random();
-    var s = 2 * Math.PI * r;
-    var o = Math.acos(2 * a - 1);
-    var l = e + i * Math.sin(o) * Math.cos(s);
-    var c = t + i * Math.sin(o) * Math.sin(s);
-    var u = n + i * Math.cos(o);
-
-    return [l, c, u];
 }

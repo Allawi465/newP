@@ -10,3 +10,5 @@ export { default as onWindowResize } from './resize/index.js';
 export { default as setupEventListeners } from './listeners/index.js';
 export { default as createLargePlane } from './transition/index.js';
 export { default as createMeshes } from './slider/planeMesh/createMeshes.js';
+export { default as moonFBO } from './moon/moonFBO.js';
+export { default as addMoonObjects } from './moon/addMoonObjects.js';

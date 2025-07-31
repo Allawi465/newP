@@ -365,7 +365,7 @@ html.lenis body {
 
 .projects_slogan,
 .projects_slogans {
-    font-size: min(9vw, 13vh);
+    font-size: min(6.5vw, 7vh);
     margin-top: 0px;
     margin-bottom: 26px;
     font-variation-settings: "wght" 400;
@@ -374,10 +374,31 @@ html.lenis body {
     position: relative;
     font-weight: 400;
     width: fit-content;
+    word-break: keep-all;
 }
 
 .project_title {
     left: .15vw;
+}
+
+
+.projects_titles_hidden {
+    display: none;
+    width: fit-content;
+    opacity: 0;
+    color: #141414;
+    width: 100%;
+}
+
+.projects_title {
+    font-size: min(9vw, 15vh);
+    margin: 0;
+    font-variation-settings: "wght" 400;
+    line-height: .8;
+    position: relative;
+    font-weight: 400;
+    width: fit-content;
+
 }
 
 .project_descri_wrap {
@@ -391,7 +412,7 @@ html.lenis body {
 }
 
 .projects_description {
-    font-size: 3rem;
+    font-size: min(3.5vw, 4vh);
     line-height: 1;
     font-variation-settings: "wght" 400;
     font-weight: 400;
@@ -399,7 +420,6 @@ html.lenis body {
 }
 
 .link_cta {
-    margin-top: 26px;
     display: inline-block;
     font-variation-settings: "wght" 500;
     border-bottom: 1px solid #141414;
@@ -415,24 +435,6 @@ html.lenis body {
     border-bottom: 1px solid transparent;
 }
 
-.projects_titles_hidden {
-    display: none;
-    width: fit-content;
-    opacity: 0;
-    color: #141414;
-    width: 100%;
-}
-
-.projects_title {
-    font-size: min(11vw, 18vh);
-    margin: 0;
-    font-variation-settings: "wght" 500;
-    line-height: .8;
-    letter-spacing: -1vw;
-    position: relative;
-    font-weight: 400;
-    width: fit-content;
-}
 
 .project_img {
     width: 50%;
@@ -501,7 +503,6 @@ html.lenis body {
 
 .about-content {
     position: relative;
-    margin-top: 56px;
 }
 
 .about-parent {
@@ -624,7 +625,6 @@ html.lenis body {
     }
 
     .text_hero {
-        margin-top: 10px;
         max-width: 465px;
         margin-left: 0px;
     }
@@ -647,8 +647,7 @@ html.lenis body {
 
     .text_about {
         max-width: 465px;
-        margin-bottom: 26px;
-        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
     .contact_info {
@@ -661,7 +660,7 @@ html.lenis body {
 
     .project_details {
         flex-direction: column;
-        margin-top: 100px;
+        align-items: center;
     }
 
     .project_img {
@@ -677,6 +676,7 @@ html.lenis body {
         height: 25%;
         margin-left: unset;
         justify-content: unset;
+        margin-bottom: unset;
     }
 
     .projects_detils,

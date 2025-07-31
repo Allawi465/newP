@@ -29,9 +29,8 @@ export default function setupPostProcessing(context) {
             uLiftAmount: { value: 0.0 },
             uBendRegion: { value: 0.075 },
             offset: { value: new THREE.Vector2(0.001, 0.001) },
-            uExtraDown: { value: 0.0 },
             uFade: { value: 1.0 },
-            uObjectOpacity: { value: 0.1 }
+            uObjectOpacity: { value: 0.2 }
         },
         vertexShader: `
             varying vec2 vUv;
@@ -43,7 +42,6 @@ export default function setupPostProcessing(context) {
         fragmentShader: `
             uniform sampler2D tDiffuse;
             uniform vec2 offset;
-            uniform float uExtraDown;
             uniform float uPower;
             uniform float uLiftAmount;
             uniform float uBendRegion;

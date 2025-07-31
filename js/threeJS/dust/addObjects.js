@@ -6,17 +6,6 @@ import vertex from '../glsl/dust/vertex.js';
 import onWindowResize from '../resize/index.js';
 
 export default function addObjects(context) {
-    /*  const gui = new GUI({ width: 200 }); // Don't reuse any existing instance
-     gui.title('Particles Color');
- 
-     // Add controls directly to root (not in a folder)
-     gui.addColor(colorParams, 'particleColor').onChange((value) => {
-         context.material.uniforms.uColor.value.set(new THREE.Color(value));
-     });
- 
-     gui.addColor(fogColorParams, 'uFogColor').name('Fog Color').onChange((value) => {
-         context.material.uniforms.uFogColor.value.set(new THREE.Color(value));
-     }); */
     const colorParams = { particleColor: '#d0e2eb' };
     const fogColorParams = { uFogColor: '#ffffff' };
 
@@ -29,7 +18,9 @@ export default function addObjects(context) {
             uMousePrev: { value: new THREE.Vector2() },
             iResolution: { value: new THREE.Vector2(context.width, context.height) },
             uScrollProgress: { value: 0.0 },
+            uReset: { value: 0.0 },
             uOpacity: { value: 0.0 },
+            uAlpha: { value: 0.1 },
             uCameraPos: { value: new THREE.Vector3() },
             uColor: { value: new THREE.Color(colorParams.particleColor) },
             uFogColor: { value: new THREE.Color(fogColorParams.uFogColor) },
@@ -47,31 +38,24 @@ export default function addObjects(context) {
     let positions = new Float32Array(context.count * 4);
     let uv = new Float32Array(context.count * 2);
     let indices = new Float32Array(context.count * 2);
-    let ids = new Float32Array(context.count * 1);
 
     for (let i = 0; i < context.size; i++) {
         for (let j = 0; j < context.size; j++) {
             let index = (i * context.size + j);
-
             positions[index * 4] = (Math.random() - 0.5) * 2;
             positions[index * 4 + 1] = (Math.random() - 0.5) * 2;
             positions[index * 4 + 2] = (Math.random() - 0.5) * 2;
             positions[index * 4 + 3] = 1.0;
-
             uv[index * 2] = j / context.size;
             uv[index * 2 + 1] = i / context.size;
-
             indices[index * 2] = j / context.size;
             indices[index * 2 + 1] = i / context.size;
-
-            ids[index] = index;
         }
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 4));
     geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
     geometry.setAttribute('aIndex', new THREE.BufferAttribute(indices, 2));
-    geometry.setAttribute('aId', new THREE.BufferAttribute(ids, 1));
 
     context.points = new THREE.Points(geometry, context.material);
     context.points.layers.set(context.PARTICLE_LAYER);
@@ -81,14 +65,14 @@ export default function addObjects(context) {
 
     const glassGeometry = new THREE.IcosahedronGeometry(0.22, 22);
     context.glassMaterial = new THREE.MeshPhysicalMaterial({
-        thickness: 0.15,
+        thickness: 0.3,
         roughness: 0.2,
-        metalness: 0.35,
+        metalness: 0.5,
         opacity: 0.0,
-        envMapIntensity: 15,
+        envMapIntensity: 30,
         transparent: true,
-        color: new THREE.Color(0x141414),
-        emissive: new THREE.Color(0x2D3E40),
+        color: new THREE.Color(0x262626),
+        emissive: new THREE.Color(0x011526),
         depthWrite: false,
         depthTest: true
     });
@@ -110,30 +94,65 @@ export default function addObjects(context) {
     context.glassMaterial.needsUpdate = true;
     context.fboMaterial.uniforms.uSpherePos.value = context.glassBall.position;
 
+
     ScrollTrigger.create({
         trigger: ".hero",
         start: "top top",
-        end: "55% top",
+        end: "60% top",
         scrub: true,
         onEnterBack: () => {
             context.chromaticBendPass.uniforms.offset.value.set(0.001, 0.001);
         },
         onUpdate: self => {
-            context.material.uniforms.uScrollProgress.value = self.progress;
             context.glassMaterial.opacity = 1 - self.progress;
             context.glassMaterial.needsUpdate = true;
-
-            const progress = self.progress;
-
-            context.VIEW_WIDTH = 3.5 + (1.5 * progress);
+            context.fboMaterial.uniforms.uReset.value = self.progress;
+            context.VIEW_WIDTH = 3.5 + (1.5 * self.progress);
 
             onWindowResize(context);
 
         },
         onLeave: () => {
-            context.material.uniforms.uScrollProgress.value = 1;
             context.chromaticBendPass.uniforms.offset.value.set(0.000, 0.000);
-            context.glassMaterial.opacity = 0;
+            context.glassMaterial.opacity = 0
+            context.material.uniforms.uAlpha.value = 0.1;
+        },
+    });
+
+    ScrollTrigger.create({
+        trigger: ".footer",
+        start: "center bottom",
+        end: "bottom bottom",
+        scrub: true,
+        scroller: document.body,
+        onUpdate: (self) => {
+            context.fboMaterial.uniforms.uFooter.value = self.progress;
+            context.chromaticBendPass.uniforms.offset.value.set(
+                0.001 * progress,
+                0.001 * progress
+            );
+
+            context.VIEW_WIDTH = 5.0 - (1.5 * self.progress);
+
+            onWindowResize(context);
+
+        },
+
+        onLeaveBack: () => {
+            context.fboMaterial.uniforms.uFooter.value = 0;
         },
     });
 }
+
+
+/*  const gui = new GUI({ width: 200 }); // Don't reuse any existing instance
+ gui.title('Particles Color');
+ 
+ // Add controls directly to root (not in a folder)
+ gui.addColor(colorParams, 'particleColor').onChange((value) => {
+     context.material.uniforms.uColor.value.set(new THREE.Color(value));
+ });
+ 
+ gui.addColor(fogColorParams, 'uFogColor').name('Fog Color').onChange((value) => {
+     context.material.uniforms.uFogColor.value.set(new THREE.Color(value));
+ }); */

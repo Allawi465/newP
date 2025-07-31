@@ -4,7 +4,7 @@ export default function setInfoDivContent(selectedImage) {
         <div class="projects_container c1">
             <div class="project_details">
                 <div class="projects_titles_hidden">    
-                    <h1 class="projects_title small_title">${selectedImage.title}</h1>
+                    <h1 class="projects_title">${selectedImage.title}</h1>
                     <h2 class="projects_slogans">${selectedImage.slogan}</h2>
                 </div>
                 <div class="project_img">

@@ -5,7 +5,7 @@ attribute vec2 aIndex;
 attribute float aId;
 
 uniform sampler2D uPositions;
-uniform float pointSize;
+
 
 varying vec4 vData;
 varying vec2 vIndex;

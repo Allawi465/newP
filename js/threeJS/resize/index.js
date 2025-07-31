@@ -19,6 +19,7 @@ export default function onWindowResize(context) {
 
     const viewHeight = viewWidth / aspect;
 
+    // Update renderer and camera
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
     context.renderer.setPixelRatio(window.devicePixelRatio);
@@ -29,11 +30,18 @@ export default function onWindowResize(context) {
     context.camera.bottom = -viewHeight / 2;
     context.camera.updateProjectionMatrix();
 
+    // Update large plane geometry
     const planeHeight = context.camera.top - context.camera.bottom;
     const planeWidth = context.camera.right - context.camera.left;
     context.largePlane.geometry.dispose();
     context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
 
+    // Update points position (moon particles)
+    if (context.points) {
+        context.points.position.set(0, 0, 0); // Center in orthographic camera view
+    }
+
+    // Existing animation logic
     if (w <= 1000) {
         gsap.to(context.targetPosition, {
             x: 0,
@@ -52,12 +60,19 @@ export default function onWindowResize(context) {
         }
     }
 
+
+    if (context.moonParticlePoints) {
+        context.updatePointsPosition();
+    }
+
+    // Update movement sensitivity
     if (w <= 640) {
         context.movementSensitivity = 100;
     } else {
         context.movementSensitivity = 150;
     }
 
+    // Update mesh positions
     const projectsEl = document.querySelector('.projects');
     context.meshes.forEach(m => context.setMeshPosition(m, projectsEl));
 }

@@ -22,7 +22,7 @@ void main() {
   vec3 colorFromProgress = vec3(0.078, 0.078, 0.078);
   
   float w = width * dt;
-float maskvalue = smoothstep(1.0 - w, 1.0, vUv.y + mix(-w / 2.0, 1.0 - w / 2.0, progress));
+  float maskvalue = smoothstep(1.0 - w, 1.0, vUv.y + mix(-w / 2.0, 1.0 - w / 2.0, progress));
   float mask = maskvalue + maskvalue * realnoise;
 
   float final = smoothstep(border, border + 0.01, mask);

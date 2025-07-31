@@ -6,7 +6,7 @@ import { vertexShader, fragmentShader } from '../../glsl/shader';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function createPlaneMesh(content, texture, index, renderer) {
+export default function createPlaneMesh(content, texture, index, context) {
 
     const planeGeometry = new THREE.PlaneGeometry(
         content.slideWidth * content.scaleFactor,
@@ -35,6 +35,8 @@ export default function createPlaneMesh(content, texture, index, renderer) {
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         transparent: true,
+        depthWrite: true,
+        depthTest: true,
     });
 
     const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
@@ -53,6 +55,8 @@ export default function createPlaneMesh(content, texture, index, renderer) {
         .to(shaderMaterial.uniforms.uzom, { value: .9, duration: 0.5, ease: "power2.inOut" }, 0);
 
     planeMesh.layers.set(content.slider_mesh);
+
+    planeMesh.renderOrder = 999;
     planeMesh.position.x = calculatePositionX(index, 0, content.meshSpacing);
 
     content.meshArray = content.meshArray || [];
@@ -84,8 +88,6 @@ export default function createPlaneMesh(content, texture, index, renderer) {
             planeMesh.material.uniforms.opacity.value = self.progress;
         }
     });
-
-
 
     return planeMesh;
 }
