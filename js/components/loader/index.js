@@ -2,6 +2,7 @@ import gsap from "gsap";
 import SplitType from 'split-type';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+
 gsap.registerPlugin(ScrollTrigger);
 
 export default function initLoadingSequence(context) {

@@ -17,8 +17,6 @@ function showAbout(context) {
 
     context.tm = setupTimeline(context);
 
-    document.getElementsByClassName('.projects__title').mixBlendMode = "normal";
-
     const aboutDiv = document.getElementById('about');
     aboutDiv.style.zIndex = 60
     aboutDiv.classList.add('show');
