@@ -59,7 +59,7 @@ export default function initLoadingSequence(context) {
             x: 0,
             duration: 0.5,
             ease: "power2.out",
-            stagger: { amount: 0.2 },
+            stagger: { amount: 0.1 },
         }, 3
     ).fromTo(
         '.hero_heading2 .char',
@@ -70,7 +70,7 @@ export default function initLoadingSequence(context) {
             x: 0,
             duration: 0.5,
             ease: "power2.out",
-            stagger: { amount: 0.2 },
+            stagger: { amount: 0.1 },
         }, 3
     ).to(".text_hero", {
         opacity: 1,

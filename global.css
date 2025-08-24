@@ -259,7 +259,6 @@ html.lenis body {
     font-family: "Bebas Neue", sans-serif;
     font-style: italic;
     margin: 0;
-    width: fit-content;
 }
 
 .hero_heading2 {
@@ -268,7 +267,6 @@ html.lenis body {
     line-height: .8;
     font-family: "Bebas Neue", sans-serif;
     margin: 0;
-    width: fit-content;
 }
 
 .text_hero {
