@@ -195,6 +195,11 @@ html.lenis body {
     position: relative;
 }
 
+.word {
+    transform-origin: bottom;
+}
+
+
 .scroll_line::before {
     content: "";
     position: absolute;
@@ -250,21 +255,21 @@ html.lenis body {
     grid-column-gap: 0px;
     grid-row-gap: 0px;
     opacity: 0;
+    text-align: left;
 }
 
 .hero_heading {
     font-size: 280px;
-    font-weight: 500;
+    font-weight: 900;
     line-height: .85;
     font-family: "Bebas Neue", sans-serif;
-    font-style: italic;
     margin: 0;
 }
 
 .hero_heading2 {
     font-size: 250px;
-    font-weight: 500;
-    line-height: .8;
+    font-weight: 900;
+    line-height: .85;
     font-family: "Bebas Neue", sans-serif;
     margin: 0;
 }
@@ -422,23 +427,20 @@ html.lenis body {
 
 .about_headings {
     font-size: 280px;
-    font-weight: 500;
+    font-weight: 900;
     line-height: .85;
     font-family: "Bebas Neue", sans-serif;
     position: relative;
     margin: 0;
-    width: fit-content;
-    font-style: italic;
 }
 
 .about_headings2 {
     font-size: 250px;
-    font-weight: 500;
-    line-height: .8;
+    font-weight: 900;
+    line-height: .85;
     font-family: "Bebas Neue", sans-serif;
     position: relative;
     margin: 0;
-    width: fit-content;
 }
 
 .contact_info {

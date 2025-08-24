@@ -50,27 +50,15 @@ export default function initLoadingSequence(context) {
         visibility: "visible",
     }, 3).to(".hero-parent", {
         opacity: 1,
-    }, 3).fromTo(
+    }, 3).from(
         '.hero_heading .char',
         {
-            x: "-1em"
-        },
-        {
-            x: 0,
-            duration: 0.5,
-            ease: "power2.out",
-            stagger: { amount: 0.1 },
+            x: "-1em", duration: 0.6, ease: "power2.out", stagger: { amount: 0.2 }, opacity: 0,
         }, 3
-    ).fromTo(
+    ).from(
         '.hero_heading2 .char',
         {
-            x: "1em"
-        },
-        {
-            x: 0,
-            duration: 0.5,
-            ease: "power2.out",
-            stagger: { amount: 0.1 },
+            opacity: 0, x: "1em", duration: 0.6, ease: "power2.out", stagger: { amount: 0.2 }
         }, 3
     ).to(".text_hero", {
         opacity: 1,

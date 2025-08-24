@@ -5,7 +5,7 @@
   "description": "Interactive 3D portfolio by Mohammed Allawi using Three.js, GSAP, and Vite.",
   "main": "index.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },

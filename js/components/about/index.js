@@ -69,15 +69,13 @@ function setupTimeline(context) {
         0.5
     );
 
-    timeline.fromTo(
+    timeline.from(
         '.about_headings .char',
-        { opacity: 0, x: "-1em" },
-        { opacity: 1, x: 0, duration: 0.5, ease: "power2.out", stagger: { amount: 0.1 } },
+        { x: "-1em", duration: 0.6, ease: "power2.out", stagger: { amount: 0.2 }, opacity: 0, },
         0.5
-    ).fromTo(
+    ).from(
         '.about_headings2 .char',
-        { opacity: 0, x: "1em" },
-        { opacity: 1, x: 0, duration: 0.5, ease: "power2.out", stagger: { amount: 0.1 } },
+        { x: "1em", duration: 0.6, ease: "power2.out", stagger: { amount: 0.2 }, opacity: 0, },
         0.5
     ).fromTo(
         '.text_about',
