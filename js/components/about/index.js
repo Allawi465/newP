@@ -13,17 +13,16 @@ function showAbout(context) {
 
     animateProgress(context)
 
-    context.isDivOpen = true;
-
-    aboutDiv.style.zIndex = 200
-
     context.tm = setupTimeline(context);
 
     const aboutDiv = document.getElementById('about');
+    aboutDiv.style.zIndex = 200
     aboutDiv.classList.add('show');
     gsap.to(aboutDiv, { opacity: 1, duration: 1 });;
 
     context.stopBodyScrolling();
+    context.isDivOpen = true;
+
     document.getElementById('openAbout').style.display = 'none';
     document.getElementById('close').style.display = 'block';
 
