@@ -1,6 +1,11 @@
 import { handleClick } from './handleClick/index.js';
 import startMomentumMotion from './sliderMotion/sliderMotion.js';
 
+let pendingDelta = 0;
+let rafScheduled = false;
+let rafId = null;
+const smoothingFactor = 0.1;
+
 export function onPointerMove(event, context) {
     if (!context.isDragging) return;
 
@@ -8,6 +13,7 @@ export function onPointerMove(event, context) {
     if (clientX === undefined) return;
 
     const delta = clientX - context.startX;
+    pendingDelta += delta;
 
     const smoothingFactor = 0.1;
     context.dragDelta = context.dragDelta * (1 - smoothingFactor) + Math.abs(delta) * smoothingFactor;
@@ -15,10 +21,12 @@ export function onPointerMove(event, context) {
     context.currentPosition += (delta / context.movementSensitivity) * smoothingFactor;
 
     // Calculate drag speed and apply smoothing 
+    // Calculate drag speed and apply smoothing
     const rawSpeed = clientX - context.lastX;
     context.dragSpeed = context.dragSpeed * (1 - smoothingFactor) + rawSpeed * smoothingFactor;
 
     // Limit the maximum speed 
+    // Limit the maximum speed
     context.dragSpeed = Math.max(Math.min(context.dragSpeed, 25), -25);
 
     context.lastX = clientX;
@@ -29,6 +37,21 @@ export function onPointerMove(event, context) {
     }
 
     context.updatePositions();
+    if (!rafScheduled) {
+        rafScheduled = true;
+        rafId = requestAnimationFrame(() => {
+            const deltaToApply = pendingDelta;
+            pendingDelta = 0;
+
+            context.dragDelta = context.dragDelta * (1 - smoothingFactor) + Math.abs(deltaToApply) * smoothingFactor;
+            context.currentPosition += (deltaToApply / context.movementSensitivity) * smoothingFactor;
+            context.velocity = context.velocity * (1 - smoothingFactor) +
+                (deltaToApply / context.movementSensitivity) * smoothingFactor;
+
+            context.updatePositions();
+            rafScheduled = false;
+        });
+    }
 
     // Smooth the velocity 
     context.velocity = context.velocity * (1 - smoothingFactor) + (delta / context.movementSensitivity) * smoothingFactor;
@@ -43,6 +66,12 @@ export function onPointerDown(event, context) {
     context.lastX = context.startX;
     context.isMoving = false;
     context.isMomentumStarted = false;
+
+    pendingDelta = 0;
+    if (rafScheduled && rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafScheduled = false;
+    }
 
     // Store the initial click position
     context.initialClick = { x: context.startX, y: context.startY };
@@ -63,6 +92,12 @@ export function onPointerUp(event, context) {
     const clickThreshold = 5;
 
     context.isDragging = false;
+
+    if (rafScheduled && rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafScheduled = false;
+        pendingDelta = 0;
+    }
 
     if (deltaX < clickThreshold && deltaY < clickThreshold) {
         handleClick(event, context);
