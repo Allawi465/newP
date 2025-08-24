@@ -78,15 +78,18 @@ return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1),
 const simFragment = /*glsl*/ `
 uniform float time;
 uniform sampler2D uPositions;
-uniform vec4 resolution;
+uniform vec2 resolution;
+
 uniform float uReset;
 uniform float uRandom;
 uniform float uRandom2;
-uniform sampler2D uInfo;
 uniform vec3 uSpherePos;
 uniform float uDelta;
-uniform float uFooter; 
+uniform float uFooter;
 
+uniform float uLetterScale;
+
+uniform sampler2D uTargets;
 varying vec2 vUv;
 varying vec4 vPosition;
 
@@ -94,130 +97,89 @@ varying vec4 vPosition;
 
 ${AW}
 
-// Random helpers
-float rand1(float n) {
-    return fract(sin(n) * 43758.5453123);
-}
+float rand1(float n){ return fract(sin(n) * 43758.5453123); }
+float rand2(vec2 c){ return fract(sin(dot(c, vec2(12.9898, 78.233))) * 43758.5453); }
 
-float rand2(vec2 co) {
-    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
-}
-
-vec3 snoiseVec3(vec3 x) {
-    float s = snoise3(x);
-    float s1 = snoise3(vec3(x.y - 19.1, x.z + 33.4, x.x + 47.2));
-    float s2 = snoise3(vec3(x.z + 74.2, x.x - 124.5, x.y + 99.4));
+vec3 snoiseVec3(vec3 x){
+  float s = snoise3(x);
+  float s1 = snoise3(vec3(x.y - 19.1, x.z + 33.4, x.x + 47.2));
+  float s2 = snoise3(vec3(x.z + 74.2, x.x - 124.5, x.y + 99.4));
     return vec3(s, s1, s2);
 }
 
-vec3 randomSpherePoint(vec3 center, float radius, vec3 pos) {
-    float u = rand2(vec2(uRandom, pos.x));
-    float v = rand2(vec2(uRandom2, pos.y * pos.z));
-    float w = rand2(vec2(uRandom, pos.z * pos.y));
-    float theta = 2.0 * PI * u;
-    float phi = acos(2.0 * v - 1.0);
-    float r = radius * pow(w, 1.0 / 3.0);
-    return center + vec3(
-        r * sin(phi) * cos(theta),
-        r * sin(phi) * sin(theta),
-        r * cos(phi)
-    );
+vec3 randomSpherePoint(vec3 center, float radius, vec3 pos){
+  float u = rand2(vec2(uRandom, pos.x));
+  float v = rand2(vec2(uRandom2, pos.y * pos.z));
+  float w = rand2(vec2(uRandom, pos.z * pos.y));
+  float theta = 2.0 * PI * u;
+  float phi = acos(2.0 * v - 1.0);
+  float r = radius * pow(w, 1.0 / 3.0);
+    return center + vec3(r * sin(phi) * cos(theta), r * sin(phi) * sin(theta), r * cos(phi));
 }
 
-vec3 randomPointInSphere(vec2 uv, float minRadius, float maxRadius) {
-    float x = rand2(uv + vec2(3.1, 1.7)) * 2.0 - 1.0;
-    float y = rand2(uv + vec2(7.7, 2.3)) * 2.0 - 1.0;
-    float z = rand2(uv + vec2(2.6, 5.4)) * 2.0 - 1.0;
 
-    vec3 dir = normalize(vec3(x, y, z));
+void main(){
+  vec2 uv = vUv;
 
-    float r = pow(rand2(uv + vec2(11.3, 9.8)), 1.0 / 3.0);
-    float radius = mix(minRadius, maxRadius, r);
+  vec4 data = texture2D(uPositions, uv);
 
-    return dir * radius;
-}
+  vec3 pos = data.rgb;
+  float age = data.a;
 
-void main() {
-    vec2 uv = gl_FragCoord.xy / resolution.xy;
-    vec4 data = texture2D(uPositions, uv);
-        vec4 info = texture2D(uInfo, vUv);
+  // ===== PAGE 1 =====
+  vec3 pos1 = pos;
+  float age1 = age;
+  bool respawn = false;
+  float blend2 = smoothstep(0.0, 1.0, uReset);
 
-    vec3 pos = data.rgb;
-    float age = data.a;
+  {
+    respawn = age1 >= 1.0;
+    float spawnRadius = 0.5 + rand1(pos1.x) * 0.5;
+    vec3 spawnPos = randomSpherePoint(uSpherePos, spawnRadius, pos1);
 
-    // ===== PAGE 1 =====
-    vec3 pos1 = pos;
-    float age1 = age;
+    spawnPos += vec3(
+      rand2(vec2(uRandom, pos1.y)) - 0.2,
+      rand2(vec2(uRandom2, pos1.z)) - 0.25,
+      rand2(vec2(uRandom, pos1.x)) - 0.3
+    ) * 0.2;
 
-    {
-        bool respawn = age1 >= 1.0;
-        float spawnRadius = 0.5 + rand1(pos1.x) * 0.5;
-        vec3 spawnPos = randomSpherePoint(uSpherePos, spawnRadius, pos1);
+    pos1 = mix(pos1, spawnPos, float(respawn));
+    age1 = mix(age1, 0.0, float(respawn));
 
-        spawnPos += vec3(
-            rand2(vec2(uRandom, pos1.y)) - 0.2,
-            rand2(vec2(uRandom2, pos1.z)) - 0.25,
-            rand2(vec2(uRandom, pos1.x)) - 0.3
-        ) * 0.2;
+    vec3 noise = snoiseVec3(pos1 * 0.5 + vec3(time * 0.2)) * 0.14;
+    float desiredRadius = 1.0;
+    float radiusDiff = desiredRadius - length(pos1 - uSpherePos);
+    float correctionStrength = mix(0.03, 0.05, blend2);
+    vec3 correction = normalize(pos1 - uSpherePos) * radiusDiff * correctionStrength;
 
-        pos1 = mix(pos1, spawnPos, float(respawn));
-        age1 = mix(age1, 0.0, float(respawn));
+    vec3 newpos1 = pos1 + noise + correction;
 
-        vec3 noise = snoiseVec3(pos1 * 0.5 + vec3(time * 0.2)) * 0.14;
-        float desiredRadius = 1.0;
-        float radiusDiff = desiredRadius - length(pos1 - uSpherePos);
+    float dist = length(pos1.xy - uSpherePos.xy);
+    vec2 dir = normalize(pos1.xy - uSpherePos.xy);
+    pos1.xy += dir * 0.1 * smoothstep(0.59, 0.0, dist);
 
-        vec3 correction = normalize(pos1 - uSpherePos) * radiusDiff * 0.04;
+    pos1 = mix(pos1, newpos1, 0.1);
+    age1 = clamp(age1 + uDelta * 0.1, 0.0, 1.0);
+  }
 
-        vec3 newpos1 = pos1 + noise + correction;
+  // ===== PAGE 2: print "word" using uTargets =====
+  vec3 pos2 = pos;
+  float age2 = age;
+  float blend = smoothstep(0.5, .5, uFooter);
+  {
+    vec3 tgt = texture2D(uTargets, uv).xyz;
+    vec2 targetXY = tgt.xy * uLetterScale;
+    float converge = blend * 0.05;  
+    pos2.xy += (targetXY - pos2.xy) * converge;
 
-        float dist = length(pos1.xy - uSpherePos.xy);
-        vec2 dir = normalize(pos1.xy - uSpherePos.xy);
-        pos1.xy += dir * 0.1 * smoothstep(0.59, 0.0, dist);
+    float dist2 = length(pos2.xy - uSpherePos.xy);
+    vec2  dir2  = normalize(pos2.xy - uSpherePos.xy);
+    pos2.xy += dir2 * 0.2 * smoothstep(0.59, 0.0, dist2);
+  }
 
-        pos1 = mix(pos1, newpos1, 0.1);
-        age1 = clamp(age1 + uDelta * 0.1, 0.0, 1.0);
-    }
-
-    // ===== PAGE 2 — COSMOS-STYLE + CIRCULAR ANIMATION =====
-
-    vec3 pos2 = pos;
-    float age2 = age;
-
-    {
-        // Cosmos-style animation (original)
-        vec3 randomDir = normalize(randomPointInSphere(vUv, 1.0, 1.0));
-        float scatterRadius = mix(10.0, 15.0, uReset); 
-        vec3 cosmosTargetPos = randomDir * scatterRadius;
-        float t;
-        t = pow(uReset, 5.0) * 0.02;
-        vec3 cosmosPos = mix(pos2, cosmosTargetPos, t);
-
-        // Circular animation (new)
-        float radius = length(pos2.xy);
-        float circlularForce = 1. - smoothstep(0.3, 1.4, abs(pos.x - radius));
-        float angle = atan(pos.y, pos.x) - info.y * 0.2 * mix(0.5, 1., circlularForce);
-        float targetRadius = mix(info.x, 2.2, 0.5 + 0.05 * sin(angle*2. + time*0.2));
-        radius +=(targetRadius - radius) * mix(0.2,0.5,circlularForce);
-
-
-        vec3 targetPos = vec3(cos(angle), sin(angle), 0.0) * radius;        
-
-        pos2.xy += (targetPos.xy - pos.xy) * 0.16;
-
-
-        // Blend between cosmos and circular based on uFooter
-        pos2 = mix(cosmosPos, targetPos, smoothstep(0.0, 1.0, uFooter));
-
-    }
-
-    // ===== FINAL MIX =====
-    float blend = smoothstep(0.999, 1.0, uReset);
-    vec3 finalPos = mix(pos1, pos2, blend);
-    float finalAge = mix(age1, age2, blend);
-
-    gl_FragColor = vec4(finalPos, finalAge);
+  vec3 blendedPos = mix(pos1, pos2, blend);
+  float blendedAge = mix(age1, age2, blend);
+  gl_FragColor = vec4(blendedPos, blendedAge);
 }
 `;
-
 export default simFragment;

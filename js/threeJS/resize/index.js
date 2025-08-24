@@ -5,9 +5,23 @@ export default function onWindowResize(context) {
     const w = window.innerWidth;
     const h = window.innerHeight;
     const aspect = w / h;
-    const BREAKPOINT = 1000;
-    const MIN_WIDTH = 420;
 
+    const BREAKPOINT = 1000;
+    const MIN_WIDTH = 380;
+
+    // 1) Eased letter scale (smoothstep)
+    const MIN_SCALE = 2.0;
+    const MAX_SCALE = 3.5;
+    const t = Math.min(1, Math.max(0, (w - MIN_WIDTH) / (2000 - MIN_WIDTH)));
+    const pow = 5.5;
+    const eased = smootherstep(Math.pow(t, pow));
+    const scale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * eased;
+
+    if (context.fboMaterial?.uniforms?.uLetterScale) {
+        context.fboMaterial.uniforms.uLetterScale.value = scale;
+    }
+
+    // 2) Camera view width/height AFTER scale
     let viewWidth;
     if (w > BREAKPOINT) {
         viewWidth = 4.5 * (w / BREAKPOINT);
@@ -16,10 +30,9 @@ export default function onWindowResize(context) {
     } else {
         viewWidth = context.VIEW_WIDTH;
     }
-
     const viewHeight = viewWidth / aspect;
 
-    // Update renderer and camera
+    // 3) Renderer + camera updates
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
     context.renderer.setPixelRatio(window.devicePixelRatio);
@@ -30,18 +43,22 @@ export default function onWindowResize(context) {
     context.camera.bottom = -viewHeight / 2;
     context.camera.updateProjectionMatrix();
 
+    if (context.material && context.material.uniforms) {
+        context.material.uniforms.iResolution.value.set(w, h);
+        context.material.uniforms.uPixelRatio = { value: Math.min(window.devicePixelRatio, 2) };
+    }
+
+    if (context.fboMaterial && context.fboMaterial.uniforms) {
+        context.fboMaterial.uniforms.resolution.value.set(w, h);
+    }
+
     // Update large plane geometry
     const planeHeight = context.camera.top - context.camera.bottom;
     const planeWidth = context.camera.right - context.camera.left;
     context.largePlane.geometry.dispose();
     context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
 
-    // Update points position (moon particles)
-    if (context.points) {
-        context.points.position.set(0, 0, 0); // Center in orthographic camera view
-    }
 
-    // Existing animation logic
     if (w <= 1000) {
         gsap.to(context.targetPosition, {
             x: 0,
@@ -57,15 +74,10 @@ export default function onWindowResize(context) {
         if (context.bounceTween) {
             context.bounceTween.kill();
             context.bounceTween = null;
+            context.followMouse = true;
         }
     }
 
-
-    if (context.moonParticlePoints) {
-        context.updatePointsPosition();
-    }
-
-    // Update movement sensitivity
     if (w <= 640) {
         context.movementSensitivity = 100;
     } else {
@@ -77,14 +89,27 @@ export default function onWindowResize(context) {
     context.meshes.forEach(m => context.setMeshPosition(m, projectsEl));
 }
 
-function triggerBounce(context) {
-    context.bounceTween = gsap.to(context.targetPosition, {
-        y: "+=2.",
-        duration: 1.5,
-        ease: "sine.inOut",
-        delay: 2,
-        repeat: -1,
-        yoyo: true,
-        repeatDelay: 2
+export function triggerBounce(context) {
+    if (context.bounceTween) context.bounceTween.kill();
+
+    const tl = gsap.timeline({ repeat: -1, yoyo: true });
+
+    tl.to(context.targetPosition, {
+        y: 2,
+        duration: 5,
+        ease: "power2.inOut",
     });
+
+    tl.to(context.targetPosition, {
+        y: -2,
+        duration: 5,
+        ease: "power2.inOut",
+    });
+
+    context.bounceTween = tl;
+    context.bounceDirection = 'y';
+}
+
+function smootherstep(x) {
+    return x * x * x * (x * (x * 6 - 15) + 10);
 }

@@ -34,7 +34,7 @@ export default function setupEventListeners(context) {
     });
 
     window.addEventListener('pointermove', (event) => {
-        if (!context.followMouse) return; // skip updating target when disabled
+        if (!context.followMouse) return;
 
         context.pointerPrev.copy(context.pointer);
         context.pointer.set(
@@ -46,13 +46,12 @@ export default function setupEventListeners(context) {
         targetPos.unproject(context.camera);
         targetPos.z = context.glassBall.position.z;
 
-        context.targetPosition.lerp(targetPos, 0.05);
+        context.targetPosition.lerp(targetPos, 0.2);
     }, { passive: false });
 
-    // Visibility change to reset clock
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
-            context.clock.start(); // Reset clock to prevent large deltaTime
+            context.clock.start();
         }
     });
 }

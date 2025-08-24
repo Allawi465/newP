@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupLenis, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes, moonFBO, addMoonObjects } from './threeJS/index.js';
+import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupLenis, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
 import { defaultConfig, calculatePositionX, images, loadTextures } from './utils/index.js';
 import initLoadingSequence from './components/loader/index.js';
+
 
 class EffectShell {
     constructor() {
@@ -13,7 +14,9 @@ class EffectShell {
 
         this.init().then(() => this.onInitComplete());
 
-        this.VIEW_WIDTH = 3.5;
+        this.VIEW_WIDTH = 5.;
+
+        this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
 
         this.bounceTween = null;
@@ -26,10 +29,8 @@ class EffectShell {
             createMeshes(this);
             setupPostProcessing(this);
             setupFBO(this);
-            /*           moonFBO(this); */
             createCSS2DObjects(this, images);
             addObjects(this);
-            /*             addMoonObjects(this); */
             setupEventListeners(this);
             this.animate();
             onWindowResize(this);
@@ -86,21 +87,6 @@ class EffectShell {
     }
 
 
-    updatePointsPosition() {
-        // Set an offset to position points near the right edge of the screen
-        const screenOffsetX = 0.95 * window.innerWidth / 2;  // Move 95% to the right
-        const screenOffsetY = 0. * window.innerHeight / 2; // Adjust as needed
-
-        // Convert screen position to normalized device coordinates (-1 to +1)
-        const ndcX = (screenOffsetX / (window.innerWidth / 2));
-        const ndcY = (screenOffsetY / (window.innerHeight / 2));
-
-        // Convert NDC to world coordinates using the camera
-        const worldPosition = new THREE.Vector3(ndcX, ndcY, 0).unproject(this.camera);
-
-        // Set the points position to the calculated world coordinates
-        this.moonParticlePoints.position.set(worldPosition.x, worldPosition.y, 0);
-    }
 
     updateUniforms(deltaTime) {
         // Mouse uniforms
@@ -162,20 +148,6 @@ class EffectShell {
         this.cubeCamera.update(this.renderer, this.scene);
 
         this.renderToFBO();
-
-        /* this.moonParticleMaterial.uniforms.time.value = this.time;
-           this.moonFBOMaterial.uniforms.time.value = this.time;
-           this.moonParticleMaterial.uniforms.uCameraPos.value.copy(this.camera.position);
-   
-           this.renderer.setRenderTarget(this.moonFBO);
-           this.renderer.render(this.moonFBOScene, this.moonFBOCamera);
-   
-           this.moonParticleMaterial.uniforms.uPositions.value = this.moonFBO1.texture;
-           this.moonFBOMaterial.uniforms.uPositions.value = this.moonFBO.texture;
-
-           let temp = this.moonFBO;
-           this.moonFBO = this.moonFBO1;
-           this.moonFBO1 = temp; */
 
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();

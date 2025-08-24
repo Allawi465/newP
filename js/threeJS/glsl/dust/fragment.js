@@ -4,7 +4,6 @@ const fragment = /*glsl*/ `
 uniform sampler2D uPositions;
 uniform vec3 uCameraPos;
 uniform float uScrollProgress;
-uniform float uAlpha;
 uniform float uOpacity;
 uniform vec3 uColor; 
 uniform vec3 uFogColor;
@@ -25,9 +24,9 @@ void main() {
     float age = clamp(data.a, 0.0, .85);
 
     // Adjusted for faster fade-out with higher exponents
-    float alpha = pow(sin(pow((1. - age), 2.8) * PI), 3.);
+    float alpha = pow(sin(pow((1. - age), 2.5) * PI), 3.);
     alpha *= (1.0 - uScrollProgress) * uOpacity;
-    alpha *= uAlpha;
+    alpha *= 0.5;
 
     if (alpha < 0.005) discard;
 

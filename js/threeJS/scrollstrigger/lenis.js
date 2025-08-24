@@ -11,15 +11,6 @@ export default function setupLenis(effectShell) {
         touchMultiplier: 0.5,
     });
 
-    effectShell.projectsLenis = new Lenis({
-        smooth: true,
-        direction: 'vertical',
-        wrapper: document.getElementById('projects_info'),
-        content: document.getElementById('projects_info'),
-        syncTouch: true,
-        touchMultiplier: 0.5,
-    });
-
     const rafCallback = (time) => {
         if (effectShell.isProjectsOpen) {
             effectShell.projectsLenis.raf(time);

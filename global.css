@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -308,15 +310,54 @@ html.lenis body {
     flex-direction: column;
     justify-content: center;
     position: relative;
-    background: #ffffff;
-    /*  z-index: 55; */
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    z-index: 55;
+    overflow: hidden;
+}
+
+.footer__container {
+    color: #fff !important;
+    left: 26px;
+    width: calc(100% - 26px * 2);
+    position: absolute;
+    bottom: 10%;
+}
+
+.footer__section {
+    display: flex;
+    justify-content: center;
+    width: 90%;
+    margin: auto;
+}
+
+.footer_contact {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 26px;
+    gap: 100px;
+}
+
+.footer__mail {
+    width: 50%;
+}
+
+.footer__mail_txt {
+    font-size: 1rem;
+    line-height: calc(1.75 / 1.125);
+    margin: 0;
+
+    white-space: nowrap;
+}
+
+.mail__text {
+    font-size: 0.875rem;
+    line-height: calc(1.25 / 0.875);
+    color: #fff;
+    opacity: .5;
+    text-decoration: none;
 }
 
 /* slider prosjects */
 
-#projects_info,
 #about {
     width: 100%;
     height: 100lvh;
@@ -328,160 +369,6 @@ html.lenis body {
     left: 0;
     overflow: hidden;
     display: block;
-    opacity: 0;
-}
-
-.projects_container {
-    position: relative;
-    width: calc(100% - 26px* 2);
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    align-items: center;
-}
-
-.project_details {
-    display: flex;
-    flex-direction: row;
-    height: 100%;
-    width: 100%;
-    margin-top: 150px;
-    opacity: 0;
-}
-
-.small_screen {
-    margin-bottom: 26px;
-}
-
-.projects_titles {
-    display: block;
-    width: fit-content;
-    margin-bottom: 26px;
-    writing-mode: vertical-lr;
-    position: relative;
-    z-index: 50;
-    mix-blend-mode: difference;
-}
-
-.projects_slogan,
-.projects_slogans {
-    font-size: min(6.5vw, 7vh);
-    margin-top: 0px;
-    margin-bottom: 26px;
-    font-variation-settings: "wght" 400;
-    line-height: .9;
-    letter-spacing: -0.01vw;
-    position: relative;
-    font-weight: 400;
-    width: fit-content;
-    word-break: keep-all;
-}
-
-.project_title {
-    left: .15vw;
-}
-
-
-.projects_titles_hidden {
-    display: none;
-    width: fit-content;
-    opacity: 0;
-    color: #141414;
-    width: 100%;
-}
-
-.projects_title {
-    font-size: min(9vw, 15vh);
-    margin: 0;
-    font-variation-settings: "wght" 400;
-    line-height: .8;
-    position: relative;
-    font-weight: 400;
-    width: fit-content;
-
-}
-
-.project_descri_wrap {
-    color: #141414;
-    width: 50%;
-    margin-left: 3vw;
-    margin-bottom: 26px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.projects_description {
-    font-size: min(3.5vw, 4vh);
-    line-height: 1;
-    font-variation-settings: "wght" 400;
-    font-weight: 400;
-    width: 100%;
-}
-
-.link_cta {
-    display: inline-block;
-    font-variation-settings: "wght" 500;
-    border-bottom: 1px solid #141414;
-    cursor: pointer;
-    text-decoration: none;
-    color: #141414;
-    transition: .2s linear;
-    cursor: pointer !important;
-}
-
-.link_cta:hover {
-    text-decoration: line-through;
-    border-bottom: 1px solid transparent;
-}
-
-
-.project_img {
-    width: 50%;
-    margin-bottom: 26px;
-    border-radius: 8px 0px 0px 8px;
-    position: relative;
-    overflow: hidden;
-    object-fit: cover;
-    display: block;
-}
-
-.projectsImg {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    object-fit: cover;
-    z-index: 40;
-}
-
-.projects_detils {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-left: auto;
-    color: #141414;
-}
-
-.projects_detils_text {
-    text-transform: uppercase;
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    font-weight: 500;
-}
-
-.bottom_link {
-    text-align: end;
-}
-
-.show {
-    opacity: 1 !important;
-    transform: none;
-}
-
-.hidden_link {
-    display: none;
     opacity: 0;
 }
 
@@ -566,7 +453,15 @@ html.lenis body {
     cursor: pointer !important;
 }
 
-.icons:hover {
+.icons_txt {
+    color: #ffffff;
+    text-decoration: none;
+    transition: .2s linear;
+    cursor: pointer !important;
+}
+
+.icons:hover,
+.icons_txt:hover {
     text-decoration: line-through;
 }
 
@@ -616,6 +511,22 @@ html.lenis body {
     right: -10px;
 }
 
+@media (max-width: 1110px) {
+
+    .footer__section {
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        width: 100%;
+        margin: unset;
+        gap: 100px;
+    }
+
+    .footer_contact {
+        gap: unset;
+    }
+
+}
+
 
 @media (max-width: 1050px) {
 
@@ -656,54 +567,6 @@ html.lenis body {
 
 }
 
-@media (max-width: 750px) {
-
-    .project_details {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .project_img {
-        width: 100%;
-        height: 50%;
-        margin-top: unset;
-        margin-bottom: unset;
-        border-radius: 8px;
-    }
-
-    .project_descri_wrap {
-        width: 100%;
-        height: 25%;
-        margin-left: unset;
-        justify-content: unset;
-        margin-bottom: unset;
-    }
-
-    .projects_detils,
-    .projects_titles,
-    .projects_slogan {
-        display: none;
-    }
-
-    .projects_slogans {
-        margin-top: 10px;
-    }
-
-    .projects_titles_hidden {
-        display: block;
-    }
-
-    .projects_description {
-        width: 100%;
-        font-size: 1.125rem;
-        line-height: calc(1.75 / 1.25);
-    }
-
-    .bottom_link {
-        display: block;
-    }
-}
-
 @media (max-width: 640px) {
 
     .slider-project__description,
@@ -735,6 +598,26 @@ html.lenis body {
         gap: 30px;
     }
 
+    .footer_contact {
+        flex-wrap: wrap;
+        gap: 20px;
+        width: 100%;
+    }
+
+    .footer__mail_txt {
+        white-space: wrap;
+    }
+
+    .mail__text {
+        word-break: break-all;
+    }
+
+
+    .footer__mail {
+        width: 100%;
+    }
+
+
     .logo_name h1,
     .logo_name h2 {
         font-size: clamp(0.5rem, 6vw, 5rem);
@@ -757,6 +640,11 @@ html.lenis body {
 
     .scroll_line {
         height: 126px;
+    }
+
+    .footer__section {
+        flex-wrap: wrap;
+        gap: 26px;
     }
 }
 

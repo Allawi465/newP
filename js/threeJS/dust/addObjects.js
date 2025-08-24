@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import GUI from 'lil-gui';
+import gsap from "gsap";
 import fragment from '../glsl/dust/fragment.js';
 import vertex from '../glsl/dust/vertex.js';
 import onWindowResize from '../resize/index.js';
+import { triggerBounce } from '../resize/index.js';
 
 export default function addObjects(context) {
     const colorParams = { particleColor: '#d0e2eb' };
@@ -18,9 +20,7 @@ export default function addObjects(context) {
             uMousePrev: { value: new THREE.Vector2() },
             iResolution: { value: new THREE.Vector2(context.width, context.height) },
             uScrollProgress: { value: 0.0 },
-            uReset: { value: 0.0 },
             uOpacity: { value: 0.0 },
-            uAlpha: { value: 0.1 },
             uCameraPos: { value: new THREE.Vector3() },
             uColor: { value: new THREE.Color(colorParams.particleColor) },
             uFogColor: { value: new THREE.Color(fogColorParams.uFogColor) },
@@ -65,14 +65,14 @@ export default function addObjects(context) {
 
     const glassGeometry = new THREE.IcosahedronGeometry(0.22, 22);
     context.glassMaterial = new THREE.MeshPhysicalMaterial({
-        thickness: 0.3,
-        roughness: 0.2,
-        metalness: 0.5,
+        thickness: 0.,
+        roughness: 0.1,
+        metalness: .5,
         opacity: 0.0,
-        envMapIntensity: 30,
+        envMapIntensity: 1.5,
         transparent: true,
-        color: new THREE.Color(0x262626),
-        emissive: new THREE.Color(0x011526),
+        color: new THREE.Color(0xF0F2F2),
+        emissive: new THREE.Color(0x616161),
         depthWrite: false,
         depthTest: true
     });
@@ -107,40 +107,68 @@ export default function addObjects(context) {
             context.glassMaterial.opacity = 1 - self.progress;
             context.glassMaterial.needsUpdate = true;
             context.fboMaterial.uniforms.uReset.value = self.progress;
-            context.VIEW_WIDTH = 3.5 + (1.5 * self.progress);
-
-            onWindowResize(context);
+            context.material.uniforms.uScrollProgress.value = self.progress;
+            /*             context.VIEW_WIDTH = 3.5 + (1.5 * self.progress);
+            
+                        onWindowResize(context); */
 
         },
         onLeave: () => {
             context.chromaticBendPass.uniforms.offset.value.set(0.000, 0.000);
             context.glassMaterial.opacity = 0
-            context.material.uniforms.uAlpha.value = 0.1;
         },
     });
 
     ScrollTrigger.create({
         trigger: ".footer",
-        start: "center bottom",
+        start: "center 90%",
         end: "bottom bottom",
         scrub: true,
         scroller: document.body,
         onUpdate: (self) => {
+            context.glassMaterial.opacity = self.progress;
+            context.glassMaterial.needsUpdate = true;
+
+            context.material.uniforms.uScrollProgress.value = 1 - self.progress;
+
             context.fboMaterial.uniforms.uFooter.value = self.progress;
             context.chromaticBendPass.uniforms.offset.value.set(
-                0.001 * progress,
-                0.001 * progress
+                0.001 * self.progress,
+                0.001 * self.progress
             );
 
-            context.VIEW_WIDTH = 5.0 - (1.5 * self.progress);
-
-            onWindowResize(context);
-
+            // New: Switch bounce animation based on progress threshold
+            if (context.bounceTween) {  // Only if bounce is active (small screens)
+                if (self.progress > 0.) {
+                    if (context.bounceDirection !== 'x') {
+                        context.bounceTween.kill();
+                        gsap.set(context.targetPosition, { y: 0 });
+                        const tl = gsap.timeline({ repeat: -1, yoyo: true });
+                        tl.to(context.targetPosition, {
+                            x: 1.5,
+                            duration: 5,
+                            ease: "power2.inOut",
+                        });
+                        tl.to(context.targetPosition, {
+                            x: -1.5,
+                            duration: 5,
+                            ease: "power2.inOut",
+                        });
+                        context.bounceTween = tl;
+                        context.bounceDirection = 'x';
+                    }
+                } else {
+                    if (context.bounceDirection !== 'y') {
+                        context.bounceTween.kill();
+                        gsap.set(context.targetPosition, { x: 0 });  // Reset x for y-bounce
+                        triggerBounce(context);  // Reverts to y-axis
+                    }
+                }
+            }
         },
-
         onLeaveBack: () => {
             context.fboMaterial.uniforms.uFooter.value = 0;
-        },
+        }
     });
 }
 

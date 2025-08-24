@@ -5,7 +5,7 @@ export default function syncHtmlWithSlider(content) {
         const objectCSS = content.cssObjects[index];
         const targetX = mesh.position.x - 3.19;
 
-        objectCSS.position.y = mesh.position.y - content.slideWidth + 0.1;
+        objectCSS.position.y = mesh.position.y - content.slideWidth + 0.15;
 
         const distanceToTargetX = Math.abs(targetX - objectCSS.position.x);
 
