@@ -77,6 +77,7 @@ html.lenis body {
     left: 0;
     box-shadow: none !important;
     will-change: transform;
+    touch-action: none;
 }
 
 ::-webkit-scrollbar {
