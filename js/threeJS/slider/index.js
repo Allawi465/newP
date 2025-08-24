@@ -4,7 +4,6 @@ import startMomentumMotion from './sliderMotion/sliderMotion.js';
 let pendingDelta = 0;
 let rafScheduled = false;
 let rafId = null;
-const smoothingFactor = 0.1;
 
 export function onPointerMove(event, context) {
     if (!context.isDragging) return;

@@ -53,11 +53,9 @@ export default function initLoadingSequence(context) {
     }, 3).fromTo(
         '.hero_heading .char',
         {
-            opacity: 0,
             x: "-1em"
         },
         {
-            opacity: 1,
             x: 0,
             duration: 0.5,
             ease: "power2.out",
@@ -66,11 +64,9 @@ export default function initLoadingSequence(context) {
     ).fromTo(
         '.hero_heading2 .char',
         {
-            opacity: 0,
             x: "1em"
         },
         {
-            opacity: 1,
             x: 0,
             duration: 0.5,
             ease: "power2.out",

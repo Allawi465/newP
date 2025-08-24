@@ -7,7 +7,9 @@ gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.normalizeScroll(true);
 
 
+
 export default function setupScrollAnimation() {
+    gsap.registerPlugin(CustomEase)
     CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
 
     gsap.fromTo(".scroll_line",
