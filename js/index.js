@@ -34,10 +34,28 @@ class EffectShell {
             setupEventListeners(this);
             this.animate();
             onWindowResize(this);
+            this.initCursorDrag(this);
             initLoadingSequence(this)
+
+
+
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
+    }
+
+    initCursorDrag(context) {
+        const canvas = context.renderer.domElement;
+
+        canvas.addEventListener("pointerdown", () => {
+            canvas.style.cursor = "grabbing";
+        });
+        canvas.addEventListener("pointerup", () => {
+            canvas.style.cursor = "grab";
+        });
+        canvas.addEventListener("mouseleave", () => {
+            canvas.style.cursor = "grab";
+        });
     }
 
     stopBodyScrolling() {
@@ -137,10 +155,8 @@ class EffectShell {
             mesh.getWorldPosition(this.titleWorldPos);
             this.titleLabel.position.y = this.titleWorldPos.y;
 
-            const rect = this.projectsElement.getBoundingClientRect();
-            const titleX = rect.left - rect.width / 2.69;
-            this.titleElement.style.left = `${titleX}px`;
         }
+
 
         this.updateUniforms(deltaTime);
         this.glassBall.position.lerp(this.targetPosition, 0.05);

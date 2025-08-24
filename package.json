@@ -1,15 +1,35 @@
 {
-  "devDependencies": {
-    "@types/three": "^0.169.0",
-    "dat.gui": "^0.7.9",
-    "lil-gui": "^0.20.0",
-    "vite": "^5.3.5"
+  "name": "allawi_portfolio",
+  "version": "1.0.0",
+  "description": "Interactive 3D portfolio by Mohammed Allawi using Three.js, GSAP, and Vite.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
+  "keywords": [
+    "portfolio",
+    "threejs",
+    "gsap",
+    "vite",
+    "lenis",
+    "webgl",
+    "3d"
+  ],
+  "author": "Mohammed Allawi",
+  "license": "MIT",
   "dependencies": {
     "@pmndrs/vanilla": "^1.19.3",
     "gsap": "^3.12.5",
     "lenis": "^1.1.14",
     "split-type": "^0.3.4",
     "three": "^0.176.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.169.0",
+    "dat.gui": "^0.7.9",
+    "lil-gui": "^0.20.0",
+    "vite": "^5.3.5"
   }
 }

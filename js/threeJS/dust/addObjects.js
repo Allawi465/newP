@@ -4,8 +4,7 @@ import GUI from 'lil-gui';
 import gsap from "gsap";
 import fragment from '../glsl/dust/fragment.js';
 import vertex from '../glsl/dust/vertex.js';
-import onWindowResize from '../resize/index.js';
-import { triggerBounce } from '../resize/index.js';
+import { startBounce, isSmall } from '../resize/index.js';
 
 export default function addObjects(context) {
     const colorParams = { particleColor: '#d0e2eb' };
@@ -65,7 +64,7 @@ export default function addObjects(context) {
 
     const glassGeometry = new THREE.IcosahedronGeometry(0.22, 22);
     context.glassMaterial = new THREE.MeshPhysicalMaterial({
-        thickness: 0.,
+        thickness: 0.3,
         roughness: 0.1,
         metalness: .5,
         opacity: 0.0,
@@ -108,10 +107,6 @@ export default function addObjects(context) {
             context.glassMaterial.needsUpdate = true;
             context.fboMaterial.uniforms.uReset.value = self.progress;
             context.material.uniforms.uScrollProgress.value = self.progress;
-            /*             context.VIEW_WIDTH = 3.5 + (1.5 * self.progress);
-            
-                        onWindowResize(context); */
-
         },
         onLeave: () => {
             context.chromaticBendPass.uniforms.offset.value.set(0.000, 0.000);
@@ -137,33 +132,22 @@ export default function addObjects(context) {
                 0.001 * self.progress
             );
 
-            // New: Switch bounce animation based on progress threshold
-            if (context.bounceTween) {  // Only if bounce is active (small screens)
-                if (self.progress > 0.) {
-                    if (context.bounceDirection !== 'x') {
-                        context.bounceTween.kill();
-                        gsap.set(context.targetPosition, { y: 0 });
-                        const tl = gsap.timeline({ repeat: -1, yoyo: true });
-                        tl.to(context.targetPosition, {
-                            x: 1.5,
-                            duration: 5,
-                            ease: "power2.inOut",
-                        });
-                        tl.to(context.targetPosition, {
-                            x: -1.5,
-                            duration: 5,
-                            ease: "power2.inOut",
-                        });
-                        context.bounceTween = tl;
-                        context.bounceDirection = 'x';
-                    }
-                } else {
-                    if (context.bounceDirection !== 'y') {
-                        context.bounceTween.kill();
-                        gsap.set(context.targetPosition, { x: 0 });  // Reset x for y-bounce
-                        triggerBounce(context);  // Reverts to y-axis
-                    }
-                }
+            context.glassMaterial.roughness = Math.min(
+                0.4,
+                Math.max(0.1, self.progress - 0.6)
+            );
+
+            context.glassMaterial.thickness = Math.min(
+                0.5,
+                Math.max(0.3, self.progress - 0.5)
+            );
+
+            if (!isSmall() || !context.bounceTween) return;
+
+            const dir = self.progress > 0 ? 'x' : 'y';
+            if (context.bounceDirection !== dir) {
+                gsap.set(context.targetPosition, dir === 'x' ? { y: 0 } : { x: 0 });
+                startBounce(context, dir, dir === 'x' ? 1.5 : 2, 5);
             }
         },
         onLeaveBack: () => {

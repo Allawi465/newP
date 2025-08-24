@@ -10,6 +10,13 @@ export function onMouseMoveHover(event, context) {
 
     const intersects = context.raycaster.intersectObjects(context.group.children);
 
+    const canvas = context.renderer.domElement;
+    if (context.isDragging) {
+        canvas.style.cursor = "grabbing";
+    } else {
+        canvas.style.cursor = intersects.length > 0 ? "pointer" : "grab";
+    }
+
     context.group.children.forEach(child => {
         const isIntersected = intersects.length > 0 && intersects[0].object === child;
 

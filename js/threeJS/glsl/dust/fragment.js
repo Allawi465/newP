@@ -24,7 +24,7 @@ void main() {
     float age = clamp(data.a, 0.0, .85);
 
     // Adjusted for faster fade-out with higher exponents
-    float alpha = pow(sin(pow((1. - age), 2.5) * PI), 3.);
+    float alpha = pow(sin(pow((1. - age), 2.7) * PI), 3.);
     alpha *= (1.0 - uScrollProgress) * uOpacity;
     alpha *= 0.5;
 

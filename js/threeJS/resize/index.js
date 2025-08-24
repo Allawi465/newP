@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import gsap from "gsap";
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 export default function onWindowResize(context) {
     const w = window.innerWidth;
@@ -9,7 +10,6 @@ export default function onWindowResize(context) {
     const BREAKPOINT = 1000;
     const MIN_WIDTH = 380;
 
-    // 1) Eased letter scale (smoothstep)
     const MIN_SCALE = 2.0;
     const MAX_SCALE = 3.5;
     const t = Math.min(1, Math.max(0, (w - MIN_WIDTH) / (2000 - MIN_WIDTH)));
@@ -21,7 +21,6 @@ export default function onWindowResize(context) {
         context.fboMaterial.uniforms.uLetterScale.value = scale;
     }
 
-    // 2) Camera view width/height AFTER scale
     let viewWidth;
     if (w > BREAKPOINT) {
         viewWidth = 4.5 * (w / BREAKPOINT);
@@ -32,7 +31,6 @@ export default function onWindowResize(context) {
     }
     const viewHeight = viewWidth / aspect;
 
-    // 3) Renderer + camera updates
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
     context.renderer.setPixelRatio(window.devicePixelRatio);
@@ -59,57 +57,42 @@ export default function onWindowResize(context) {
     context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
 
 
-    if (w <= 1000) {
-        gsap.to(context.targetPosition, {
-            x: 0,
-            y: 0,
-            duration: 0.5,
-            ease: "power2.out",
-            onComplete: () => {
-                if (context.bounceTween) context.bounceTween.kill();
-                triggerBounce(context);
-            }
-        });
-    } else {
-        if (context.bounceTween) {
-            context.bounceTween.kill();
-            context.bounceTween = null;
-            context.followMouse = true;
+    if (isSmall()) {
+        context.followMouse = false;
+        if (!context.bounceTween) {
+            gsap.set(context.targetPosition, { x: 0, y: 0 });
+            startBounce(context, 'y');
         }
+    } else {
+        context.followMouse = true;
+        stopBounce(context);
+        gsap.set(context.targetPosition, { x: 0, y: 0 });
     }
 
-    if (w <= 640) {
-        context.movementSensitivity = 100;
-    } else {
-        context.movementSensitivity = 150;
-    }
+    context.movementSensitivity = window.innerWidth <= 640 ? 100 : 150;
 
     // Update mesh positions
     const projectsEl = document.querySelector('.projects');
     context.meshes.forEach(m => context.setMeshPosition(m, projectsEl));
+
+    ScrollTrigger.refresh();
 }
 
-export function triggerBounce(context) {
-    if (context.bounceTween) context.bounceTween.kill();
+export const isSmall = () => window.innerWidth <= 1000;
 
-    const tl = gsap.timeline({ repeat: -1, yoyo: true });
-
-    tl.to(context.targetPosition, {
-        y: 2,
-        duration: 5,
-        ease: "power2.inOut",
-    });
-
-    tl.to(context.targetPosition, {
-        y: -2,
-        duration: 5,
-        ease: "power2.inOut",
-    });
-
-    context.bounceTween = tl;
-    context.bounceDirection = 'y';
+function stopBounce(ctx) {
+    if (ctx.bounceTween) ctx.bounceTween.kill();
+    ctx.bounceTween = null;
+    ctx.bounceDirection = null;
 }
 
+export function startBounce(ctx, axis = 'y', amp = 2, duration = 5) {
+    stopBounce(ctx);
+    ctx.bounceTween = gsap.timeline({ repeat: -1, yoyo: true })
+        .to(ctx.targetPosition, { [axis]: amp, duration, ease: "power2.inOut" })
+        .to(ctx.targetPosition, { [axis]: -amp, duration, ease: "power2.inOut" });
+    ctx.bounceDirection = axis;
+}
 function smootherstep(x) {
     return x * x * x * (x * (x * 6 - 15) + 10);
 }
