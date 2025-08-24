@@ -28,6 +28,9 @@ html {
     user-select: none !important;
     overscroll-behavior-y: contain;
     touch-action: none;
+
+    /* Allow vertical scrolling on touch devices for smoother behavior in browsers like Safari */
+    touch-action: pan-y;
 }
 
 html {
