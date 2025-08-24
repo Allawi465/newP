@@ -11,6 +11,8 @@ export default function setupLenis(effectShell) {
         touchMultiplier: 0.5,
     });
 
+    ScrollTrigger.normalizeScroll({ allowNestedScroll: true });
+
     const rafCallback = (time) => {
         if (effectShell.isProjectsOpen) {
             effectShell.projectsLenis.raf(time);
