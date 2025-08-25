@@ -19,13 +19,9 @@ export function onPointerMove(event, context) {
 
     context.currentPosition += (delta / context.movementSensitivity) * smoothingFactor;
 
-    // Calculate drag speed and apply smoothing 
-    // Calculate drag speed and apply smoothing
     const rawSpeed = clientX - context.lastX;
     context.dragSpeed = context.dragSpeed * (1 - smoothingFactor) + rawSpeed * smoothingFactor;
 
-    // Limit the maximum speed 
-    // Limit the maximum speed
     context.dragSpeed = Math.max(Math.min(context.dragSpeed, 25), -25);
 
     context.lastX = clientX;

@@ -6,7 +6,7 @@ import { vertexShader, fragmentShader } from '../../glsl/shader';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function createPlaneMesh(content, texture, index, context) {
+export default function createPlaneMesh(content, texture, index) {
 
     const planeGeometry = new THREE.PlaneGeometry(
         content.slideWidth * content.scaleFactor,
@@ -67,15 +67,14 @@ export default function createPlaneMesh(content, texture, index, context) {
             trigger: ".projects",
             start: "top bottom",
             end: "bottom top",
-            scrub: 0.5,
-            scroller: document.body
+            scrub: .5,
+            scroller: document.body,
         }
     });
 
     tl.to(planeMesh.position, {
         y: 8,
         ease: "none",
-        immediateRender: false
     }, 0);
 
     ScrollTrigger.create({
@@ -88,6 +87,9 @@ export default function createPlaneMesh(content, texture, index, context) {
             planeMesh.material.uniforms.opacity.value = self.progress;
         }
     });
+
+    ScrollTrigger.update();
+    content.bodyLenis.on('scroll', () => ScrollTrigger.update());
 
     return planeMesh;
 }

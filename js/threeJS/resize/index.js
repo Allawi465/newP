@@ -69,7 +69,7 @@ export default function onWindowResize(context) {
         gsap.set(context.targetPosition, { x: 0, y: 0 });
     }
 
-    context.movementSensitivity = window.innerWidth <= 640 ? 100 : 150;
+    context.movementSensitivity = window.innerWidth <= 1024 ? 50 : 180;
 
     // Update mesh positions
     const projectsEl = document.querySelector('.projects');

@@ -1,28 +1,58 @@
 import Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import gsap from 'gsap';
 
 export default function setupLenis(effectShell) {
     effectShell.bodyLenis = new Lenis({
+        wrapper: document.documentElement,
+        content: document.body,
         smooth: true,
         direction: 'vertical',
-        wrapper: document.body,
-        content: document.documentElement,
         syncTouch: true,
-        touchMultiplier: 0.5,
+        touchMultiplier: 1.0,
+        smoothTouch: true,
+        lerp: 0.1,
     });
 
-    ScrollTrigger.normalizeScroll({ allowNestedScroll: true });
-
-    const rafCallback = (time) => {
-        if (effectShell.isProjectsOpen) {
-            effectShell.projectsLenis.raf(time);
-        } else {
-            effectShell.bodyLenis.raf(time);
+    // Prevent native scrolling when Lenis is stopped
+    const preventDefaultScroll = (e) => {
+        if (effectShell.bodyLenis.isStopped) {
+            e.preventDefault();
         }
-
-        ScrollTrigger.update();
-        requestAnimationFrame(rafCallback);
     };
 
-    requestAnimationFrame(rafCallback);
+    document.addEventListener('wheel', preventDefaultScroll, { passive: false });
+    document.addEventListener('touchmove', preventDefaultScroll, { passive: false });
+
+    // Use GSAP ticker instead of custom RAF to avoid duplication
+    gsap.ticker.add((time) => {
+        effectShell.bodyLenis.raf(time * 1000);
+    });
+
+    // Update ScrollTrigger on Lenis scroll
+    effectShell.bodyLenis.on('scroll', () => {
+        if (!effectShell.bodyLenis.isStopped) {
+            ScrollTrigger.update();
+        }
+    });
+
+    // Configure scrollerProxy for Lenis integration
+    ScrollTrigger.scrollerProxy(document.documentElement, {
+        scrollTop(value) {
+            if (arguments.length) {
+                effectShell.bodyLenis.scrollTo(value, { immediate: true });
+            }
+            return effectShell.bodyLenis.scroll;
+        },
+        getBoundingClientRect() {
+            return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+        },
+        pinType: document.documentElement.style.transform ? 'transform' : 'fixed',
+    });
+
+    // Disable normalizeScroll to prevent nested scrolling
+    ScrollTrigger.normalizeScroll(false);
+
+    // Refresh ScrollTrigger after setup
+    ScrollTrigger.refresh();
 }
