@@ -10,7 +10,6 @@ export default function setupLenis(effectShell) {
         direction: 'vertical',
         syncTouch: true,
         touchMultiplier: 1.0,
-        smoothTouch: true,
         lerp: 0.1,
     });
 

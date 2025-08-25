@@ -5,7 +5,6 @@ import setupScrollAnimation from '../scrollstrigger/index.js';
 import showAbout from '../../components/about/index.js';
 import closeInfoDiv from '../../components/close/index.js';
 import { onWindowResize } from '../index.js';
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
@@ -21,23 +20,21 @@ export default function setupEventListeners(context) {
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
 
     window.addEventListener('load', () => {
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                // Reset native scroll first
-                document.documentElement.scrollTop = 0;
-                document.body.scrollTop = 0;
 
-                // Then force Lenis to 0
-                if (context.bodyLenis) {
-                    context.bodyLenis.scrollTo(0, { immediate: true });
-                }
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
 
-                setupScrollAnimation();
+        setTimeout(() => {
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
 
-                // Final safety refresh
-                ScrollTrigger.refresh();
-            });
-        });
+            if (context.bodyLenis) {
+                context.bodyLenis.scrollTo(0, { immediate: true });
+            }
+
+            setupScrollAnimation();
+        }, 100);
     });
 
     window.addEventListener('pointermove', (event) => {
