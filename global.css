@@ -255,7 +255,10 @@ html.lenis body {
     grid-column-gap: 0px;
     grid-row-gap: 0px;
     opacity: 0;
-    text-align: left;
+}
+
+.heading {
+    margin-left: -4px;
 }
 
 .hero_heading {
@@ -264,6 +267,7 @@ html.lenis body {
     line-height: .85;
     font-family: "Bebas Neue", sans-serif;
     margin: 0;
+    text-align: left;
 }
 
 .hero_heading2 {
@@ -278,6 +282,7 @@ html.lenis body {
     grid-area: 2 / 1 / 3 / 2;
     margin-left: 15px;
     opacity: 0;
+
 }
 
 .txt {
@@ -307,7 +312,7 @@ html.lenis body {
     line-height: 1;
     writing-mode: vertical-lr;
     color: rgba(255, 255, 255, 0);
-    left: calc(26px + var(--w1));
+    left: calc(-27.5px + var(--w1));
     position: absolute;
     width: 100%;
 }
@@ -545,6 +550,7 @@ html.lenis body {
     .text_hero {
         max-width: 465px;
         margin-left: 0px;
+        margin-left: 5px !important;
     }
 
 }
@@ -563,9 +569,15 @@ html.lenis body {
         flex-direction: column;
     }
 
+    .about_headings2 {
+
+        margin-left: -7.5px !important;
+    }
+
     .text_about {
         max-width: 465px;
         margin-bottom: 10px;
+        margin-left: -5.1px !important;
     }
 
     .contact_info {
@@ -575,6 +587,10 @@ html.lenis body {
 }
 
 @media (max-width: 640px) {
+
+    .projects__title {
+        left: calc(-3.2px + var(--w1));
+    }
 
     .slider-project__description,
     .slider-project__title {
