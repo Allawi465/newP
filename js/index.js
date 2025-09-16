@@ -168,7 +168,6 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
             this.velocity *= Math.pow(this.friction, 60 * deltaTime);

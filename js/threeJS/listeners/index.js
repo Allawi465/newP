@@ -7,7 +7,7 @@ import closeInfoDiv from '../../components/close/index.js';
 import { onWindowResize } from '../index.js';
 
 export default function setupEventListeners(context) {
-    window.addEventListener(' n ', () => onWindowResize(context));
+    window.addEventListener('resize', () => onWindowResize(context));
     window.addEventListener('mousemove', (event) => onMouseMoveHover(event, context));
     window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: false });
     window.addEventListener('pointermove', (event) => onPointerMove(event, context), { passive: false });

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-
 export const images = [
     {
         id: 'slider_1',

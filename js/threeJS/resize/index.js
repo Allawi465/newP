@@ -44,14 +44,14 @@ export default function onWindowResize(context) {
     }
 
     if (context.fboMaterial?.uniforms?.uLetterScale) {
-        context.fboMaterial.uniforms.uLetterScale.value = scale * factor;
+        context.fboMaterial.uniforms.uLetterScale.value = scale;
     }
 
-    if (context.glassBall?.uniforms && factor > 1) {
+    if (context.glassBall && factor > 1) {
         context.glassBall.scale.set(factor, factor, factor);
     }
 
-    if (context.points?.uniforms && factor > 1) {
+    if (context.points && factor > 1) {
         context.points.scale.set(factor, factor, factor);
     }
 
@@ -80,7 +80,7 @@ export default function onWindowResize(context) {
 
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
-    context.renderer.setPixelRatio(window.devicePixelRatio);
+    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     context.camera.left = -viewWidth / 2;
     context.camera.right = viewWidth / 2;

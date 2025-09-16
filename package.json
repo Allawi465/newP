@@ -2,7 +2,7 @@
   "name": "allawi_portfolio",
   "version": "1.0.0",
   "type": "module",
-  "description": "Interactive 3D portfolio by Mohammed Allawi using Three.js, GSAP, and Vite.",
+  "description": "Interactive 3D portfolio by Allawi using Three.js, GSAP, and Vite.",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
