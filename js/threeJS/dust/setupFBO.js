@@ -76,7 +76,7 @@ export default function setupFBO(context) {
 function makeTextTargetsSimple(
     text = "Connect",
     size = 256,
-    fontFamily = "Poppins, sans-serif",
+    fontFamily = "Bebas Neue, sans-serif",
     fontWeight = 900,
     fontStyle = "normal",
     fontSize = 200,

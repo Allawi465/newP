@@ -1,8 +1,8 @@
 import * as THREE from 'three';
+import gsap from 'gsap';
 import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupLenis, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
-import { defaultConfig, calculatePositionX, images, loadTextures } from './utils/index.js';
 import initLoadingSequence from './components/loader/index.js';
-
+import { defaultConfig, images } from './utils/index.js';
 
 class EffectShell {
     constructor() {
@@ -14,7 +14,8 @@ class EffectShell {
 
         this.init().then(() => this.onInitComplete());
 
-        this.VIEW_WIDTH = 5.;
+        this.VIEW_WIDTH = 4.5;
+        this.VIEW_HEIGHT = 6;
 
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
@@ -25,7 +26,7 @@ class EffectShell {
     async init() {
         try {
             setupScene(this);
-            this.textures = await loadTextures(images, this);
+            this.textures = await this.loadTextures(images, this);
             createMeshes(this);
             setupPostProcessing(this);
             setupFBO(this);
@@ -34,28 +35,11 @@ class EffectShell {
             setupEventListeners(this);
             this.animate();
             onWindowResize(this);
-            this.initCursorDrag(this);
             initLoadingSequence(this)
-
-
 
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
-    }
-
-    initCursorDrag(context) {
-        const canvas = context.renderer.domElement;
-
-        canvas.addEventListener("pointerdown", () => {
-            canvas.style.cursor = "grabbing";
-        });
-        canvas.addEventListener("pointerup", () => {
-            canvas.style.cursor = "grab";
-        });
-        canvas.addEventListener("mouseleave", () => {
-            canvas.style.cursor = "grab";
-        });
     }
 
     stopBodyScrolling() {
@@ -66,13 +50,59 @@ class EffectShell {
         this.bodyLenis?.start()
     }
 
+    loadTextures(imageArray, context) {
+        const textureLoader = new THREE.TextureLoader();
+        return Promise.all(imageArray.map(image => new Promise((resolve, reject) => {
+            textureLoader.load(image.src, (texture) => {
+                texture.wrapS = THREE.ClampToEdgeWrapping;
+                texture.wrapT = THREE.ClampToEdgeWrapping;
+
+                texture.generateMipmaps = true;
+                texture.minFilter = THREE.LinearMipMapLinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                texture.anisotropy = Math.min(context.renderer.capabilities.getMaxAnisotropy(), 8);
+                texture.needsUpdate = true;
+
+                resolve(texture);
+            }, undefined, (err) => {
+                console.error(`Failed to load texture: ${image.src}`, err);
+                reject(err);
+            });
+        })));
+    }
+
+    smootherstep(x) {
+        return x * x * x * (x * (x * 6 - 15) + 10);
+    }
+
+    startBounce(ctx, axis = 'y', amp = 2, duration = 5) {
+        this.stopBounce(ctx);
+        ctx.bounceTween = gsap.timeline({ repeat: -1, yoyo: true })
+            .to(ctx.targetPositionSphre, { [axis]: amp, duration, ease: "power2.inOut" })
+            .to(ctx.targetPositionSphre, { [axis]: -amp, duration, ease: "power2.inOut" });
+        ctx.bounceDirection = axis;
+    }
+
+    stopBounce(ctx) {
+        if (ctx.bounceTween) ctx.bounceTween.kill();
+        ctx.bounceTween = null;
+        ctx.bounceDirection = null;
+    }
+
+    calculatePositionX(index, currentPosition, meshSpacing) {
+        const totalLength = meshSpacing * images.length;
+        return ((((index * meshSpacing + currentPosition) % totalLength) + totalLength) % totalLength) - totalLength / 2;
+    }
+
+
     updateAdjustedMeshSpacing() {
         this.meshSpacing = this.baseMeshSpacing * this.scaleFactor_cards;
     }
 
     updatePositions() {
+
         this.group.children.forEach((child, index) => {
-            child.position.x = calculatePositionX(index, this.currentPosition, this.meshSpacing);
+            child.position.x = this.calculatePositionX(index, this.currentPosition, this.meshSpacing);
         });
 
         this.syncHtmlWithSlider();
@@ -104,48 +134,66 @@ class EffectShell {
         return [l, c, u];
     }
 
-
-
     updateUniforms(deltaTime) {
-        // Mouse uniforms
         this.material.uniforms.uMouse.value.copy(this.pointer);
         this.material.uniforms.uMousePrev.value.copy(this.pointerPrev);
 
-        // Time uniforms with max delta
         this.material.uniforms.time.value = this.time;
         this.fboMaterial.uniforms.time.value = this.time;
         this.fboMaterial.uniforms.uDelta.value = this.time
         this.fboMaterial.uniforms.uDelta.value = Math.min(deltaTime, 0.1);
 
-        // Random uniforms
         this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random() * 0.9;
         this.fboMaterial.uniforms.uRandom2.value = 0.5 + Math.random() * 0.9;
 
-        // Position uniforms
         this.material.uniforms.uCameraPos.value.copy(this.camera.position);
         this.fboMaterial.uniforms.uSpherePos.value.copy(this.glassBall.position);
     }
 
-    // Renders to the FBO, updates textures, and swaps FBOs
+
     renderToFBO() {
         this.renderer.setRenderTarget(this.fbo);
         this.renderer.render(this.fboScene, this.fboCamera);
         this.renderer.setRenderTarget(null);
 
-        // Update texture references
         this.material.uniforms.uPositions.value = this.fbo1.texture;
         this.fboMaterial.uniforms.uPositions.value = this.fbo.texture;
 
-        // Swap FBOs
         let temp = this.fbo;
         this.fbo = this.fbo1;
         this.fbo1 = temp;
     }
 
     animate() {
-
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
+
+
+        if (!this.isDragging && this.isMoving) {
+            this.targetPosition += this.velocity * deltaTime;
+            this.velocity *= Math.pow(this.friction, 60 * deltaTime);
+            if (Math.abs(this.velocity) < 0.01) {
+                this.velocity = 0;
+                this.isMoving = false;
+            }
+
+            const momentumStrength = Math.min(Math.abs(this.velocity) / 70.0, 1.0);
+            if (this.meshArray) {
+                this.meshArray.forEach(mesh => {
+                    mesh.material.uniforms.uIsDragging.value += (momentumStrength - mesh.material.uniforms.uIsDragging.value) * 0.03;
+                    mesh.material.uniforms.uIsDragging.needsUpdate = true;
+                });
+            }
+        }
+
+        this.currentPosition = this.currentPosition + (this.targetPosition - this.currentPosition) * this.lerpFactor;
+
+        this.desiredOffset = this.velocity * this.offsetFactor;
+        this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
+
+        this.group.children.forEach(child => {
+            child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
+        });
 
         this.updatePositions();
         this.syncHtmlWithSlider();
@@ -154,12 +202,10 @@ class EffectShell {
             const mesh = this.meshArray[0];
             mesh.getWorldPosition(this.titleWorldPos);
             this.titleLabel.position.y = this.titleWorldPos.y;
-
         }
 
-
         this.updateUniforms(deltaTime);
-        this.glassBall.position.lerp(this.targetPosition, 0.05);
+        this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
         this.cubeCamera.position.copy(this.glassBall.position);
         this.cubeCamera.update(this.renderer, this.scene);
 
@@ -172,6 +218,8 @@ class EffectShell {
 
         requestAnimationFrame(this.animate.bind(this));
     }
+
+
 
     onInitComplete() {
         console.log("Initialization complete!");

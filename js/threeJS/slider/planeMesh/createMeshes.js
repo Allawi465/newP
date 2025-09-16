@@ -20,7 +20,11 @@ export default function createMeshes(context) {
 
     context.scene.add(context.group);
     context.titleElement = document.querySelector(".projects__title");
-    context.titleElement.style.transform = 'none';
+
+
+    context.titleLabel = new CSS2DObject(context.titleElement);
+    context.titleLabel.layers.set(context.slider_mesh);
+    context.scene.add(context.titleLabel);
 
     context.titleLabel = new CSS2DObject(context.titleElement);
     context.titleLabel.layers.set(context.slider_mesh);

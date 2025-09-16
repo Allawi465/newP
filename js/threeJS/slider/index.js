@@ -1,56 +1,43 @@
+import gsap from 'gsap';
 import { handleClick } from './handleClick/index.js';
-import startMomentumMotion from './sliderMotion/sliderMotion.js';
-
-let pendingDelta = 0;
-let rafScheduled = false;
-let rafId = null;
 
 export function onPointerMove(event, context) {
     if (!context.isDragging) return;
 
     const clientX = event.clientX !== undefined ? event.clientX : (event.touches && event.touches[0].clientX);
-    if (clientX === undefined) return;
+    const clientY = event.clientY !== undefined ? event.clientY : (event.touches && event.touches[0].clientY);
+    if (clientX === undefined || clientY === undefined) return;
 
     const delta = clientX - context.startX;
-    pendingDelta += delta;
 
-    const smoothingFactor = 0.1;
-    context.dragDelta = context.dragDelta * (1 - smoothingFactor) + Math.abs(delta) * smoothingFactor;
+    context.targetPosition += delta / context.movementSensitivity;
 
-    context.currentPosition += (delta / context.movementSensitivity) * smoothingFactor;
+    const now = performance.now();
+    const deltaTime = (now - context.lastTime) / 1000;
+    context.lastTime = now;
 
-    const rawSpeed = clientX - context.lastX;
-    context.dragSpeed = context.dragSpeed * (1 - smoothingFactor) + rawSpeed * smoothingFactor;
-
-    context.dragSpeed = Math.max(Math.min(context.dragSpeed, 25), -25);
-
-    context.lastX = clientX;
-
-    if (!context.isMomentumStarted) {
-        context.isMomentumStarted = true;
-        startMomentumMotion(context);
+    if (deltaTime > 0) {
+        const rawVelocity = delta / context.movementSensitivity / deltaTime;
+        context.velocity = context.velocity * 0.5 + rawVelocity * 0.5;
+        context.velocity = Math.max(Math.min(context.velocity, 50), -50);
     }
 
-    context.updatePositions();
-    if (!rafScheduled) {
-        rafScheduled = true;
-        rafId = requestAnimationFrame(() => {
-            const deltaToApply = pendingDelta;
-            pendingDelta = 0;
+    context.dragDelta = context.dragDelta * (1 - context.smoothingFactor) + Math.abs(delta) * context.smoothingFactor;
+    context.dragSpeed = context.dragSpeed * (1 - context.smoothingFactor) + (clientX - context.lastX) * context.smoothingFactor;
+    context.dragSpeed = Math.max(Math.min(context.dragSpeed, 25), -25);
 
-            context.dragDelta = context.dragDelta * (1 - smoothingFactor) + Math.abs(deltaToApply) * smoothingFactor;
-            context.currentPosition += (deltaToApply / context.movementSensitivity) * smoothingFactor;
-            context.velocity = context.velocity * (1 - smoothingFactor) +
-                (deltaToApply / context.movementSensitivity) * smoothingFactor;
+    const baseStrength = Math.min(Math.abs(context.velocity) / 70.0, 1.0);
+    const targetStrength = Math.max(baseStrength, 0.1);
 
-            context.updatePositions();
-            rafScheduled = false;
+    if (context.meshArray) {
+        context.meshArray.forEach(mesh => {
+            mesh.material.uniforms.uIsDragging.value += (targetStrength - mesh.material.uniforms.uIsDragging.value) * 0.1;
+            mesh.material.uniforms.uIsDragging.needsUpdate = true;
         });
     }
 
-    // Smooth the velocity 
-    context.velocity = context.velocity * (1 - smoothingFactor) + (delta / context.movementSensitivity) * smoothingFactor;
     context.startX = clientX;
+    context.lastX = clientX;
 }
 
 export function onPointerDown(event, context) {
@@ -59,17 +46,12 @@ export function onPointerDown(event, context) {
     context.startY = event.clientY !== undefined ? event.clientY : (event.touches && event.touches[0].clientY);
     context.dragDelta = 1;
     context.lastX = context.startX;
+    context.lastTime = performance.now();
     context.isMoving = false;
-    context.isMomentumStarted = false;
-
-    pendingDelta = 0;
-    if (rafScheduled && rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafScheduled = false;
-    }
-
-    // Store the initial click position
+    context.desiredOffset = 0;
+    context.smoothingFactor = context.smoothingFactorDrag;
     context.initialClick = { x: context.startX, y: context.startY };
+
 }
 
 export function onPointerUp(event, context) {
@@ -87,17 +69,27 @@ export function onPointerUp(event, context) {
     const clickThreshold = 5;
 
     context.isDragging = false;
-
-    if (rafScheduled && rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafScheduled = false;
-        pendingDelta = 0;
-    }
+    context.smoothingFactor = context.smoothingFactorDefault;
 
     if (deltaX < clickThreshold && deltaY < clickThreshold) {
         handleClick(event, context);
-    } else {
+    } else if (Math.abs(context.velocity) > 0.01) {
         context.isMoving = true;
-        startMomentumMotion(context);
+    } else {
+        if (context.meshArray) {
+            context.meshArray.forEach(mesh => {
+                const currentStrength = mesh.material.uniforms.uIsDragging.value;
+                if (currentStrength > 0.01) {
+                    gsap.to(mesh.material.uniforms.uIsDragging, {
+                        value: 0.0,
+                        duration: 0.15,
+                        ease: "power2.inOut",
+                        onUpdate: () => {
+                            mesh.material.uniforms.uIsDragging.needsUpdate = true;
+                        }
+                    });
+                }
+            });
+        }
     }
 }

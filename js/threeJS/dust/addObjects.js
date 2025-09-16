@@ -4,7 +4,6 @@ import GUI from 'lil-gui';
 import gsap from "gsap";
 import fragment from '../glsl/dust/fragment.js';
 import vertex from '../glsl/dust/vertex.js';
-import { startBounce, isSmall } from '../resize/index.js';
 
 export default function addObjects(context) {
     const colorParams = { particleColor: '#d0e2eb' };
@@ -127,10 +126,7 @@ export default function addObjects(context) {
             context.material.uniforms.uScrollProgress.value = 1 - self.progress;
 
             context.fboMaterial.uniforms.uFooter.value = self.progress;
-            context.chromaticBendPass.uniforms.offset.value.set(
-                0.001 * self.progress,
-                0.001 * self.progress
-            );
+
 
             context.glassMaterial.roughness = Math.min(
                 0.4,
@@ -142,12 +138,12 @@ export default function addObjects(context) {
                 Math.max(0.3, self.progress - 0.5)
             );
 
-            if (!isSmall() || !context.bounceTween) return;
+            if (!context.isSmall() || !context.bounceTween) return;
 
             const dir = self.progress > 0 ? 'x' : 'y';
             if (context.bounceDirection !== dir) {
-                gsap.set(context.targetPosition, dir === 'x' ? { y: 0 } : { x: 0 });
-                startBounce(context, dir, dir === 'x' ? 1.5 : 2, 5);
+                gsap.set(context.targetPositionSphre, dir === 'x' ? { y: 0 } : { x: 0 });
+                context.startBounce(context, dir, dir === 'x' ? 1.5 : 2, 5);
             }
         },
         onLeaveBack: () => {

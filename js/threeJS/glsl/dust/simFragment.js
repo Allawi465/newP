@@ -126,6 +126,11 @@ void main(){
   vec3 pos = data.rgb;
   float age = data.a;
 
+  // Global blend for transitioning from sphere (page1) to letters (page2)
+  // This is non-staggered, so the overall mode switch is uniform.
+  // Adjust the smoothstep range for smoother/faster transition (e.g., smoothstep(0.4, 0.6, uFooter) for gradual).
+  float blend = smoothstep(0.5, 0.5, uFooter);  // Equivalent to step(0.5, uFooter) for sharp switch.
+
   // ===== PAGE 1 =====
   vec3 pos1 = pos;
   float age1 = age;
@@ -162,21 +167,28 @@ void main(){
     age1 = clamp(age1 + uDelta * 0.1, 0.0, 1.0);
   }
 
-  // ===== PAGE 2: print "word" using uTargets =====
-  vec3 pos2 = pos;
-  float age2 = age;
-  float blend = smoothstep(0.5, .5, uFooter);
-  {
-    vec3 tgt = texture2D(uTargets, uv).xyz;
-    vec2 targetXY = tgt.xy * uLetterScale;
-    float converge = blend * 0.05;  
-    pos2.xy += (targetXY - pos2.xy) * converge;
+// ===== PAGE 2: print "word" using uTargets =====
+vec3 pos2 = pos;
+float age2 = age;
+{
+  vec3 tgt = texture2D(uTargets, uv).xyz;
+  vec2 targetXY = tgt.xy * uLetterScale;
 
-    float dist2 = length(pos2.xy - uSpherePos.xy);
-    vec2  dir2  = normalize(pos2.xy - uSpherePos.xy);
-    pos2.xy += dir2 * 0.2 * smoothstep(0.59, 0.0, dist2);
-  }
+  float stagger = (tgt.x + 1.0) * 0.5; 
+  float delay = stagger * .5;  // Max stagger offset of 0.5 (tune this value as needed)
+  
+  // Use smoothstep for easing (replace step for gradual transition)
+  float staggeredBlend = smoothstep(0.15 + delay, 0.25 + delay, uFooter); 
 
+  float converge = staggeredBlend * 0.05;
+  pos2.xy += (targetXY - pos2.xy) * converge;
+
+  float dist2 = length(pos2.xy - uSpherePos.xy);
+  vec2 dir2 = normalize(pos2.xy - uSpherePos.xy);
+  pos2.xy += dir2 * 0.2 * smoothstep(0.59, 0.0, dist2);
+}
+
+  // Final mix using the global (non-staggered) blend
   vec3 blendedPos = mix(pos1, pos2, blend);
   float blendedAge = mix(age1, age2, blend);
   gl_FragColor = vec4(blendedPos, blendedAge);

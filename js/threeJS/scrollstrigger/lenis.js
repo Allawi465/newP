@@ -3,15 +3,23 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import gsap from 'gsap';
 
 export default function setupLenis(effectShell) {
+
+    gsap.ticker.lagSmoothing(0);
+
     effectShell.bodyLenis = new Lenis({
         wrapper: document.documentElement,
         content: document.body,
         smooth: true,
         direction: 'vertical',
         syncTouch: true,
-        touchMultiplier: 1.0,
-        lerp: 0.1,
+        touchMultiplier: 0.7,
+        wheelPropagation: false,
+        lerp: window.innerWidth <= 768 ? 0.1 : 0.08,
+        syncTouchLerp: 0.075,
+        autoRaf: false,
     });
+
+    gsap.ticker.lagSmoothing(0);
 
     // Prevent native scrolling when Lenis is stopped
     const preventDefaultScroll = (e) => {

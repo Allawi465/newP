@@ -8,13 +8,15 @@ export default function onWindowResize(context) {
     const aspect = w / h;
 
     const BREAKPOINT = 1000;
-    const MIN_WIDTH = 380;
+    const MIN_WIDTH = 300;
+    const MIN_HEIGHT = 1000;
+    const CLAMP_HEIGHT = 300;
 
-    const MIN_SCALE = 2.0;
+    const MIN_SCALE = 2.1;
     const MAX_SCALE = 3.5;
     const t = Math.min(1, Math.max(0, (w - MIN_WIDTH) / (2000 - MIN_WIDTH)));
-    const pow = 5.5;
-    const eased = smootherstep(Math.pow(t, pow));
+    const pow = 2.5;
+    const eased = context.smootherstep(Math.pow(t, pow));
     const scale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * eased;
 
     if (context.fboMaterial?.uniforms?.uLetterScale) {
@@ -29,7 +31,52 @@ export default function onWindowResize(context) {
     } else {
         viewWidth = context.VIEW_WIDTH;
     }
+
+    let factor = 1;
+    if (h <= MIN_HEIGHT) {
+        let effective_h = Math.max(h, CLAMP_HEIGHT);
+        factor = MIN_HEIGHT / effective_h;
+        factor = Math.min(factor, 2.);
+        if (w <= 500) {
+            factor = 1.1;
+        }
+        viewWidth *= factor;
+    }
+
+    if (context.fboMaterial?.uniforms?.uLetterScale) {
+        context.fboMaterial.uniforms.uLetterScale.value = scale * factor;
+    }
+
+    if (context.glassBall?.uniforms && factor > 1) {
+        context.glassBall.scale.set(factor, factor, factor);
+    }
+
+    if (context.points?.uniforms && factor > 1) {
+        context.points.scale.set(factor, factor, factor);
+    }
+
     const viewHeight = viewWidth / aspect;
+    const referenceViewWidth = 8.5;
+    const distanceScale = referenceViewWidth / viewWidth;
+
+    if (context.meshArray) {
+        context.meshArray.forEach(mesh => {
+            const currentScale = mesh.material.uniforms.uDistanceScale.value;
+            if (Math.abs(distanceScale - currentScale) > 0.001) {
+                gsap.to(mesh.material.uniforms.uDistanceScale, {
+                    value: distanceScale,
+                    duration: 0.2,
+                    ease: "power2.inOut",
+                    onUpdate: () => {
+                        mesh.material.uniforms.uDistanceScale.needsUpdate = true;
+                    }
+                });
+            } else {
+                mesh.material.uniforms.uDistanceScale.value = distanceScale;
+                mesh.material.uniforms.uDistanceScale.needsUpdate = true;
+            }
+        });
+    }
 
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
@@ -41,58 +88,31 @@ export default function onWindowResize(context) {
     context.camera.bottom = -viewHeight / 2;
     context.camera.updateProjectionMatrix();
 
-    if (context.material && context.material.uniforms) {
-        context.material.uniforms.iResolution.value.set(w, h);
-        context.material.uniforms.uPixelRatio = { value: Math.min(window.devicePixelRatio, 2) };
-    }
-
-    if (context.fboMaterial && context.fboMaterial.uniforms) {
-        context.fboMaterial.uniforms.resolution.value.set(w, h);
-    }
-
-    // Update large plane geometry
     const planeHeight = context.camera.top - context.camera.bottom;
     const planeWidth = context.camera.right - context.camera.left;
     context.largePlane.geometry.dispose();
     context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
 
-
-    if (isSmall()) {
+    if (context.isSmall()) {
         context.followMouse = false;
         if (!context.bounceTween) {
-            gsap.set(context.targetPosition, { x: 0, y: 0 });
-            startBounce(context, 'y');
+            gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+            context.startBounce(context, 'y');
         }
     } else {
         context.followMouse = true;
-        stopBounce(context);
-        gsap.set(context.targetPosition, { x: 0, y: 0 });
+        context.stopBounce(context);
+        gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
     }
 
-    context.movementSensitivity = window.innerWidth <= 1024 ? 50 : 180;
+    context.movementSensitivity = window.innerWidth <= 1024 ? 100 : 150;
+    context.smoothingFactor = window.innerWidth <= 1024 ? 0.2 : 0.03;
+    context.lerpFactor = window.innerWidth <= 1024 ? 0.2 : 0.1;
+    context.friction = 0.95;
+    context.lastTime = performance.now();
 
-    // Update mesh positions
     const projectsEl = document.querySelector('.projects');
     context.meshes.forEach(m => context.setMeshPosition(m, projectsEl));
 
     ScrollTrigger.refresh();
-}
-
-export const isSmall = () => window.innerWidth <= 1000;
-
-function stopBounce(ctx) {
-    if (ctx.bounceTween) ctx.bounceTween.kill();
-    ctx.bounceTween = null;
-    ctx.bounceDirection = null;
-}
-
-export function startBounce(ctx, axis = 'y', amp = 2, duration = 5) {
-    stopBounce(ctx);
-    ctx.bounceTween = gsap.timeline({ repeat: -1, yoyo: true })
-        .to(ctx.targetPosition, { [axis]: amp, duration, ease: "power2.inOut" })
-        .to(ctx.targetPosition, { [axis]: -amp, duration, ease: "power2.inOut" });
-    ctx.bounceDirection = axis;
-}
-function smootherstep(x) {
-    return x * x * x * (x * (x * 6 - 15) + 10);
 }
