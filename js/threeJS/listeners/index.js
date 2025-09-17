@@ -19,15 +19,25 @@ export default function setupEventListeners(context) {
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
 
+    // Add this to prevent scroll position from being saved on unload/reload
+    window.onbeforeunload = function () {
+        window.scrollTo(0, 0);
+    };
+
+    // Your existing load listener, with fallback for unsupported browsers
     window.addEventListener('load', () => {
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
 
+        // Immediate scroll to top
         window.scrollTo(0, 0);
 
         if (context.bodyLenis) {
-            context.bodyLenis.scrollTo(0, { immediate: true });
+            // Try scrolling via Lenis with a short delay for iOS/Safari quirks
+            setTimeout(() => {
+                context.bodyLenis.scrollTo(0, { immediate: true });
+            }, 0);  // Use 0ms to queue after current execution
         }
 
         setupScrollAnimation();
