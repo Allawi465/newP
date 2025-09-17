@@ -19,25 +19,32 @@ export default function setupEventListeners(context) {
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
 
-    // Add this to prevent scroll position from being saved on unload/reload
     window.onbeforeunload = function () {
         window.scrollTo(0, 0);
     };
 
-    // Your existing load listener, with fallback for unsupported browsers
     window.addEventListener('load', () => {
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
 
-        // Immediate scroll to top
+        // Immediate scroll to top as baseline
         window.scrollTo(0, 0);
 
+        const navTag = document.getElementById('nav_tag');
+        if (navTag) {
+            // Safari-friendly: Use boolean for top alignment (true = alignToTop)
+            // Only use options if supported (fallback test)
+            if ('scrollBehavior' in document.documentElement.style) {  // Proxy for options support
+                navTag.scrollIntoView({ behavior: 'instant', block: 'start' });
+            } else {
+                navTag.scrollIntoView(true);
+            }
+        }
+
         if (context.bodyLenis) {
-            // Try scrolling via Lenis with a short delay for iOS/Safari quirks
-            setTimeout(() => {
-                context.bodyLenis.scrollTo(0, { immediate: true });
-            }, 0);  // Use 0ms to queue after current execution
+            // Target the nav ID for consistency (Lenis supports selectors)
+            context.bodyLenis.scrollTo('#nav_tag', { immediate: true });
         }
 
         setupScrollAnimation();
