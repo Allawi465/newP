@@ -19,32 +19,49 @@ export default function setupEventListeners(context) {
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
 
+    // Prevent scroll save on unload (Safari-friendly)
     window.onbeforeunload = function () {
         window.scrollTo(0, 0);
     };
+
+    // Handle bfcache restores (common Safari/iOS reload quirk)
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            window.scrollTo(0, 0);
+        }
+    });
 
     window.addEventListener('load', () => {
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
 
-        // Immediate scroll to top as baseline
+        // Baseline native scroll
         window.scrollTo(0, 0);
 
         const navTag = document.getElementById('nav_tag');
         if (navTag) {
-            // Safari-friendly: Use boolean for top alignment (true = alignToTop)
-            // Only use options if supported (fallback test)
-            if ('scrollBehavior' in document.documentElement.style) {  // Proxy for options support
+            // Fallback for Safari options support
+            if (navTag.scrollIntoView.toString().includes('Options')) {  // Better detection
                 navTag.scrollIntoView({ behavior: 'instant', block: 'start' });
             } else {
                 navTag.scrollIntoView(true);
             }
         }
 
+        // Lenis: Queue immediate scroll after DOM (iOS timing fix)
         if (context.bodyLenis) {
-            // Target the nav ID for consistency (Lenis supports selectors)
-            context.bodyLenis.scrollTo('#nav_tag', { immediate: true });
+            // Option 1: Direct with micro-delay
+            setTimeout(() => {
+                context.bodyLenis.scrollTo(navTag ? '#nav_tag' : 0, { immediate: true });
+            }, 0);
+
+            // Option 2: Wait for first Lenis scroll event (fixes hop/jump on iOS load)
+            const once = () => {
+                context.bodyLenis.scrollTo(navTag ? '#nav_tag' : 0, { immediate: true });
+                context.bodyLenis.off('scroll', once);
+            };
+            context.bodyLenis.on('scroll', once);
         }
 
         setupScrollAnimation();
