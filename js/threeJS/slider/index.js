@@ -8,6 +8,14 @@ export function onPointerMove(event, context) {
     const clientY = event.clientY !== undefined ? event.clientY : (event.touches && event.touches[0].clientY);
     if (clientX === undefined || clientY === undefined) return;
 
+    if (event.touches) {
+        const totalDeltaX = clientX - context.startX;
+        const totalDeltaY = clientY - context.startY;
+        if (Math.abs(totalDeltaX) > Math.abs(totalDeltaY)) {
+            event.preventDefault();
+        }
+    }
+
     const delta = clientX - context.startX;
 
     context.targetPosition += delta / context.movementSensitivity;
@@ -51,7 +59,6 @@ export function onPointerDown(event, context) {
     context.desiredOffset = 0;
     context.smoothingFactor = context.smoothingFactorDrag;
     context.initialClick = { x: context.startX, y: context.startY };
-
 }
 
 export function onPointerUp(event, context) {

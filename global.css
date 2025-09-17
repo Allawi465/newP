@@ -28,6 +28,7 @@ html {
     user-select: none !important;
     overscroll-behavior-y: contain;
     touch-action: none;
+    -webkit-overflow-scrolling: touch;
 
     /* Allow vertical scrolling on touch devices for smoother behavior in browsers like Safari */
     touch-action: pan-y;
@@ -75,9 +76,11 @@ html.lenis body {
     position: fixed;
     top: 0;
     left: 0;
+    touch-action: pan-y;
     box-shadow: none !important;
     will-change: transform;
     touch-action: none;
+    -webkit-touch-callout: none;
 }
 
 ::-webkit-scrollbar {

@@ -105,11 +105,16 @@ export default function onWindowResize(context) {
         gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
     }
 
-    context.movementSensitivity = window.innerWidth <= 1024 ? 100 : 150;
+    // Updated slider params for smoother stop/lag fix (tuned per device)
+    context.movementSensitivity = window.innerWidth <= 1024 ? 50 : 150;
     context.smoothingFactor = window.innerWidth <= 1024 ? 0.2 : 0.03;
-    context.lerpFactor = window.innerWidth <= 1024 ? 0.2 : 0.1;
-    context.friction = 0.95;
+    context.lerpFactor = window.innerWidth <= 1024 ? 0.25 : 0.12;
+    context.friction = window.innerWidth <= 1024 ? 0.95 : 0.96;
     context.lastTime = performance.now();
+
+
+    // NEW: Reposition meshes immediately after param reset
+    context.updatePositions();
 
     const projectsEl = document.querySelector('.projects');
     context.meshes.forEach(m => context.setMeshPosition(m, projectsEl));

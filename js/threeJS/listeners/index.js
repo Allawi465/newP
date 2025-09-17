@@ -20,21 +20,17 @@ export default function setupEventListeners(context) {
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
 
     window.addEventListener('load', () => {
-
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
 
-        setTimeout(() => {
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
+        window.scrollTo(0, 0);
 
-            if (context.bodyLenis) {
-                context.bodyLenis.scrollTo(0, { immediate: true });
-            }
+        if (context.bodyLenis) {
+            context.bodyLenis.scrollTo(0, { immediate: true });
+        }
 
-            setupScrollAnimation();
-        }, 100);
+        setupScrollAnimation();
     });
 
     window.addEventListener('pointermove', (event) => {
