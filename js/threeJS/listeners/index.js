@@ -7,11 +7,15 @@ import closeInfoDiv from '../../components/close/index.js';
 import { onWindowResize } from '../index.js';
 
 export default function setupEventListeners(context) {
+    window.addEventListener('DOMContentLoaded', () => {
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+    });
 
-    // Handle bfcache restores (common Safari/iOS reload quirk)
+    // Handle bfcache restores (keep as-is)
     window.addEventListener('pageshow', (event) => {
         if (event.persisted) {
-            // Add a short delay here too for iOS restoration timing
             setTimeout(() => {
                 window.scrollTo({
                     top: 0,
@@ -22,24 +26,38 @@ export default function setupEventListeners(context) {
         }
     });
 
-
-
     window.addEventListener('load', () => {
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-
-        // Baseline native scroll
+        // Immediate baseline (pre-Lenis)
         window.scrollTo({
             top: 0,
             left: 0,
             behavior: 'instant'
         });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
 
+        // iOS reload fix: Delayed nudge + full reset after Lenis/animations init
+        setTimeout(() => {
+            // Nudge to reset Safari's state (iOS-specific quirk)
+            window.scrollTo({
+                top: 1,
+                left: 0,
+                behavior: 'instant'
+            });
+            // Immediate full reset
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'instant'
+            });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
 
-        if (context.bodyLenis) {
-            context.bodyLenis.scrollTo(0, { immediate: true });
-        }
+            // Sync Lenis (prevents hop/jump)
+            if (context.bodyLenis) {
+                context.bodyLenis.scrollTo(0, { immediate: true });
+            }
+        }, 250);  // Tune: 0 for fast pages, 500 for canvas-heavy; test on device
 
         setupScrollAnimation();
     });
