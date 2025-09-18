@@ -32,6 +32,7 @@ html {
 
     /* Allow vertical scrolling on touch devices for smoother behavior in browsers like Safari */
     touch-action: pan-y;
+    overflow-x: hidden;
 }
 
 html {
@@ -489,64 +490,18 @@ html.lenis body {
 
 /* counter */
 
-.counter {
+.panel {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    display: flex;
-    font-size: 4.5rem;
-    line-height: 102px;
-    clip-path: polygon(0 0, 100% 0, 100% 100px, 0 100px);
-    font-weight: 300;
     z-index: 999;
     color: #141414;
 }
 
-
-.digit {
-    width: 50px;
-    height: 20px;
-    text-align: center;
-}
-
-.counter_percent {
-    font-size: 4.5rem;
-    font-weight: 300;
-}
-
-.counter-1,
-.counter-2,
-.counter-3 {
-    position: relative;
-    top: 0px;
-}
-
-.num1offset1 {
-    position: relative;
-    right: -10px;
-}
-
-@media (max-width: 1000px) {
-
-    .footer__section {
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        width: 100%;
-        margin: unset;
-        gap: 100px;
-    }
-
-    .footer_contact {
-        gap: unset;
-    }
-
-    .projects__title {
-        font-size: min(25vw, 25vh);
-        writing-mode: horizontal-tb !important;
-        left: 26px;
-    }
-
+.panel img {
+    width: 100px;
+    height: 100px;
 }
 
 
@@ -584,7 +539,35 @@ html.lenis body {
         font-size: min(25vw, 25vh);
     }
 
+    .panel img {
+        width: 100px;
+        height: 100px;
+    }
+
 }
+
+@media (max-width: 1000px) {
+
+    .footer__section {
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        width: 100%;
+        margin: unset;
+        gap: 100px;
+    }
+
+    .footer_contact {
+        gap: unset;
+    }
+
+    .projects__title {
+        font-size: min(25vw, 25vh);
+        writing-mode: horizontal-tb !important;
+        left: 26px;
+    }
+
+}
+
 
 @media (max-width: 950px) {
 
@@ -685,6 +668,7 @@ html.lenis body {
 }
 
 /* .lil-gui.autoPlace {
+
     max-height: 80%;
     position: absolute;
     bottom: 0;
