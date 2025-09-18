@@ -36,7 +36,7 @@ export default function initLoadingSequence(context) {
 
             gsap.to(".panel", {
                 opacity: -progress,
-                duration: 1,
+                duration: 0.5,
             })
         },
     }, 0).to(".header ", {

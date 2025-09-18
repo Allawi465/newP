@@ -7,6 +7,44 @@ import closeInfoDiv from '../../components/close/index.js';
 import { onWindowResize } from '../index.js';
 
 export default function setupEventListeners(context) {
+
+    // Handle bfcache restores (common Safari/iOS reload quirk)
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            // Add a short delay here too for iOS restoration timing
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    left: 0,
+                    behavior: 'instant'
+                });
+            }, 100);
+        }
+    });
+
+
+
+    window.addEventListener('load', () => {
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        // Baseline native scroll
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'instant'
+        });
+
+
+        if (context.bodyLenis) {
+            context.bodyLenis.scrollTo(0, { immediate: true });
+        }
+
+        setupScrollAnimation();
+    });
+
+
     window.addEventListener('resize', () => onWindowResize(context));
     window.addEventListener('mousemove', (event) => onMouseMoveHover(event, context));
     window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: false });
@@ -19,53 +57,9 @@ export default function setupEventListeners(context) {
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
 
-    // Prevent scroll save on unload (Safari-friendly)
     window.onbeforeunload = function () {
         window.scrollTo(0, 0);
     };
-
-    // Handle bfcache restores (common Safari/iOS reload quirk)
-    window.addEventListener('pageshow', (event) => {
-        if (event.persisted) {
-            window.scrollTo(0, 0);
-        }
-    });
-
-    window.addEventListener('load', () => {
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-
-        // Baseline native scroll
-        window.scrollTo(0, 0);
-
-        const navTag = document.getElementById('nav_tag');
-        if (navTag) {
-            // Fallback for Safari options support
-            if (navTag.scrollIntoView.toString().includes('Options')) {  // Better detection
-                navTag.scrollIntoView({ behavior: 'instant', block: 'start' });
-            } else {
-                navTag.scrollIntoView(true);
-            }
-        }
-
-        // Lenis: Queue immediate scroll after DOM (iOS timing fix)
-        if (context.bodyLenis) {
-            // Option 1: Direct with micro-delay
-            setTimeout(() => {
-                context.bodyLenis.scrollTo(navTag ? '#nav_tag' : 0, { immediate: true });
-            }, 0);
-
-            // Option 2: Wait for first Lenis scroll event (fixes hop/jump on iOS load)
-            const once = () => {
-                context.bodyLenis.scrollTo(navTag ? '#nav_tag' : 0, { immediate: true });
-                context.bodyLenis.off('scroll', once);
-            };
-            context.bodyLenis.on('scroll', once);
-        }
-
-        setupScrollAnimation();
-    });
 
     window.addEventListener('pointermove', (event) => {
         if (!context.followMouse) return;
