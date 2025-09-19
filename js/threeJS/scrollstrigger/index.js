@@ -6,9 +6,8 @@ import SplitType from "split-type";
 gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.normalizeScroll(true);
 
-
-
 export default function setupScrollAnimation() {
+    gsap.killTweensOf('.scroll_line, .scroll .char, .name_scroll .char, .projects__title .char'); // Add more selectors if needed
 
     gsap.registerPlugin(CustomEase)
     CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
@@ -84,5 +83,5 @@ export default function setupScrollAnimation() {
         ),
     });
 
-    ScrollTrigger.refresh();
+
 }
