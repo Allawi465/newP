@@ -379,7 +379,7 @@ html.lenis body {
 
 #about {
     width: 100%;
-    min-height: 100lvh;
+    height: 100lvh;
     z-index: 0;
     position: fixed;
     transition: opacity 0.5s ease;
