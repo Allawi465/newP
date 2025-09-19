@@ -1,10 +1,13 @@
 import * as THREE from 'three';
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { onPointerDown, onPointerMove, onPointerUp } from '../slider/index.js';
 import { onMouseMoveHover } from '../slider/mouseHover/index.js';
-import setupScrollAnimation from '../scrollstrigger/index.js';
 import showAbout from '../../components/about/index.js';
 import closeInfoDiv from '../../components/close/index.js';
 import { onWindowResize } from '../index.js';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
@@ -15,14 +18,13 @@ export default function setupEventListeners(context) {
     window.addEventListener('touchstart', (event) => onPointerDown(event, context), { passive: false });
     window.addEventListener('touchmove', (event) => onPointerMove(event, context), { passive: false });
     window.addEventListener('touchend', (event) => onPointerUp(event, context), { passive: false });
-    window.addEventListener('load', () => { setupScrollAnimation(); });
 
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
 
-    window.onbeforeunload = function () {
-        window.scrollTo(0, 0);
-    };
+    window.addEventListener('load', () => {
+        ScrollTrigger.refresh();
+    });
 
     window.addEventListener('pointermove', (event) => {
         if (!context.followMouse) return;

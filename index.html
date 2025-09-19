@@ -13,11 +13,14 @@
     <link rel="stylesheet" href="global.css">
     <script type="module" src="./js/index.js" defer></script>
     <script>
-        // Scroll to top after DOM is ready, with a small delay if needed for async content
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
                 window.scrollTo(0, 0);
             }, 100);
+
         });
     </script>
 

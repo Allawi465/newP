@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupLenis, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
+import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
 
 class EffectShell {
     constructor() {
@@ -36,6 +37,7 @@ class EffectShell {
             this.animate();
             onWindowResize(this);
             initLoadingSequence(this)
+            setupScrollAnimation()
 
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
