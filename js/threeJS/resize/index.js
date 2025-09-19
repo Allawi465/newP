@@ -112,12 +112,12 @@ export default function onWindowResize(context) {
     context.friction = window.innerWidth <= 1024 ? 0.95 : 0.96;
     context.lastTime = performance.now();
 
-
-    // NEW: Reposition meshes immediately after param reset
     context.updatePositions();
 
     const projectsEl = document.querySelector('.projects');
     context.meshes.forEach(m => context.setMeshPosition(m, projectsEl));
 
-    ScrollTrigger.refresh();
+    setTimeout(() => {
+        ScrollTrigger.refresh();
+    }, 100);
 }
