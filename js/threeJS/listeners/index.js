@@ -7,62 +7,6 @@ import closeInfoDiv from '../../components/close/index.js';
 import { onWindowResize } from '../index.js';
 
 export default function setupEventListeners(context) {
-    window.addEventListener('DOMContentLoaded', () => {
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-    });
-
-    // Handle bfcache restores (keep as-is)
-    window.addEventListener('pageshow', (event) => {
-        if (event.persisted) {
-            setTimeout(() => {
-                window.scrollTo({
-                    top: 0,
-                    left: 0,
-                    behavior: 'instant'
-                });
-            }, 100);
-        }
-    });
-
-    window.addEventListener('load', () => {
-        // Immediate baseline (pre-Lenis)
-        window.scrollTo({
-            top: 0,
-            left: 0,
-            behavior: 'instant'
-        });
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-
-        // iOS reload fix: Delayed nudge + full reset after Lenis/animations init
-        setTimeout(() => {
-            // Nudge to reset Safari's state (iOS-specific quirk)
-            window.scrollTo({
-                top: 1,
-                left: 0,
-                behavior: 'instant'
-            });
-            // Immediate full reset
-            window.scrollTo({
-                top: 0,
-                left: 0,
-                behavior: 'instant'
-            });
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
-
-            // Sync Lenis (prevents hop/jump)
-            if (context.bodyLenis) {
-                context.bodyLenis.scrollTo(0, { immediate: true });
-            }
-        }, 250);  // Tune: 0 for fast pages, 500 for canvas-heavy; test on device
-
-        setupScrollAnimation();
-    });
-
-
     window.addEventListener('resize', () => onWindowResize(context));
     window.addEventListener('mousemove', (event) => onMouseMoveHover(event, context));
     window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: false });
@@ -71,6 +15,7 @@ export default function setupEventListeners(context) {
     window.addEventListener('touchstart', (event) => onPointerDown(event, context), { passive: false });
     window.addEventListener('touchmove', (event) => onPointerMove(event, context), { passive: false });
     window.addEventListener('touchend', (event) => onPointerUp(event, context), { passive: false });
+    window.addEventListener('load', () => { setupScrollAnimation(); });
 
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
