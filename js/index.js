@@ -37,7 +37,6 @@ class EffectShell {
             this.animate();
             onWindowResize(this);
             initLoadingSequence(this)
-            setupScrollAnimation()
 
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
@@ -224,6 +223,7 @@ class EffectShell {
 
     onInitComplete() {
         console.log("Initialization complete!");
+        setupScrollAnimation()
     }
 }
 
