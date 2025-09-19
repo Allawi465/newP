@@ -29,7 +29,7 @@ export default function setupScrollAnimation() {
             ease: 'customBezier',
             repeat: -1,
             yoyo: true,
-            immediateRender: false, // important when loading mid-scroll
+            immediateRender: false,
         }
     );
     ScrollTrigger.create({
@@ -88,7 +88,5 @@ export default function setupScrollAnimation() {
         invalidateOnRefresh: true,
     });
 
-    requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-    });
+    ScrollTrigger.refresh();
 }
