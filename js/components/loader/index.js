@@ -6,9 +6,7 @@ gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.normalizeScroll(true);
 
 export default function initLoadingSequence(context) {
-
-    context.bodyLenis.scrollTo(0, { immediate: true });
-
+    context.stopBodyScrolling();
     let typeSplit = new SplitType('.hero_heading', {
         types: 'words, chars',
         tagName: 'span',

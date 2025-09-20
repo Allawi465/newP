@@ -10,8 +10,8 @@ export default function createPlaneMesh(content, texture, index) {
     const planeGeometry = new THREE.PlaneGeometry(
         content.slideWidth * content.scaleFactor,
         content.slideHeight * content.scaleFactor,
-        32,  // Reduced from 64
-        32   // Reduced from 64
+        32,
+        32
     );
 
     const textureAspect = texture.image.width / texture.image.height;
@@ -32,7 +32,6 @@ export default function createPlaneMesh(content, texture, index) {
             uMaxDist: { value: content.maxDist },
             uRotation: { value: 0.0 },
             uDistanceScale: { value: 1.0 },
-            uDeviceScale: { value: 1.0 },
             uIsDragging: { value: 0.0 },
         },
         vertexShader: vertexShader,

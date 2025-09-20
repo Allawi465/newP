@@ -169,6 +169,11 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
+        // Normalization for screen size (computed here for momentum phase)
+        const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
+        const referenceWidth = 1920;
+        const widthFactor = Math.min(referenceWidth / containerWidth, 4); // Cap at 4 to avoid over-boosting on tiny screens
+
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
             this.velocity *= Math.pow(this.friction, 60 * deltaTime);
@@ -177,7 +182,7 @@ class EffectShell {
                 this.isMoving = false;
             }
 
-            const momentumStrength = Math.min(Math.abs(this.velocity) / 70.0, 1.0);
+            const momentumStrength = Math.min(Math.abs(this.velocity) / (70.0 / widthFactor), 1.0);
             if (this.meshArray) {
                 this.meshArray.forEach(mesh => {
                     mesh.material.uniforms.uIsDragging.value += (momentumStrength - mesh.material.uniforms.uIsDragging.value) * 0.03;
@@ -218,7 +223,6 @@ class EffectShell {
 
         requestAnimationFrame(this.animate.bind(this));
     }
-
 
 
     onInitComplete() {

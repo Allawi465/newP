@@ -18,23 +18,29 @@ export function onPointerMove(event, context) {
 
     const delta = clientX - context.startX;
 
-    context.targetPosition += delta / context.movementSensitivity;
+    // Normalization for screen size
+    const containerWidth = context.container ? context.container.clientWidth : window.innerWidth;
+    const referenceWidth = 1920;
+    const widthFactor = Math.min(referenceWidth / containerWidth, 4);
+    const normalizedDelta = delta * widthFactor;
+
+    context.targetPosition += normalizedDelta / context.movementSensitivity;
 
     const now = performance.now();
     const deltaTime = (now - context.lastTime) / 1000;
     context.lastTime = now;
 
     if (deltaTime > 0) {
-        const rawVelocity = delta / context.movementSensitivity / deltaTime;
+        const rawVelocity = normalizedDelta / context.movementSensitivity / deltaTime;
         context.velocity = context.velocity * 0.5 + rawVelocity * 0.5;
-        context.velocity = Math.max(Math.min(context.velocity, 50), -50);
+        context.velocity = Math.max(Math.min(context.velocity, 50 * widthFactor), -50 * widthFactor);
     }
 
-    context.dragDelta = context.dragDelta * (1 - context.smoothingFactor) + Math.abs(delta) * context.smoothingFactor;
-    context.dragSpeed = context.dragSpeed * (1 - context.smoothingFactor) + (clientX - context.lastX) * context.smoothingFactor;
-    context.dragSpeed = Math.max(Math.min(context.dragSpeed, 25), -25);
+    context.dragDelta = context.dragDelta * (1 - context.smoothingFactor) + Math.abs(normalizedDelta) * context.smoothingFactor;
+    context.dragSpeed = context.dragSpeed * (1 - context.smoothingFactor) + (clientX - context.lastX) * widthFactor * context.smoothingFactor;
+    context.dragSpeed = Math.max(Math.min(context.dragSpeed, 25 * widthFactor), -25 * widthFactor);
 
-    const baseStrength = Math.min(Math.abs(context.velocity) / 70.0, 1.0);
+    const baseStrength = Math.min(Math.abs(context.velocity) / (70.0 / widthFactor), 1.0);
     const targetStrength = Math.max(baseStrength, 0.1);
 
     if (context.meshArray) {

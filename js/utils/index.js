@@ -193,4 +193,4 @@ export const defaultConfig = {
     followMouse: true,
 
     isSmall: () => window.innerWidth <= 1000,
-};
+};                      

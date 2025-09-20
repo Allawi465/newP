@@ -3,8 +3,9 @@ import gsap from "gsap";
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 export default function onWindowResize(context) {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    // Use more reliable dimension sources for mobile/rotation reliability
+    const w = document.documentElement.clientWidth || window.innerWidth;
+    const h = document.documentElement.clientHeight || window.innerHeight;
     const aspect = w / h;
 
     const BREAKPOINT = 1000;
@@ -43,41 +44,7 @@ export default function onWindowResize(context) {
         viewWidth *= factor;
     }
 
-    if (context.fboMaterial?.uniforms?.uLetterScale) {
-        context.fboMaterial.uniforms.uLetterScale.value = scale;
-    }
-
-    if (context.glassBall && factor > 1) {
-        context.glassBall.scale.set(factor, factor, factor);
-    }
-
-    if (context.points && factor > 1) {
-        context.points.scale.set(factor, factor, factor);
-    }
-
     const viewHeight = viewWidth / aspect;
-    const referenceViewWidth = 8.5;
-    const distanceScale = referenceViewWidth / viewWidth;
-
-    if (context.meshArray) {
-        context.meshArray.forEach(mesh => {
-            const currentScale = mesh.material.uniforms.uDistanceScale.value;
-            if (Math.abs(distanceScale - currentScale) > 0.001) {
-                gsap.to(mesh.material.uniforms.uDistanceScale, {
-                    value: distanceScale,
-                    duration: 0.2,
-                    ease: "power2.inOut",
-                    onUpdate: () => {
-                        mesh.material.uniforms.uDistanceScale.needsUpdate = true;
-                    }
-                });
-            } else {
-                mesh.material.uniforms.uDistanceScale.value = distanceScale;
-                mesh.material.uniforms.uDistanceScale.needsUpdate = true;
-            }
-        });
-    }
-
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
     context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -93,6 +60,13 @@ export default function onWindowResize(context) {
     context.largePlane.geometry.dispose();
     context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
 
+    context.smoothingFactor = w <= 1024 ? 0.2 : 0.03;
+    context.lerpFactor = w <= 1024 ? 0.25 : 0.12;
+    context.friction = w <= 1024 ? 0.95 : 0.96;
+    context.lastTime = performance.now();
+
+    context.updatePositions();
+
     if (context.isSmall()) {
         context.followMouse = false;
         if (!context.bounceTween) {
@@ -104,18 +78,6 @@ export default function onWindowResize(context) {
         context.stopBounce(context);
         gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
     }
-
-    // Updated slider params for smoother stop/lag fix (tuned per device)
-    context.movementSensitivity = window.innerWidth <= 1024 ? 50 : 150;
-    context.smoothingFactor = window.innerWidth <= 1024 ? 0.2 : 0.03;
-    context.lerpFactor = window.innerWidth <= 1024 ? 0.25 : 0.12;
-    context.friction = window.innerWidth <= 1024 ? 0.95 : 0.96;
-    context.lastTime = performance.now();
-
-    context.updatePositions();
-
-    const projectsEl = document.querySelector('.projects');
-    context.meshes.forEach(m => context.setMeshPosition(m, projectsEl));
 
     setTimeout(() => {
         ScrollTrigger.refresh();
