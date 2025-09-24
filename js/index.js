@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupLenis, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
@@ -8,10 +9,6 @@ import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
 class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
-
-        setupLenis(this);
-
-        this.stopBodyScrolling();
 
         this.init().then(() => this.onInitComplete());
 
@@ -44,11 +41,13 @@ class EffectShell {
     }
 
     stopBodyScrolling() {
-        this.bodyLenis?.stop()
+        if (this.bodyLenis) this.bodyLenis.stop();
+        document.documentElement.style.overflow = "hidden";
     }
 
     startBodyScrolling() {
-        this.bodyLenis?.start()
+        if (this.bodyLenis) this.bodyLenis.start();
+        document.documentElement.style.overflow = "";
     }
 
     loadTextures(imageArray, context) {
@@ -172,7 +171,7 @@ class EffectShell {
         // Normalization for screen size (computed here for momentum phase)
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const referenceWidth = 1920;
-        const widthFactor = Math.min(referenceWidth / containerWidth, 4); // Cap at 4 to avoid over-boosting on tiny screens
+        const widthFactor = Math.min(referenceWidth / containerWidth, 4);
 
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
@@ -227,7 +226,7 @@ class EffectShell {
 
     onInitComplete() {
         console.log("Initialization complete!");
-        setupScrollAnimation()
+        setupScrollAnimation();
     }
 }
 

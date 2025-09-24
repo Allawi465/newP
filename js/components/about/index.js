@@ -9,6 +9,8 @@ function showAbout(context) {
         return;
     }
 
+    context.stopBodyScrolling();
+
     reset(context);
 
     animateProgress(context)
@@ -20,7 +22,6 @@ function showAbout(context) {
     aboutDiv.classList.add('show');
     gsap.to(aboutDiv, { opacity: 1, duration: 1 });;
 
-    context.stopBodyScrolling();
     context.isDivOpen = true;
 
     document.getElementById('openAbout').style.display = 'none';

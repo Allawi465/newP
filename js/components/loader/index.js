@@ -1,12 +1,12 @@
 import gsap from "gsap";
 import SplitType from 'split-type';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
-ScrollTrigger.normalizeScroll(true);
+import { setupLenis } from "../../threeJS";
 
 export default function initLoadingSequence(context) {
-    context.stopBodyScrolling();
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
     let typeSplit = new SplitType('.hero_heading', {
         types: 'words, chars',
         tagName: 'span',
@@ -24,18 +24,17 @@ export default function initLoadingSequence(context) {
 
     timeline.to("#canvas", {
         zIndex: 50
-    },).to(context.largeShaderMaterial.uniforms.progress, {
+    }).to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
         duration: 1,
         delay: 2.5,
         ease: "sine.out",
         onUpdate: () => {
             const progress = context.largeShaderMaterial.uniforms.progress.value;
-
             gsap.to(".panel", {
                 opacity: -progress,
                 duration: 0.5,
-            })
+            });
         },
     }, 0).to(".header ", {
         opacity: 1,
@@ -59,7 +58,6 @@ export default function initLoadingSequence(context) {
         opacity: 1,
     }, 3).to(".scroll ", {
         opacity: 1,
-
     }, 3).to(".scroll-line ", {
         opacity: 1,
     }, 3).to(context.glassMaterial, {
@@ -78,7 +76,10 @@ export default function initLoadingSequence(context) {
         },
         onComplete: () => {
             context.isLoading = false;
-            context.startBodyScrolling();
+            setupLenis(context);
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+
             ScrollTrigger.refresh();
         },
     }, 3);

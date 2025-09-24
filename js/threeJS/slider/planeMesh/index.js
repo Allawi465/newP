@@ -91,7 +91,7 @@ export default function createPlaneMesh(content, texture, index) {
     });
 
     ScrollTrigger.update();
-    content.bodyLenis.on('scroll', () => ScrollTrigger.update());
+    /*    content.bodyLenis.on('scroll', () => ScrollTrigger.update()); */
 
     return planeMesh;
 }

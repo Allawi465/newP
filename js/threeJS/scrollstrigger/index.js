@@ -3,9 +3,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CustomEase } from "gsap/CustomEase";
 import SplitType from "split-type";
 
-gsap.registerPlugin(ScrollTrigger);
-ScrollTrigger.normalizeScroll(true);
-
 export default function setupScrollAnimation() {
     gsap.registerPlugin(CustomEase)
     CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
@@ -80,6 +77,4 @@ export default function setupScrollAnimation() {
             }
         ),
     });
-
-    ScrollTrigger.refresh();
 }
