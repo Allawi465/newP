@@ -25,6 +25,8 @@ function closeInfoDiv(context) {
         });
     }
 
+    document.documentElement.classList.remove('canvas-hidden');
+
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
         duration: 1.2,

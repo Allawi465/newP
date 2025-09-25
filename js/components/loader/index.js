@@ -22,9 +22,7 @@ export default function initLoadingSequence(context) {
         ease: "power2.inOut",
     });
 
-    timeline.to("#canvas", {
-        zIndex: 50
-    }).to(context.largeShaderMaterial.uniforms.progress, {
+    timeline.to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
         duration: 1,
         delay: 2.5,

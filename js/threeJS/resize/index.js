@@ -14,7 +14,7 @@ export default function onWindowResize(context) {
     const CLAMP_HEIGHT = 300;
 
     const MIN_SCALE = 2.1;
-    const MAX_SCALE = 3.5;
+    const MAX_SCALE = 4.;
     const t = Math.min(1, Math.max(0, (w - MIN_WIDTH) / (2000 - MIN_WIDTH)));
     const pow = 2.5;
     const eased = context.smootherstep(Math.pow(t, pow));

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupLenis, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
@@ -17,7 +16,6 @@ class EffectShell {
 
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
-
         this.bounceTween = null;
     }
 
@@ -93,7 +91,6 @@ class EffectShell {
         const totalLength = meshSpacing * images.length;
         return ((((index * meshSpacing + currentPosition) % totalLength) + totalLength) % totalLength) - totalLength / 2;
     }
-
 
     updateAdjustedMeshSpacing() {
         this.meshSpacing = this.baseMeshSpacing * this.scaleFactor_cards;

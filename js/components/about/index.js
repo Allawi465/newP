@@ -18,7 +18,6 @@ function showAbout(context) {
     context.tm = setupTimeline(context);
 
     const aboutDiv = document.getElementById('about');
-    aboutDiv.style.zIndex = 200
     aboutDiv.classList.add('show');
     gsap.to(aboutDiv, { opacity: 1, duration: 1 });;
 
@@ -34,6 +33,9 @@ export function animateProgress(context) {
         value: 0,
         duration: 1,
         ease: "sine.in",
+        onComplete: () => {
+            document.documentElement.classList.add('canvas-hidden');
+        }
     });
 }
 
@@ -60,9 +62,7 @@ function setupTimeline(context) {
     context.typeSplit = new SplitType('.about_headings', { types: 'words, chars', tagName: 'span' });
     context.typeSplit_2 = new SplitType('.about_headings2', { types: 'words, chars', tagName: 'span' });
 
-    const timeline = gsap.timeline({
-
-    });
+    const timeline = gsap.timeline({});
 
     timeline.to(
         ".about-parent",

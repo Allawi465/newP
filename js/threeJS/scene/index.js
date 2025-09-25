@@ -37,7 +37,7 @@ export default function setupScene(context) {
     context.labelRenderer.domElement.style.top = '0px';
     context.labelRenderer.domElement.style.left = '0px';
     context.labelRenderer.domElement.style.pointerEvents = 'none';
-    context.labelRenderer.domElement.style.zIndex = '55';
+    context.labelRenderer.domElement.style.zIndex = '15';
     context.labelRenderer.domElement.style.overflow = 'hidden';
     document.body.appendChild(context.labelRenderer.domElement);
 
