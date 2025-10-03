@@ -2,12 +2,15 @@ import Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import gsap from 'gsap';
 
-export default function setupLenis(context) {
+export function setupAboutLenis(context) {
     gsap.ticker.lagSmoothing(0);
 
+    const wrapper = document.querySelector('#about');
+    const contentElement = wrapper.querySelector('.about_wrapper'); // Adjust if needed
+
     const lenis = new Lenis({
-        wrapper: document.documentElement,
-        content: document.body,
+        wrapper: wrapper,
+        content: contentElement,
         smooth: true,
         direction: 'vertical',
         syncTouch: true,
@@ -19,14 +22,14 @@ export default function setupLenis(context) {
         autoToggle: true,
     });
 
-    context.bodyLenis = lenis;
+    context.aboutLenis = lenis;
 
-    // drive Lenis with GSAP’s ticker
+    // Drive Lenis with GSAP’s ticker (shared ticker is fine)
     gsap.ticker.add((t) => lenis.raf(t * 1000));
     lenis.on('scroll', ScrollTrigger.update);
 
-    // ScrollTrigger proxy
-    ScrollTrigger.scrollerProxy(document.documentElement, {
+    // ScrollTrigger proxy for #about
+    ScrollTrigger.scrollerProxy(wrapper, {
         scrollTop(value) {
             if (arguments.length) {
                 lenis.scrollTo(value, { immediate: true });
@@ -34,17 +37,13 @@ export default function setupLenis(context) {
             return lenis.scroll;
         },
         getBoundingClientRect() {
-            return { top: 0, left: 0, width: innerWidth, height: innerHeight };
+            return { top: 0, left: 0, width: wrapper.clientWidth, height: wrapper.clientHeight };
         },
-        pinType: document.documentElement.style.transform ? 'transform' : 'fixed',
+        pinType: 'transform'
     });
 
-    // reset scroll position on init
+
     lenis.scrollTo(0, { immediate: true });
     ScrollTrigger.refresh();
-
-    context.startBodyScrolling = () => lenis.start();
-    context.stopBodyScrolling = () => lenis.stop();
-
     return lenis;
 }

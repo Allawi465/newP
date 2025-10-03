@@ -1,31 +1,61 @@
 import gsap from "gsap";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SplitType from 'split-type';
+import { setupAboutLenis } from "./lenis";
+import SplitType from "split-type";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const creativeCards = document.querySelectorAll(".creative_cards");
+const valuesCards = document.querySelectorAll(".values_section");
+
 function showAbout(context) {
-    if (context.isLoading || context.isDivOpen || context.isProjectsOpen) {
-        return;
+    if (context.isLoading || context.isDivOpen || context.isProjectsOpen) return;
+
+    // Stop page lenis scrolling
+    context.stopBodyScrolling?.();
+
+    // Ensure aboutLenis exists
+    if (!context.aboutLenis) {
+        setupAboutLenis(context);
     }
 
-    context.stopBodyScrolling();
-
-    reset(context);
-
-    animateProgress(context)
-
-    context.tm = setupTimeline(context);
-
     const aboutDiv = document.getElementById('about');
+    // Make visible immediately so it has layout dimensions
     aboutDiv.classList.add('show');
-    gsap.to(aboutDiv, { opacity: 1, duration: 1 });;
+    aboutDiv.style.pointerEvents = 'auto';
+
+    // Wait one tick to ensure layout
+    requestAnimationFrame(() => {
+        // Resize Lenis and reset the about scroll to top
+        if (context.aboutLenis) {
+            context.aboutLenis.resize();
+            context.aboutLenis.scrollTo(0, { immediate: true });
+            context.aboutLenis.start();
+        }
+
+        reset(context);
+
+        animateProgress(context);
+        setupScrollAnimations();
+
+        context.tm = setupTimeline(context);
+
+        // Fade in the aboutDiv
+        gsap.to(aboutDiv, {
+            opacity: 1,
+            duration: 1,
+            onComplete: () => {
+                ScrollTrigger.refresh();
+            }
+        });
+    });
 
     context.isDivOpen = true;
-
-    document.getElementById('openAbout').style.display = 'none';
-    document.getElementById('close').style.display = 'block';
-
+    document.getElementById('openAbout').style.opacity = '0';
+    document.getElementById('openAbout').style.pointerEvents = 'none';
+    document.getElementById('close').style.opacity = '1';
+    document.getElementById('close').style.pointerEvents = 'auto';
+    document.getElementById('close').style.zIndex = '1000';
 }
 
 export function animateProgress(context) {
@@ -42,55 +72,372 @@ export function animateProgress(context) {
 function reset(context) {
     gsap.killTweensOf([
         context.largeShaderMaterial.uniforms.progress,
-        ".about-parent",
-        ".about_headings .char",
-        ".about_headings2 .char",
-        ".text_about",
-        ".contact_info",
+        ".about_wrapper",
+        ".about-badge",
+        ".about-heading",
+        ".about-text",
+        ".stats_group",
+        ".header-image",
+        ".creative_cards",
+        ".values_section",
     ]);
 
     gsap.killTweensOf("*");
 
+    creativeCards.forEach(card => {
+        card.classList.remove("transition", "duration-300");
+        card.style.transition = "none";
+    });
+
+    valuesCards.forEach(card => {
+        card.classList.remove("transition", "duration-300");
+        card.style.transition = "none";
+    });
+
     if (context.tm) context.tm.kill();
 }
 
-
 function setupTimeline(context) {
-    if (context.typeSplit) context.typeSplit.revert();
-    if (context.typeSplit_2) context.typeSplit_2.revert();
-
-    context.typeSplit = new SplitType('.about_headings', { types: 'words, chars', tagName: 'span' });
-    context.typeSplit_2 = new SplitType('.about_headings2', { types: 'words, chars', tagName: 'span' });
-
+    // Create a new GSAP timeline
     const timeline = gsap.timeline({});
 
-    timeline.to(
-        ".about-parent",
-        { opacity: 1, ease: "power2.inOut" },
-        0.5
-    );
-
-    timeline.from(
-        '.about_headings .char',
-        { x: "-1em", duration: 0.6, ease: "power2.out", stagger: { amount: 0.2 }, opacity: 0, },
-        0.5
-    ).from(
-        '.about_headings2 .char',
-        { x: "1em", duration: 0.6, ease: "power2.out", stagger: { amount: 0.2 }, opacity: 0, },
-        0.5
-    ).fromTo(
-        '.text_about',
-        { opacity: 0, },
-        { opacity: 1, duration: 1, ease: "power2.inOut" },
-        0.5
-    ).fromTo(
-        '.contact_info',
-        { opacity: 0, },
-        { opacity: 1, duration: 1, ease: "power2.inOut" },
-        0.5
-    )
+    timeline
+        .to(".about_wrapper", {
+            opacity: 1,
+            ease: "power2.inOut",
+            duration: 0.5,
+        },)
+        .fromTo(
+            [".about-badge", ".about-heading", ".about-text"],
+            {
+                opacity: 0,
+                y: 30
+            },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,
+                ease: "power2.out",
+                stagger: 0.1
+            },
+            0.8
+        )
+        .fromTo(
+            ".stats_group",
+            {
+                opacity: 0,
+                y: 50
+            },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,
+                ease: "power2.out",
+                stagger: 0.1
+            },
+            1.2
+        ).fromTo(
+            ".header-image",
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+            1.4
+        ).fromTo(
+            ".creative_cards",
+            { opacity: 0, y: 50 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power3.out",
+                stagger: 0.1,
+                onComplete: () => {
+                    creativeCards.forEach(card => {
+                        card.classList.add("transition-all", "duration-300");
+                    });
+                }
+            },
+            1.6
+        ).fromTo(
+            ".values_section",
+            { opacity: 0, y: 50 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power3.out",
+                stagger: 0.1,
+                onComplete: () => {
+                    valuesCards.forEach(card => {
+                        card.classList.add("transition-all", "duration-300");
+                    });
+                }
+            },
+            1.8
+        );
 
     return timeline;
+}
+
+function setupScrollAnimations() {
+    // Register GSAP plugin
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Get wrapper element
+    const wrapper = document.querySelector('#about');
+    if (!wrapper) {
+        console.error('Wrapper element #about not found');
+        return;
+    }
+
+    // Split text for animation
+    const typeSplitH2 = new SplitType('.skills_h2', { types: 'chars', tagName: 'span' });
+    const typeSplitP = new SplitType('.skills_p', { types: 'words', tagName: 'span' });
+    const typeSplitJourneyH2 = new SplitType('.journey_h2', { types: 'chars', tagName: 'span' });
+    const typeSplitJourneyP = new SplitType('.journey_p', { types: 'words', tagName: 'span' });
+
+    // Animate skills header characters
+    ScrollTrigger.create({
+        trigger: '.skills_section',
+        scroller: wrapper,
+        start: 'top 60%',
+        end: 'top 30%',
+        scrub: 1,
+        markers: false, // Set to true for debugging
+        scrub: true,
+        animation: gsap.fromTo(
+            '.skills_h2 .char',
+            { opacity: 0, x: '-1em' },
+            {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                ease: 'power2.out',
+                stagger: { amount: 0.2 },
+                delay: 0.5
+            }
+        )
+    });
+
+    // Animate paragraph words
+    ScrollTrigger.create({
+        trigger: '.skills_section',
+        scroller: wrapper,
+        start: 'top 60%',
+        end: 'top 30%',
+        scrub: 1,
+        markers: false,
+        scrub: true,
+        animation: gsap.fromTo(
+            '.skills_p .word',
+            { opacity: 0, y: 30 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                ease: 'power2.inOut',
+                stagger: { amount: 0.5 }
+            }
+        )
+    });
+
+    // Animate skill cards
+    ScrollTrigger.create({
+        trigger: '.skills_section',
+        scroller: wrapper,
+        start: 'top 50%',
+        end: 'top 30%',
+        scrub: 1,
+        scrub: true,
+        animation: gsap.fromTo(
+            '.skill_card',
+            { opacity: 0, y: 50 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: 'power2.inOut',
+                stagger: 1,
+            }
+        )
+    });
+
+    // Animate journey header characters
+    ScrollTrigger.create({
+        trigger: '.journey_section',
+        scroller: wrapper,
+        start: 'top 75%', // Starts when section is just entering viewport
+        end: 'top 60%', // Short range to complete before items
+        scrub: 1,
+        markers: false,
+        animation: gsap.fromTo(
+            '.journey_h2 .char',
+            { opacity: 0, x: '-1em' },
+            {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                ease: 'power2.out',
+                stagger: { amount: 0.2 },
+                delay: 0 // No delay for quick appearance
+            }
+        )
+    });
+
+    // Animate journey paragraph words - triggers early and completes quickly
+    ScrollTrigger.create({
+        trigger: '.journey_section',
+        scroller: wrapper,
+        start: 'top 75%',
+        end: 'top 60%',
+        scrub: 1,
+        markers: false,
+        animation: gsap.fromTo(
+            '.journey_p .word',
+            { opacity: 0, y: 30 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                ease: 'power2.out',
+                stagger: { amount: 0.3 },
+                delay: 0.2 // Slight delay after title
+            }
+        )
+    });
+
+    // Animate journey items border
+    ScrollTrigger.create({
+        trigger: '.journey_section',
+        scroller: wrapper,
+        start: 'top 60%',
+        end: 'bottom 30%',
+        scrub: 1,
+        markers: false,
+        animation: gsap.fromTo(
+            '.journey_item',
+            { borderLeftWidth: 0 },
+            {
+                borderLeftWidth: 2,
+                duration: 1, // Slightly longer for smoother drawing
+                ease: 'power2.out',
+                stagger: { amount: 0.6 } // Increased for sequential effect
+            }
+        )
+    });
+
+    // Animate journey items dots
+    ScrollTrigger.create({
+        trigger: '.journey_section',
+        scroller: wrapper,
+        start: 'top 60%',
+        end: 'bottom 30%',
+        scrub: 1,
+        markers: false,
+        animation: gsap.fromTo(
+            '.journey_dot',
+            { scale: 0, opacity: 0 },
+            {
+                scale: 1,
+                opacity: 1,
+                duration: 0.6,
+                ease: 'power3.out',
+                stagger: { amount: 0.3 },
+                delay: 0.2
+            }
+        )
+    });
+
+    // Animate journey items content
+    ScrollTrigger.create({
+        trigger: '.journey_section',
+        scroller: wrapper,
+        start: 'top 60%',
+        end: 'bottom 30%',
+        scrub: 1,
+        markers: false,
+        animation: gsap.fromTo(
+            '.journey_content',
+            { opacity: 0, x: 30, scale: 0.95 },
+            {
+                opacity: 1,
+                x: 0,
+                scale: 1,
+                duration: 0.8,
+                ease: 'power3.out',
+                stagger: { amount: 0.4 },
+                delay: 0.4
+            }
+        )
+    });
+
+    const typeSplitCtaH2 = new SplitType('.cta_h2', { types: 'chars', tagName: 'span' });
+    const typeSplitCtaP = new SplitType('.cta_p', { types: 'words', tagName: 'span' });
+
+    // Animate CTA header characters
+    ScrollTrigger.create({
+        trigger: '.cta_section',
+        scroller: wrapper,
+        start: 'top 90%', // Early trigger to show first
+        end: 'top 60%', // Short range to complete quickly
+        scrub: 1,
+        markers: false,
+        animation: gsap.fromTo(
+            '.cta_h2 .char',
+            { opacity: 0, x: '-1em' },
+            {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                ease: 'power2.out',
+                stagger: { amount: 0.2 },
+                delay: 0
+            }
+        )
+    });
+
+    // Animate CTA paragraph words
+    ScrollTrigger.create({
+        trigger: '.cta_section',
+        scroller: wrapper,
+        start: 'top 90%',
+        end: 'top 60%',
+        scrub: 1,
+        markers: false,
+        animation: gsap.fromTo(
+            '.cta_p .word',
+            { opacity: 0, y: 30 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                ease: 'power2.out',
+                stagger: { amount: 0.3 },
+                delay: 0.2
+            }
+        )
+    });
+
+    // Animate CTA buttons
+    ScrollTrigger.create({
+        trigger: '.cta_section',
+        scroller: wrapper,
+        start: 'top 75%',
+        end: 'top 70%',
+        scrub: 1,
+        animation: gsap.fromTo(
+            '.cta_button',
+            { opacity: 0, y: 50, scale: 0.9 },
+            {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.8,
+                ease: 'power3.out',
+                stagger: { amount: 0.2 },
+            }
+        )
+    });
+
 }
 
 export default showAbout;

@@ -16,11 +16,21 @@ function closeInfoDiv(context) {
 
     if (isAboutDivOpen) {
         context.tm = aboutCloseTimeline(context);
-
         gsap.to(aboutDiv, {
-            opacity: 0, duration: 0.5, onComplete: () => {
+            opacity: 0,
+            duration: 0.5,
+            onComplete: () => {
                 aboutDiv.style.zIndex = 0;
                 aboutDiv.classList.remove('show');
+                if (context.aboutLenis) {
+                    // force instantly to top while lenis is still active
+                    context.aboutLenis.scrollTo(0, { immediate: true });
+
+                    requestAnimationFrame(() => {
+                        context.aboutLenis.stop();
+                    });
+                }
+
             }
         });
     }
@@ -33,8 +43,11 @@ function closeInfoDiv(context) {
         ease: "sine.out",
     });
 
-    document.getElementById('openAbout').style.display = 'block';
-    document.getElementById('close').style.display = 'none';
+    document.getElementById('openAbout').style.opacity = '1';
+    document.getElementById('openAbout').style.pointerEvents = 'auto';
+    document.getElementById('close').style.opacity = '0';
+    document.getElementById('close').style.pointerEvents = 'none';
+    document.getElementById('close').style.zIndex = '899';
     gsap.set(".scroll_line", { opacity: 1, "--scaleY": 1 });
 
     context.startBodyScrolling();
@@ -44,10 +57,18 @@ function closeInfoDiv(context) {
     context.isDivOpen = false;
 }
 
+
 function aboutCloseTimeline(context) {
     return gsap.timeline({})
-        .to(".about-parent", { opacity: 0, duration: 0.3, ease: "power2.out" },)
-        .to(".contact_info", { opacity: 0, duration: 0.3, ease: "power2.out" }, "<")
+        .to(".about_wrapper", { opacity: 0, duration: 0.3, ease: "power2.out" },)
+        .to(".about-badge", { opacity: 0, duration: 0.3, ease: "power2.out" }, "<")
+        .to(".about-heading", { opacity: 0, duration: 0.3, ease: "power2.out" },)
+        .to(".about-text", { opacity: 0, duration: 0.3, ease: "power2.out" },)
+        .to(".stats_group", { opacity: 0, duration: 0.3, ease: "power2.out" },)
+        .to(".header-image", { opacity: 0, duration: 0.3, ease: "power2.out" },)
+        .to(".creative_cards", { opacity: 0, duration: 0.3, ease: "power2.out" },)
+        .to(".values_section", { opacity: 0, duration: 0.3, ease: "power2.out" },)
+
         .set("#about", { zIndex: 0 }, ">");
 }
 

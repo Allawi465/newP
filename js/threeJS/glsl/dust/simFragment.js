@@ -125,17 +125,12 @@ void main(){
 
   vec3 pos = data.rgb;
   float age = data.a;
-
-  // Global blend for transitioning from sphere (page1) to letters (page2)
-  // This is non-staggered, so the overall mode switch is uniform.
-  // Adjust the smoothstep range for smoother/faster transition (e.g., smoothstep(0.4, 0.6, uFooter) for gradual).
-  float blend = smoothstep(0.5, 0.5, uFooter);  // Equivalent to step(0.5, uFooter) for sharp switch.
+  float blend = smoothstep(0.2, 0.2, uFooter);  
 
   // ===== PAGE 1 =====
   vec3 pos1 = pos;
   float age1 = age;
   bool respawn = false;
-  float blend2 = smoothstep(0.0, 1.0, uReset);
 
   {
     respawn = age1 >= 1.0;
@@ -154,8 +149,7 @@ void main(){
     vec3 noise = snoiseVec3(pos1 * 0.5 + vec3(time * 0.2)) * 0.14;
     float desiredRadius = 1.0;
     float radiusDiff = desiredRadius - length(pos1 - uSpherePos);
-    float correctionStrength = mix(0.03, 0.05, blend2);
-    vec3 correction = normalize(pos1 - uSpherePos) * radiusDiff * correctionStrength;
+    vec3 correction = normalize(pos1 - uSpherePos) * radiusDiff * 0.03;
 
     vec3 newpos1 = pos1 + noise + correction;
 
@@ -175,7 +169,7 @@ float age2 = age;
   vec2 targetXY = tgt.xy * uLetterScale;
 
   float stagger = (tgt.x + 1.0) * 0.5; 
-  float delay = stagger * .5;  // Max stagger offset of 0.5 (tune this value as needed)
+  float delay = stagger * .5;  
   
   // Use smoothstep for easing (replace step for gradual transition)
   float staggeredBlend = smoothstep(0.15 + delay, 0.25 + delay, uFooter); 

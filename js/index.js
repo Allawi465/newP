@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupLenis, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
+import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
 import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
@@ -32,6 +32,7 @@ class EffectShell {
             this.animate();
             onWindowResize(this);
             initLoadingSequence(this)
+
 
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
@@ -146,7 +147,6 @@ class EffectShell {
         this.material.uniforms.uCameraPos.value.copy(this.camera.position);
         this.fboMaterial.uniforms.uSpherePos.value.copy(this.glassBall.position);
     }
-
 
     renderToFBO() {
         this.renderer.setRenderTarget(this.fbo);

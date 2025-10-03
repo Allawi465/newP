@@ -19,7 +19,7 @@ void main() {
 
 
   float realnoise = 0.7 * (cnoise(vec4(newUV.x * scaleX + 0. * time / 3., newUV.y * scaleY, 0. * time / 3., 0.)) + 1.);
-  vec3 colorFromProgress = vec3(0.078, 0.078, 0.078);
+  vec3 colorFromProgress = vec3(0.0392, 0.0392, 0.0392);
   
   float w = width * dt;
   float maskvalue = smoothstep(1.0 - w, 1.0, vUv.y + mix(-w / 2.0, 1.0 - w / 2.0, progress));

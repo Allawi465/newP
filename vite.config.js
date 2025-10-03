@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite'
+import tailwindcss from '@tailwindcss/vite'
+
 export default defineConfig(({ mode }) => ({
     base: mode === 'production' ? '/newP/' : '/',
-    server: {
-        host: true,  // Or specify '0.0.0.0'
-    },
+    server: { host: true },
+    plugins: [tailwindcss()],
 }))

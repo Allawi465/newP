@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import GUI from 'lil-gui';
 import gsap from "gsap";
 import fragment from '../glsl/dust/fragment.js';
 import vertex from '../glsl/dust/vertex.js';
@@ -22,6 +21,7 @@ export default function addObjects(context) {
             uCameraPos: { value: new THREE.Vector3() },
             uColor: { value: new THREE.Color(colorParams.particleColor) },
             uFogColor: { value: new THREE.Color(fogColorParams.uFogColor) },
+            uFooter: { value: 0.0 },
         },
         vertexShader: vertex,
         fragmentShader: fragment,
@@ -104,7 +104,6 @@ export default function addObjects(context) {
         onUpdate: self => {
             context.glassMaterial.opacity = 1 - self.progress;
             context.glassMaterial.needsUpdate = true;
-            context.fboMaterial.uniforms.uReset.value = self.progress;
             context.material.uniforms.uScrollProgress.value = self.progress;
         },
         onLeave: () => {
@@ -124,6 +123,8 @@ export default function addObjects(context) {
             context.glassMaterial.needsUpdate = true;
 
             context.material.uniforms.uScrollProgress.value = 1 - self.progress;
+            context.material.uniforms.uFooter.value = self.progress;
+
 
             context.fboMaterial.uniforms.uFooter.value = self.progress;
 
