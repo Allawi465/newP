@@ -25,7 +25,7 @@
     --foreground: oklch(0.145 0 0);
     --card: #ffffff;
     --card-foreground: oklch(0.145 0 0);
-    --primary: #030213;
+    --primary: #0A0A0A;
     --primary-foreground: oklch(1 0 0);
     --muted: #ececf0;
     --muted-foreground: #717182;
@@ -160,7 +160,7 @@ html {
 
 body {
     color: #fff;
-    background: white !important;
+    background: var(--primary);
     font-family: "Inter", Arial, Helvetica, sans-serif;
     margin: 0;
     overflow-x: hidden;
@@ -191,7 +191,7 @@ body {
 }
 
 .close span {
-    color: #030213;
+    color: var(--primary)
 }
 
 .scroll {
@@ -263,7 +263,8 @@ body {
     left: calc(26px + var(--w1));
 }
 
-#about {
+#about,
+.about_wrapper {
     z-index: 899 !important;
 }
 

@@ -65,6 +65,7 @@ export function animateProgress(context) {
         ease: "sine.in",
         onComplete: () => {
             document.documentElement.classList.add('canvas-hidden');
+
         }
     });
 }
@@ -106,6 +107,7 @@ function setupTimeline(context) {
             opacity: 1,
             ease: "power2.inOut",
             duration: 0.5,
+            delay: 0.5,
         },)
         .fromTo(
             [".about-badge", ".about-heading", ".about-text"],
