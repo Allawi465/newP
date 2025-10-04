@@ -27,38 +27,35 @@
 
 <body>
 
-    <div class="panel">
-        <img width="64" height="64" src="/loading_.svg" alt="Loading..." />
+    <div class="panel fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[999] text-primary">
+        <img width="100" height="100" src="/loading_.svg" alt="Loading..." />
     </div>
 
     <div
-        class="header absolute left-[26px] top-[27px] inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm z-[999] mix-blend-difference opacity-0">
-        <span class="text-xs tracking-[0.15em] uppercase mix-blend-difference text-white">
+        class="header absolute left-[26px] top-[27px] inline-flex items-center gap-2 py-2 rounded-full z-[999] mix-blend-difference opacity-0">
+        <span class="text-xs tracking-[0.15em] uppercase">
             Web developer
         </span>
     </div>
 
     <div class="about cursor-pointer fixed right-[26px] top-[27px] inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm z-[999] mix-blend-difference opacity-0"
         id="openAbout">
-        <span class="text-xs tracking-[0.15em] uppercase mix-blend-difference text-white">
+        <span class="text-xs tracking-[0.15em] uppercase">
             About
         </span>
     </div>
 
-    <div class="close cursor-pointer fixed right-[26px] top-[27px] inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm z-[899] mix-blend-difference opacity-0"
+    <div class="close cursor-pointer fixed right-[26px] top-[27px] inline-flex items-center gap-2 px-4 py-2 rounded-full border border-black/10 hover:border-black/30 transition-all duration-300 backdrop-blur-sm z-[899] opacity-0"
         id="close">
-        <span class="text-xs tracking-[0.15em] uppercase mix-blend-difference text-white">
+        <span class="text-xs tracking-[0.15em] uppercase">
             close
         </span>
     </div>
 
     <div class="hero relative w-full h-screen text-white overflow-hidden z-15">
-
         <div class="absolute inset-0 z-10 flex items-center px-[26px] lg:px-4 py-20 sm:py-24">
             <div class="w-full max-w-7xl">
                 <div class="relative hero_container c2">
-
-                    <!-- Vertical Accent Line - Far Left -->
                     <div class="line-dot-container absolute left-0 top-0 bottom-0 hidden lg:flex items-center">
                         <div class="flex flex-col items-center gap-4">
                             <div
@@ -70,31 +67,21 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- All Content - Left Side Only -->
                     <div class="max-w-2xl lg:ml-12 space-y-4 sm:space-y-6 md:space-y-8">
 
-                        <!-- Main Typography -->
                         <div class="space-y-1 sm:space-y-2 md:space-y-3">
-                            <!-- H1 - CREATIVE -->
                             <h1
                                 class="hero_title text-[14vw] sm:text-[14vw] md:text-[10vw] lg:text-[12vw] xl:text-[14rem] uppercase tracking-[-0.04em] leading-[0.85]">
                                 CREATIVE
                             </h1>
-
-                            <!-- H2 - WAYS -->
                             <h2
                                 class="hero_title_2 text-[14vw] sm:text-[14vw] md:text-[10vw] lg:text-[12vw] xl:text-[14rem] uppercase tracking-[-0.04em] leading-[0.85]">
                                 WAYS
                             </h2>
                         </div>
-
-                        <!-- Divider Line - Full Width -->
                         <div
                             class="divider_line w-full max-w-xl h-px bg-gradient-to-r from-white/20 via-white/40 to-transparent hidden lg:block">
                         </div>
-
-                        <!-- Description -->
                         <div class="flex items-start gap-4 sm:gap-5 lg:gap-6 max-w-xl lg:max-w-2xl">
                             <div class="divider_short hidden lg:flex flex-shrink-0 pt-2">
                                 <div class="w-16 lg:w-20 h-px bg-white/50"></div>
@@ -105,10 +92,7 @@
                                 AND TECHNOLOGY TO CREATE SMOOTH, FUNCTIONAL, AND VISUALLY APPEALING WEB APPLICATIONS.
                             </p>
                         </div>
-
-                        <!-- Bottom Section - Process Badges -->
                         <div class="badges-container flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 md:gap-8">
-                            <!-- Process Badges -->
                             <div class="flex flex-wrap gap-1.5 sm:gap-2">
                                 <span
                                     class="badge-design text-[9px] sm:text-[10px] md:text-xs tracking-widest uppercase text-white/70 px-2.5 sm:px-3 py-1 border border-white/30 rounded-full">Design</span>
@@ -118,18 +102,14 @@
                                     class="badge-deploy text-[9px] sm:text-[10px] md:text-xs tracking-widest uppercase text-white/70 px-2.5 sm:px-3 py-1 border border-white/30 rounded-full">Deploy</span>
                             </div>
                         </div>
-
                     </div>
-
                 </div>
             </div>
         </div>
-
     </div>
 
-
     <div
-        class="fixed left-[26px] top-[27px] inline-flex items-center gap-2 py-2 rounded-full z-[999] mix-blend-difference ">
+        class="fixed left-[26px] top-[27px] inline-flex items-center gap-2 py-2 rounded-full z-[999] mix-blend-difference">
         <span class="name_scroll text-xs tracking-[0.15em] uppercase">
             Allawi Mohammed
         </span>
@@ -140,14 +120,13 @@
         Scroll Down
     </div>
 
-
     <div class="scroll-line absolute bottom-[35px] right-[35px] z-15 opacity-0">
         <div class="scroll_line relative w-[3px] h-[130px] md:h-[148px]">
 
         </div>
     </div>
 
-    <div class="projects">
+    <div class="projects h-screen relative left-0 m-0 block">
         <div class="projects_container c2">
             <h3
                 class="projects__title uppercase absolute w-full whitespace-nowrap text-[14vw] sm:text-[14vw] lg:text-[12rem] xl:text-[14rem] uppercase tracking-[-0.04em] leading-[0.85]">
@@ -157,20 +136,18 @@
     </div>
 
 
-    <div class="footer">
+    <div class="footer relative z-15 h-screen flex flex-col justify-center overflow-hidden">
 
     </div>
 
     <!-- About -->
 
-    <div id="about">
+    <div id="about" class="h-screen w-full fixed top-0 left-0 overflow-y-auto opacity-0">
         <div class="about_wrapper w-full pt-[6.5%] text-black relative opacity-0">
             <div class="min-h-screen">
-                <!-- About Section -->
                 <section class="relative px-[26px] lg:px-4 py-20 overflow-hidden">
 
                     <div class="max-w-6xl mx-auto relative z-10">
-                        <!-- Header with creative layout -->
                         <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
                             <div class="space-y-6">
                                 <div
@@ -191,14 +168,13 @@
                                     every project.
                                 </p>
 
-                                <!-- Stats Grid -->
                                 <div class="grid grid-cols-3 gap-2 md:gap-4 pt-4">
                                     <div class="group cursor-default stats_group">
                                         <div
                                             class="bg-primary/5 rounded-lg p-1.5 sm:p-2 md:p-4 transition-all duration-300 group-hover:bg-primary/10 group-hover:scale-105">
                                             <div
                                                 class="text-primary text-base sm:text-xl md:text-2xl font-semibold mb-0.5 sm:mb-1">
-                                                3+ yrs</div>
+                                                2+ Yrs</div>
                                             <div class="text-muted-foreground text-xs sm:text-sm">Experience</div>
                                         </div>
                                     </div>
@@ -230,8 +206,6 @@
                                         alt="Creative workspace" class="w-full h-full object-cover" />
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                                 </div>
-
-                                <!-- Floating badge -->
                                 <div
                                     class="absolute -bottom-6 -right-6 bg-card border-2 border-primary/20 rounded-2xl p-6 shadow-xl animate-float">
                                     <div class="flex items-center gap-3">
@@ -255,10 +229,7 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Creative Cards Section -->
                         <div class="grid md:grid-cols-3 gap-6">
-                            <!-- Journey Card - Taller -->
                             <div
                                 class="md:col-span-2 bg-gradient-to-br from-primary/5 to-transparent border border-border rounded-2xl p-8 hover:shadow-xl hover:-translate-y-1 relative overflow-hidden creative_cards">
                                 <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl"></div>
@@ -296,8 +267,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Philosophy Card -->
                             <div
                                 class="bg-card border border-border rounded-2xl p-8 hover:shadow-xl hover:-translate-y-1 relative overflow-hidden group creative_cards">
                                 <div
@@ -320,8 +289,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Values Section -->
                         <div class="mt-12 grid md:grid-cols-3 gap-6 values_section">
                             <div
                                 class="bg-card border border-border rounded-xl p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-lg values_section">
@@ -389,7 +356,6 @@
                     </div>
                 </section>
 
-                <!-- Skills Section -->
                 <section class="px-[26px] lg:px-4 py-20 skills_section">
                     <div class="max-w-6xl mx-auto">
                         <div class="text-center mb-16 skills_header">
@@ -398,9 +364,7 @@
                                 A versatile skill set that covers the full spectrum of digital creation
                             </p>
                         </div>
-
                         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <!-- Skill Card 1 -->
                             <div
                                 class="bg-card border border-border rounded-lg p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-2 group skill_card">
                                 <div
@@ -419,8 +383,6 @@
                                 <p class="text-muted-foreground text-sm">Creating beautiful, intuitive interfaces with
                                     user-centered design principles</p>
                             </div>
-
-                            <!-- Skill Card 2 -->
                             <div
                                 class="bg-card border border-border rounded-lg p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-2 group skill_card">
                                 <div
@@ -436,8 +398,6 @@
                                 <p class="text-muted-foreground text-sm">Building responsive, performant web
                                     applications with modern technologies</p>
                             </div>
-
-                            <!-- Skill Card 3 -->
                             <div
                                 class="bg-card border border-border rounded-lg p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-2 group skill_card">
                                 <div
@@ -457,8 +417,6 @@
                                 <p class="text-muted-foreground text-sm">Bringing designs to life with smooth,
                                     purposeful motion and interactions</p>
                             </div>
-
-                            <!-- Skill Card 4 -->
                             <div
                                 class="bg-card border border-border rounded-lg p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-2 group skill_card">
                                 <div
@@ -481,8 +439,6 @@
                         </div>
                     </div>
                 </section>
-
-                <!-- Experience Section -->
                 <section class="px-[26px] lg:px-4 py-20 bg-muted/30 journey_section">
                     <div class="max-w-6xl mx-auto">
                         <div class="text-center mb-16">
@@ -494,7 +450,6 @@
                         </div>
 
                         <div class="max-w-3xl mx-auto">
-                            <!-- Experience Item 1 -->
                             <div
                                 class="relative pl-8 pb-12 border-l-2 border-border transition-all duration-300 hover:border-primary/50 journey_item">
                                 <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary border-4 border-white journey_dot"
@@ -510,8 +465,6 @@
                                     </p>
                                 </div>
                             </div>
-
-                            <!-- Experience Item 2 -->
                             <div
                                 class="relative pl-8 pb-12 border-l-2 border-border transition-all duration-300 hover:border-primary/50 journey_item">
                                 <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary border-4 border-white journey_dot"
@@ -527,8 +480,6 @@
                                     </p>
                                 </div>
                             </div>
-
-                            <!-- Experience Item 3 -->
                             <div
                                 class="relative pl-8 pb-12 border-l-2 border-border transition-all duration-300 hover:border-primary/50 journey_item">
                                 <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary border-4 border-white journey_dot"
@@ -545,8 +496,6 @@
                                     </p>
                                 </div>
                             </div>
-
-                            <!-- Experience Item 4 -->
                             <div
                                 class="relative pl-8 border-l-2 border-border transition-all duration-300 hover:border-primary/50 journey_item">
                                 <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary border-4 border-white journey_dot"
@@ -565,7 +514,6 @@
                     </div>
                 </section>
 
-                <!-- CTA Section -->
                 <section class="px-[26px] lg:px-4 py-20 cta_section">
                     <div class="max-w-4xl mx-auto text-center">
                         <div
@@ -578,16 +526,17 @@
                             </p>
                             <div class="flex gap-4 justify-center flex-wrap">
                                 <a href="mailto:allawi465@gmail.com"
-                                    class="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-3 text-primary-foreground transition-colors hover:bg-primary/90 cta_button">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    class="inline-flex items-center justify-center gap-1 sm:gap-2 rounded-md bg-primary px-4 sm:px-6 md:px-8 py-2 sm:py-3 text-primary-foreground transition-colors hover:bg-primary/90 cta_button text-xs sm:text-sm md:text-base">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
                                         <rect width="20" height="16" x="2" y="4" rx="2" />
                                         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                                     </svg>
-                                    allawi465@gmail.com
+                                    <span class="truncate">allawi465@gmail.com</span>
                                 </a>
                                 <a href="#"
-                                    class="inline-flex items-center justify-center rounded-md border border-border bg-white px-8 py-3 transition-colors hover:bg-gray-50 cta_button">
+                                    class="inline-flex items-center justify-center rounded-md border border-border bg-white px-4 sm:px-6 md:px-8 py-2 sm:py-3 transition-colors hover:bg-gray-50 cta_button text-xs sm:text-sm md:text-base">
                                     Download Resume
                                 </a>
                             </div>

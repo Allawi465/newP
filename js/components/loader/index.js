@@ -125,7 +125,6 @@ export default function initLoadingSequence(context) {
         '.badges-container .badge-design, .badges-container .badge-code, .badges-container .badge-deploy',
         {
             opacity: 0,
-            scale: 0.8,
             duration: 1.0,
             ease: "power2.out",
             stagger: { amount: 0.3 }
