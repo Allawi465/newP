@@ -6,7 +6,7 @@ export function setupAboutLenis(context) {
     gsap.ticker.lagSmoothing(0);
 
     const wrapper = document.querySelector('#about');
-    const contentElement = wrapper.querySelector('.about_wrapper'); // Adjust if needed
+    const contentElement = wrapper.querySelector('.about_wrapper');
 
     const lenis = new Lenis({
         wrapper: wrapper,
@@ -24,11 +24,10 @@ export function setupAboutLenis(context) {
 
     context.aboutLenis = lenis;
 
-    // Drive Lenis with GSAP’s ticker (shared ticker is fine)
     gsap.ticker.add((t) => lenis.raf(t * 1000));
     lenis.on('scroll', ScrollTrigger.update);
 
-    // ScrollTrigger proxy for #about
+
     ScrollTrigger.scrollerProxy(wrapper, {
         scrollTop(value) {
             if (arguments.length) {

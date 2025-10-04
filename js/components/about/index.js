@@ -11,22 +11,17 @@ const valuesCards = document.querySelectorAll(".values_section");
 function showAbout(context) {
     if (context.isLoading || context.isDivOpen || context.isProjectsOpen) return;
 
-    // Stop page lenis scrolling
     context.stopBodyScrolling?.();
 
-    // Ensure aboutLenis exists
     if (!context.aboutLenis) {
         setupAboutLenis(context);
     }
 
     const aboutDiv = document.getElementById('about');
-    // Make visible immediately so it has layout dimensions
     aboutDiv.classList.add('show');
     aboutDiv.style.pointerEvents = 'auto';
 
-    // Wait one tick to ensure layout
     requestAnimationFrame(() => {
-        // Resize Lenis and reset the about scroll to top
         if (context.aboutLenis) {
             context.aboutLenis.resize();
             context.aboutLenis.scrollTo(0, { immediate: true });
@@ -40,7 +35,6 @@ function showAbout(context) {
 
         context.tm = setupTimeline(context);
 
-        // Fade in the aboutDiv
         gsap.to(aboutDiv, {
             opacity: 1,
             duration: 1,
@@ -51,11 +45,14 @@ function showAbout(context) {
     });
 
     context.isDivOpen = true;
-    document.getElementById('openAbout').style.opacity = '0';
-    document.getElementById('openAbout').style.pointerEvents = 'none';
-    document.getElementById('close').style.opacity = '1';
-    document.getElementById('close').style.pointerEvents = 'auto';
-    document.getElementById('close').style.zIndex = '1000';
+
+    setTimeout(() => {
+        document.getElementById('openAbout').style.opacity = '0';
+        document.getElementById('openAbout').style.pointerEvents = 'none';
+        document.getElementById('close').style.opacity = '1';
+        document.getElementById('close').style.pointerEvents = 'auto';
+        document.getElementById('close').style.zIndex = '1000';
+    }, 600);
 }
 
 export function animateProgress(context) {
@@ -99,7 +96,6 @@ function reset(context) {
 }
 
 function setupTimeline(context) {
-    // Create a new GSAP timeline
     const timeline = gsap.timeline({});
 
     timeline
@@ -181,30 +177,26 @@ function setupTimeline(context) {
 }
 
 function setupScrollAnimations() {
-    // Register GSAP plugin
     gsap.registerPlugin(ScrollTrigger);
 
-    // Get wrapper element
     const wrapper = document.querySelector('#about');
     if (!wrapper) {
         console.error('Wrapper element #about not found');
         return;
     }
 
-    // Split text for animation
     const typeSplitH2 = new SplitType('.skills_h2', { types: 'chars', tagName: 'span' });
     const typeSplitP = new SplitType('.skills_p', { types: 'words', tagName: 'span' });
     const typeSplitJourneyH2 = new SplitType('.journey_h2', { types: 'chars', tagName: 'span' });
     const typeSplitJourneyP = new SplitType('.journey_p', { types: 'words', tagName: 'span' });
 
-    // Animate skills header characters
     ScrollTrigger.create({
         trigger: '.skills_section',
         scroller: wrapper,
         start: 'top 60%',
         end: 'top 30%',
         scrub: 1,
-        markers: false, // Set to true for debugging
+        markers: false,
         scrub: true,
         animation: gsap.fromTo(
             '.skills_h2 .char',
@@ -220,7 +212,6 @@ function setupScrollAnimations() {
         )
     });
 
-    // Animate paragraph words
     ScrollTrigger.create({
         trigger: '.skills_section',
         scroller: wrapper,
@@ -242,7 +233,6 @@ function setupScrollAnimations() {
         )
     });
 
-    // Animate skill cards
     ScrollTrigger.create({
         trigger: '.skills_section',
         scroller: wrapper,
@@ -263,12 +253,11 @@ function setupScrollAnimations() {
         )
     });
 
-    // Animate journey header characters
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
-        start: 'top 75%', // Starts when section is just entering viewport
-        end: 'top 60%', // Short range to complete before items
+        start: 'top 75%',
+        end: 'top 60%',
         scrub: 1,
         markers: false,
         animation: gsap.fromTo(
@@ -280,12 +269,11 @@ function setupScrollAnimations() {
                 duration: 0.6,
                 ease: 'power2.out',
                 stagger: { amount: 0.2 },
-                delay: 0 // No delay for quick appearance
+                delay: 0
             }
         )
     });
 
-    // Animate journey paragraph words - triggers early and completes quickly
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
@@ -302,12 +290,11 @@ function setupScrollAnimations() {
                 duration: 0.6,
                 ease: 'power2.out',
                 stagger: { amount: 0.3 },
-                delay: 0.2 // Slight delay after title
+                delay: 0.2
             }
         )
     });
 
-    // Animate journey items border
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
@@ -320,14 +307,13 @@ function setupScrollAnimations() {
             { borderLeftWidth: 0 },
             {
                 borderLeftWidth: 2,
-                duration: 1, // Slightly longer for smoother drawing
+                duration: 1,
                 ease: 'power2.out',
-                stagger: { amount: 0.6 } // Increased for sequential effect
+                stagger: { amount: 0.6 }
             }
         )
     });
 
-    // Animate journey items dots
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
@@ -349,7 +335,6 @@ function setupScrollAnimations() {
         )
     });
 
-    // Animate journey items content
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
@@ -375,12 +360,11 @@ function setupScrollAnimations() {
     const typeSplitCtaH2 = new SplitType('.cta_h2', { types: 'chars', tagName: 'span' });
     const typeSplitCtaP = new SplitType('.cta_p', { types: 'words', tagName: 'span' });
 
-    // Animate CTA header characters
     ScrollTrigger.create({
         trigger: '.cta_section',
         scroller: wrapper,
-        start: 'top 90%', // Early trigger to show first
-        end: 'top 60%', // Short range to complete quickly
+        start: 'top 90%',
+        end: 'top 60%',
         scrub: 1,
         markers: false,
         animation: gsap.fromTo(
@@ -397,7 +381,6 @@ function setupScrollAnimations() {
         )
     });
 
-    // Animate CTA paragraph words
     ScrollTrigger.create({
         trigger: '.cta_section',
         scroller: wrapper,
@@ -419,7 +402,6 @@ function setupScrollAnimations() {
         )
     });
 
-    // Animate CTA buttons
     ScrollTrigger.create({
         trigger: '.cta_section',
         scroller: wrapper,

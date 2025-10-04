@@ -27,8 +27,10 @@
 
 <body>
 
-    <div class="panel fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[999] text-primary">
-        <img width="100" height="100" src="/loading_.svg" alt="Loading..." />
+    <div class="loader_screen absolute h-screen w-full bg-white z-[999]">
+        <div class="panel fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary">
+            <img width="100" height="100" src="/loading_.svg" alt="Loading..." />
+        </div>
     </div>
 
     <div
@@ -53,7 +55,7 @@
     </div>
 
     <!-- Hero Container -->
-    <div class="hero relative w-full h-screen max-h-screen text-white overflow-hidden z-15">
+    <div class="hero relative w-full h-screen max-h-screen text-white overflow-hidden z-15 opacity-0">
 
         <div
             class="absolute inset-0 z-10 flex items-center px-[26px] lg:px-4 py-16 sm:py-20 max-[1023px]:landscape:py-12 max-[1023px]:landscape:pt-16">

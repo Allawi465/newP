@@ -32,16 +32,6 @@ export default function initLoadingSequence(context) {
     const timeline = gsap.timeline({
         duration: 1,
         ease: "power2.inOut",
-        onComplete: () => {
-            context.isLoading = false;
-            setupLenis(context);
-            document.documentElement.style.overflow = '';
-            document.body.style.overflow = '';
-            ScrollTrigger.refresh();
-            if (aboutElement) {
-                aboutElement.style.pointerEvents = 'auto';  // Or '' to reset to default
-            }
-        }
     });
 
     timeline.to(context.largeShaderMaterial.uniforms.progress, {
@@ -51,12 +41,37 @@ export default function initLoadingSequence(context) {
         ease: "sine.out",
         onUpdate: () => {
             const progress = context.largeShaderMaterial.uniforms.progress.value;
-            gsap.to(".panel", {
+            gsap.to(".loader_screen", {
                 opacity: -progress,
                 duration: 0.5,
+                display: "none"
             });
         },
-    }, 0).to(".header", {
+        onComplete: () => {
+            context.isLoading = false;
+            setupLenis(context);
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+            ScrollTrigger.refresh();
+        }
+    }, 0).to(context.glassMaterial, {
+        opacity: 1.0,
+        duration: 0.5,
+        ease: "power2.out",
+        onUpdate: () => {
+            context.glassMaterial.needsUpdate = true;
+        }
+    }, 3).to(context.material.uniforms.uOpacity, {
+        value: 1.0,
+        duration: 1.0,
+        ease: "power2.out",
+        onUpdate: () => {
+            context.material.needsUpdate = true;
+        },
+    }, 3).to(".header", {
+        opacity: 1,
+        duration: 1,
+    }, 3).to(".hero", {
         opacity: 1,
         duration: 1,
     }, 3).to(".about", {
@@ -120,7 +135,12 @@ export default function initLoadingSequence(context) {
             opacity: 0,
             duration: 1.0,
             ease: "power2.out",
-            stagger: { amount: 0.5 }
+            stagger: { amount: 0.5 },
+            onComplete: () => {
+                if (aboutElement) {
+                    aboutElement.style.pointerEvents = 'auto';
+                }
+            }
         }, 3.6
     ).from(
         '.badges-container .badge-design, .badges-container .badge-code, .badges-container .badge-deploy',
@@ -128,7 +148,7 @@ export default function initLoadingSequence(context) {
             opacity: 0,
             duration: 1.0,
             ease: "power2.out",
-            stagger: { amount: 0.3 }
+            stagger: { amount: 0.3 },
         }, 4
     ).to(".scroll", {
         opacity: 1,
@@ -137,20 +157,6 @@ export default function initLoadingSequence(context) {
     }, 4.5).to(".scroll-line", {
         opacity: 1,
         duration: 1.0,
-        ease: "power2.out"
-    }, 4.5).to(context.glassMaterial, {
-        opacity: 1.0,
-        duration: 0.5,
         ease: "power2.out",
-        onUpdate: () => {
-            context.glassMaterial.needsUpdate = true;
-        }
-    }, 3).to(context.material.uniforms.uOpacity, {
-        value: 1.0,
-        duration: 1.0,
-        ease: "power2.out",
-        onUpdate: () => {
-            context.material.needsUpdate = true;
-        },
-    }, 3);
+    }, 4.5);
 }

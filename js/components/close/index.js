@@ -23,7 +23,6 @@ function closeInfoDiv(context) {
                 aboutDiv.style.zIndex = 0;
                 aboutDiv.classList.remove('show');
                 if (context.aboutLenis) {
-                    // force instantly to top while lenis is still active
                     context.aboutLenis.scrollTo(0, { immediate: true });
 
                     requestAnimationFrame(() => {
@@ -68,7 +67,6 @@ function aboutCloseTimeline(context) {
         .to(".header-image", { opacity: 0, duration: 0.3, ease: "power2.out" },)
         .to(".creative_cards", { opacity: 0, duration: 0.3, ease: "power2.out" },)
         .to(".values_section", { opacity: 0, duration: 0.3, ease: "power2.out" },)
-
         .set("#about", { zIndex: 0 }, ">");
 }
 

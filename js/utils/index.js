@@ -84,49 +84,7 @@ export const images = [
         title: 'Note',
         slogan: 'Moments That Matter',
         link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_1',
-        src: '1.jpg',
-        title: 'Adventure',
-        slogan: 'Explore the Uncharted',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_2',
-        src: '2.jpg',
-        title: 'Holidaze',
-        slogan: 'Relax in Style',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_3',
-        src: '1.jpg',
-        title: 'NoxB',
-        slogan: 'Innovating Tomorrow',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_4',
-        src: '4.jpg',
-        title: 'Buyers',
-        slogan: 'Shop Smart',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_5',
-        src: '5.jpg',
-        title: 'Portfolio 02',
-        slogan: 'Digital Craftsmanship',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_6',
-        src: '6.jpg',
-        title: 'Note',
-        slogan: 'Moments That Matter',
-        link: 'https://robelmahta.netlify.app/'
-    },
+    }
 ];
 
 export const defaultConfig = {
@@ -134,7 +92,7 @@ export const defaultConfig = {
     cssObjects: [],
     meshes: [],
     meshArray: [],
-    images: [],  // Fix: Define as empty array if 'images' not imported
+    images: [],
     mouse: new THREE.Vector2(),
     targetPositionSphre: new THREE.Vector3(0, 0, 0),
     raycaster: new THREE.Raycaster(),
