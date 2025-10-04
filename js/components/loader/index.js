@@ -22,20 +22,26 @@ export default function initLoadingSequence(context) {
         tagName: 'span',
     });
 
-    const headerElement = document.querySelector(".header");
     const aboutElement = document.querySelector(".about");
-    if (headerElement) {
-        headerElement.classList.remove("transition", "duration-300");
-        headerElement.style.transition = "none";
-    }
     if (aboutElement) {
         aboutElement.classList.remove("transition", "duration-300");
         aboutElement.style.transition = "none";
+        aboutElement.style.pointerEvents = 'none';
     }
 
     const timeline = gsap.timeline({
         duration: 1,
         ease: "power2.inOut",
+        onComplete: () => {
+            context.isLoading = false;
+            setupLenis(context);
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+            ScrollTrigger.refresh();
+            if (aboutElement) {
+                aboutElement.style.pointerEvents = 'auto';  // Or '' to reset to default
+            }
+        }
     });
 
     timeline.to(context.largeShaderMaterial.uniforms.progress, {
@@ -53,11 +59,6 @@ export default function initLoadingSequence(context) {
     }, 0).to(".header", {
         opacity: 1,
         duration: 1,
-        onComplete: () => {
-            if (headerElement) {
-                headerElement.classList.add("transition-all", "duration-300");
-            }
-        }
     }, 3).to(".about", {
         opacity: 1,
         onComplete: () => {
@@ -150,13 +151,6 @@ export default function initLoadingSequence(context) {
         ease: "power2.out",
         onUpdate: () => {
             context.material.needsUpdate = true;
-        },
-        onComplete: () => {
-            context.isLoading = false;
-            setupLenis(context);
-            document.documentElement.style.overflow = '';
-            document.body.style.overflow = '';
-            ScrollTrigger.refresh();
         },
     }, 3);
 }
