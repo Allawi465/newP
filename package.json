@@ -2,7 +2,7 @@
   "name": "allawi_portfolio",
   "version": "1.0.0",
   "type": "module",
-  "description": "Interactive 3D portfolio by Allawi using Three.js, GSAP, and lenis.",
+  "description": "Interactive 3D portfolio by Allawi using Three.js, tailwind, GSAP, and lenis.",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
