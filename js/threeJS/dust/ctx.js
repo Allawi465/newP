@@ -3,10 +3,10 @@ import * as THREE from 'three';
 export default function makeTextTargetsSimple(
     text = "Connect",
     size = 256,
-    fontFamily = "Bebas Neue",
-    fontWeight = 400,
+    fontFamily = "Space Grotesk",
+    fontWeight = 600,
     fontStyle = "normal",
-    fontSize = 280,
+    fontSize = 180,
     canvasW = 1024,
     canvasH = 512,
     step = 1,

@@ -46,12 +46,13 @@ function showAbout(context) {
 
     context.isDivOpen = true;
 
+    document.getElementById('footer').style.zIndex = '15';
     setTimeout(() => {
         document.getElementById('openAbout').style.opacity = '0';
         document.getElementById('openAbout').style.pointerEvents = 'none';
         document.getElementById('close').style.opacity = '1';
         document.getElementById('close').style.pointerEvents = 'auto';
-        document.getElementById('close').style.zIndex = '1000';
+        document.getElementById('close').style.zIndex = '35';
     }, 600);
 }
 

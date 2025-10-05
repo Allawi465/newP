@@ -165,7 +165,6 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        // Normalization for screen size (computed here for momentum phase)
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const referenceWidth = 1920;
         const widthFactor = Math.min(referenceWidth / containerWidth, 4);

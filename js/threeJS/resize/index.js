@@ -10,17 +10,34 @@ export default function onWindowResize(context) {
     const MIN_WIDTH = 300;
     const MIN_HEIGHT = 1000;
     const CLAMP_HEIGHT = 300;
-    const MIN_SCALE = 2.75;
-    const MAX_SCALE = 4.;
+    const MIN_SCALE = 2.5;
+    const MAX_SCALE = 3.8;
 
-    const t = Math.min(1, Math.max(0, (w - MIN_WIDTH) / (2000 - MIN_WIDTH)));
+
+    // Width-based t (original)
+    const tWidth = Math.min(1, Math.max(0, (w - MIN_WIDTH) / (2000 - MIN_WIDTH)));
+
+    // Height-based t (new: clamps between CLAMP_HEIGHT and MIN_HEIGHT)
+    const tHeight = Math.min(1, Math.max(0, (h - CLAMP_HEIGHT) / (MIN_HEIGHT - CLAMP_HEIGHT)));
+
+    // Combined t: min of both to scale down when either dimension shrinks
+    const t = Math.min(tWidth, tHeight);
+
     const pow = 2.5;
     const eased = context.smootherstep(Math.pow(t, pow));
-    const scale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * eased;
+
+    let effectiveMin = MIN_SCALE;
+    if (w > h && h < MIN_HEIGHT) {
+        const lowerBound = 1.3; // Adjust this value to control how much extra down-scaling (lower = smaller scale)
+        effectiveMin = lowerBound + (MIN_SCALE - lowerBound) * (h / MIN_HEIGHT);
+    }
+
+    const scale = effectiveMin + (MAX_SCALE - effectiveMin) * eased;
 
     if (context.fboMaterial?.uniforms?.uLetterScale) {
         context.fboMaterial.uniforms.uLetterScale.value = scale;
     }
+
 
     let viewWidth;
 

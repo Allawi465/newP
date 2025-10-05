@@ -40,13 +40,16 @@ function closeInfoDiv(context) {
         value: 1,
         duration: 1.2,
         ease: "sine.out",
+        onComplete: () => {
+            document.getElementById('footer').style.zIndex = '26';
+        }
     });
 
     document.getElementById('openAbout').style.opacity = '1';
     document.getElementById('openAbout').style.pointerEvents = 'auto';
     document.getElementById('close').style.opacity = '0';
     document.getElementById('close').style.pointerEvents = 'none';
-    document.getElementById('close').style.zIndex = '899';
+    document.getElementById('close').style.zIndex = '0';
     gsap.set(".scroll_line", { opacity: 1, "--scaleY": 1 });
 
     context.startBodyScrolling();
