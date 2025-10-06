@@ -19,7 +19,6 @@ function showAbout(context) {
 
     const aboutDiv = document.getElementById('about');
     aboutDiv.classList.add('show');
-    aboutDiv.style.pointerEvents = 'auto';
     aboutDiv.style.display = "block"
 
     requestAnimationFrame(() => {

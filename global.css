@@ -217,8 +217,8 @@ body {
 }
 
 #about {
-    z-index: 25;
     display: none;
+    z-index: 25;
 }
 
 @media (max-width: 1050px) {
