@@ -4,39 +4,41 @@ import setupScrollAnimation from "../../threeJS/scrollstrigger/index.js";
 
 function closeInfoDiv(context) {
     const aboutDiv = document.getElementById('about');
-
     const isAboutDivOpen = aboutDiv && aboutDiv.classList.contains('show');
 
+    // Kill existing GSAP tweens
     gsap.killTweensOf([
         context.largeShaderMaterial.uniforms.progress,
         ...context.meshArray.map(mesh => mesh.material.uniforms.opacity),
     ]);
-
     gsap.killTweensOf("*");
 
     if (isAboutDivOpen) {
+        // Run the close animation timeline
         context.tm = aboutCloseTimeline(context);
+
+        // Animate the aboutDiv opacity to 0 and handle scroll in onComplete
         gsap.to(aboutDiv, {
             opacity: 0,
             duration: 0.5,
             onComplete: () => {
-                aboutDiv.classList.remove('show');
-                aboutDiv.style.display = "none"
-
+                // Scroll to top after the animation completes
                 if (context.aboutLenis) {
                     context.aboutLenis.scrollTo(0, { immediate: true });
-
                     requestAnimationFrame(() => {
                         context.aboutLenis.stop();
                     });
                 }
 
+                // Hide the div after scrolling
+                aboutDiv.classList.remove('show');
+                aboutDiv.style.display = "none";
             }
         });
     }
 
+    // Reset other UI elements and animations
     document.documentElement.classList.remove('canvas-hidden');
-
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
         duration: 1.2,
@@ -56,7 +58,6 @@ function closeInfoDiv(context) {
 
     context.isDivOpen = false;
 }
-
 
 function aboutCloseTimeline(context) {
     return gsap.timeline({})
