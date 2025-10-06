@@ -40,9 +40,6 @@ function closeInfoDiv(context) {
         value: 1,
         duration: 1.2,
         ease: "sine.out",
-        onComplete: () => {
-            document.getElementById('footer').style.zIndex = '26';
-        }
     });
 
     document.getElementById('openAbout').style.opacity = '1';

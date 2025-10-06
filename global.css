@@ -216,13 +216,9 @@ body {
     left: calc(26px + var(--w1));
 }
 
-#about,
-.about_wrapper {
+#about {
     z-index: 25;
-}
-
-.footer {
-    z-index: 26;
+    display: none;
 }
 
 @media (max-width: 1050px) {

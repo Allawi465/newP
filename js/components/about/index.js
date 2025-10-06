@@ -20,6 +20,7 @@ function showAbout(context) {
     const aboutDiv = document.getElementById('about');
     aboutDiv.classList.add('show');
     aboutDiv.style.pointerEvents = 'auto';
+    aboutDiv.style.display = "block"
 
     requestAnimationFrame(() => {
         if (context.aboutLenis) {
@@ -46,7 +47,6 @@ function showAbout(context) {
 
     context.isDivOpen = true;
 
-    document.getElementById('footer').style.zIndex = '15';
     setTimeout(() => {
         document.getElementById('openAbout').style.opacity = '0';
         document.getElementById('openAbout').style.pointerEvents = 'none';
