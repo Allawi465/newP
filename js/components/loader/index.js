@@ -52,6 +52,9 @@ export default function initLoadingSequence(context) {
             setupLenis(context);
             document.documentElement.style.overflow = '';
             document.body.style.overflow = '';
+            if (aboutElement) {
+                aboutElement.style.pointerEvents = 'auto';
+            }
             ScrollTrigger.refresh();
         }
     }, 0).to(context.glassMaterial, {
@@ -114,14 +117,14 @@ export default function initLoadingSequence(context) {
             opacity: 0,
             duration: 0.4,
             ease: "power2.out"
-        }, 3.2
+        }, 3
     ).from(
         '.divider_line',
         {
             width: 0,
             duration: 1.0,
             ease: "power2.out"
-        }, 3.4
+        }, 3
     ).from(
         '.divider_short',
         {
@@ -136,12 +139,7 @@ export default function initLoadingSequence(context) {
             duration: 1.0,
             ease: "power2.out",
             stagger: { amount: 0.5 },
-            onComplete: () => {
-                if (aboutElement) {
-                    aboutElement.style.pointerEvents = 'auto';
-                }
-            }
-        }, 3.6
+        }, 3.4
     ).from(
         '.badges-container .badge-design, .badges-container .badge-code, .badges-container .badge-deploy',
         {
@@ -154,9 +152,9 @@ export default function initLoadingSequence(context) {
         opacity: 1,
         duration: 1.0,
         ease: "power2.out"
-    }, 4.5).to(".scroll-line", {
+    }, 4.3).to(".scroll-line", {
         opacity: 1,
         duration: 1.0,
         ease: "power2.out",
-    }, 4.5);
+    }, 4.3)
 }
