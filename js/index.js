@@ -19,13 +19,17 @@ class EffectShell {
         this.bounceTween = null;
     }
 
+    async loadFont(family = "Space Grotesk", weight = "600", size = 180) {
+        await document.fonts.load(`${weight} ${size}px '${family}'`);
+    }
+
     async init() {
         try {
             setupScene(this);
             this.textures = await this.loadTextures(images, this);
             createMeshes(this);
             setupPostProcessing(this);
-            setupFBO(this);
+            await setupFBO(this);
             createCSS2DObjects(this, images);
             addObjects(this);
             setupEventListeners(this);
