@@ -11,15 +11,11 @@ export function setupAboutLenis(context) {
     const lenis = new Lenis({
         wrapper: wrapper,
         content: contentElement,
-        smooth: true,
-        direction: 'vertical',
-        syncTouch: true,
-        touchMultiplier: 1,
-        wheelPropagation: false,
         lerp: 0.12,
-        syncTouchLerp: 0.1,
-        autoRaf: false,
+        syncTouch: false,
+        touchMultiplier: 2.0,
         autoToggle: true,
+        autoRaf: false,
     });
 
     context.aboutLenis = lenis;

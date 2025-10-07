@@ -8,15 +8,11 @@ export default function setupLenis(context) {
     const lenis = new Lenis({
         wrapper: document.documentElement,
         content: document.body,
-        smooth: true,
-        direction: 'vertical',
-        syncTouch: true,
-        touchMultiplier: 1,
-        wheelPropagation: false,
         lerp: 0.12,
-        syncTouchLerp: 0.1,
-        autoRaf: false,
+        syncTouch: false,
+        touchMultiplier: 2.0,
         autoToggle: true,
+        autoRaf: false,
     });
 
     context.bodyLenis = lenis;

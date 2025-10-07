@@ -7,7 +7,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     box-sizing: border-box;
-    touch-action: pan-y;
 }
 
 @font-face {
@@ -100,9 +99,10 @@ html.lenis {
     overflow: hidden;
 }
 
-body,
-html {
+html,
+body {
     overscroll-behavior-y: contain;
+    touch-action: pan-y;
 }
 
 html {

@@ -2,6 +2,7 @@ import gsap from "gsap";
 import SplitType from 'split-type';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { setupLenis } from "../../threeJS";
+import { loadingContainer } from "./loading";
 
 export default function initLoadingSequence(context) {
     document.documentElement.style.overflow = 'hidden';
@@ -37,11 +38,11 @@ export default function initLoadingSequence(context) {
     timeline.to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
         duration: 1,
-        delay: 2.5,
+        delay: 1.8,
         ease: "sine.out",
         onUpdate: () => {
             const progress = context.largeShaderMaterial.uniforms.progress.value;
-            gsap.to(".loader_screen", {
+            gsap.to(loadingContainer, {
                 opacity: -progress,
                 duration: 0.5,
                 display: "none"
@@ -64,27 +65,27 @@ export default function initLoadingSequence(context) {
         onUpdate: () => {
             context.glassMaterial.needsUpdate = true;
         }
-    }, 3).to(context.material.uniforms.uOpacity, {
+    }, 1.8,).to(context.material.uniforms.uOpacity, {
         value: 1.0,
         duration: 1.0,
         ease: "power2.out",
         onUpdate: () => {
             context.material.needsUpdate = true;
         },
-    }, 3).to(".header", {
+    }, 1.8,).to(".header", {
         opacity: 1,
         duration: 1,
-    }, 3).to(".hero", {
+    }, 2.2,).to(".hero", {
         opacity: 1,
         duration: 1,
-    }, 3).to(".about", {
+    }, 2.2,).to(".about", {
         opacity: 1,
         onComplete: () => {
             if (aboutElement) {
                 aboutElement.classList.add("transition-all", "duration-300");
             }
         }
-    }, 3).from(
+    }, 2.2,).from(
         '.hero_title .char',
         {
             x: "-1em",
@@ -92,7 +93,7 @@ export default function initLoadingSequence(context) {
             ease: "power2.out",
             stagger: { amount: 0.2 },
             opacity: 0,
-        }, 3
+        }, 2.2,
     ).from(
         '.hero_title_2 .char',
         {
@@ -101,7 +102,7 @@ export default function initLoadingSequence(context) {
             duration: 1.0,
             ease: "power2.out",
             stagger: { amount: 0.2 }
-        }, 3
+        }, 2.2,
     ).from(
         '.line-dot-container .line-top, .line-dot-container .line-bottom',
         {
@@ -109,7 +110,7 @@ export default function initLoadingSequence(context) {
             duration: 1.0,
             ease: "power2.out",
             stagger: 0.2
-        }, 3
+        }, 2,
     ).from(
         '.line-dot-container .dot',
         {
@@ -117,21 +118,21 @@ export default function initLoadingSequence(context) {
             opacity: 0,
             duration: 0.4,
             ease: "power2.out"
-        }, 3
+        }, 2,
     ).from(
         '.divider_line',
         {
             width: 0,
             duration: 1.0,
             ease: "power2.out"
-        }, 3
+        }, 2,
     ).from(
         '.divider_short',
         {
             width: 0,
             duration: 1.0,
             ease: "power2.out"
-        }, 3.4
+        }, 2.2
     ).from(
         '.hero_text .word',
         {
@@ -139,7 +140,7 @@ export default function initLoadingSequence(context) {
             duration: 1.0,
             ease: "power2.out",
             stagger: { amount: 0.5 },
-        }, 3.4
+        }, 2.2
     ).from(
         '.badges-container .badge-design, .badges-container .badge-code, .badges-container .badge-deploy',
         {
@@ -147,14 +148,14 @@ export default function initLoadingSequence(context) {
             duration: 1.0,
             ease: "power2.out",
             stagger: { amount: 0.3 },
-        }, 4
+        }, 2.5
     ).to(".scroll", {
         opacity: 1,
         duration: 1.0,
         ease: "power2.out"
-    }, 4.3).to(".scroll-line", {
+    }, 2.5).to(".scroll-line", {
         opacity: 1,
         duration: 1.0,
         ease: "power2.out",
-    }, 4.3)
+    }, 2.5)
 }
