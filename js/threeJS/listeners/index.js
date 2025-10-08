@@ -12,12 +12,14 @@ gsap.registerPlugin(ScrollTrigger);
 export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
     window.addEventListener('mousemove', (event) => onMouseMoveHover(event, context));
-    window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: false });
-    window.addEventListener('pointermove', (event) => onPointerMove(event, context), { passive: false });
-    window.addEventListener('pointerup', (event) => onPointerUp(event, context), { passive: false });
-    window.addEventListener('touchstart', (event) => onPointerDown(event, context), { passive: false });
-    window.addEventListener('touchmove', (event) => onPointerMove(event, context), { passive: false });
-    window.addEventListener('touchend', (event) => onPointerUp(event, context), { passive: false });
+
+    window.addEventListener('pointerdown', (e) => onPointerDown(e, context), { passive: false });
+    window.addEventListener('pointermove', (e) => onPointerMove(e, context), { passive: false });
+    window.addEventListener('pointerup', (e) => onPointerUp(e, context), { passive: false });
+
+    window.addEventListener('touchstart', (e) => onPointerDown(e, context), { passive: false });
+    window.addEventListener('touchmove', (e) => onPointerMove(e, context), { passive: false });
+    window.addEventListener('touchend', (e) => onPointerUp(e, context), { passive: false });
 
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
