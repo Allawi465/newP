@@ -102,7 +102,6 @@ html.lenis {
 html,
 body {
     overscroll-behavior-y: contain;
-    touch-action: pan-y;
 }
 
 html {
@@ -151,7 +150,6 @@ body {
     color: rgb(255, 255, 255);
 }
 
-/* SplitType Text Styling */
 .hero_title .word {
     display: inline-block;
     white-space: nowrap;
@@ -162,7 +160,6 @@ body {
     transform-origin: bottom;
 }
 
-/* Prevent word breaking after split */
 .hero_title {
     white-space: normal;
     word-break: keep-all;
@@ -181,8 +178,6 @@ body {
     transform: scaleY(var(--scaleY, 0));
     opacity: var(--opacity, 0);
 }
-
-/* slider */
 
 .slider-project__title {
     font-family: var(--font-inter);

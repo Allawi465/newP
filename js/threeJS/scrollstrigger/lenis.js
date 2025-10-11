@@ -3,6 +3,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import gsap from 'gsap';
 
 export default function setupLenis(context) {
+
+    gsap.ticker.lagSmoothing(500, 33);
+
     const lenis = new Lenis({
         wrapper: document.documentElement,
         content: document.body,
@@ -15,8 +18,6 @@ export default function setupLenis(context) {
 
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((t) => lenis.raf(t * 1000));
-
-    gsap.ticker.lagSmoothing(0);
 
 
     context.startBodyScrolling = () => lenis.start();
