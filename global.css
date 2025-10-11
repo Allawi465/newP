@@ -102,6 +102,7 @@ html.lenis {
 html,
 body {
     overscroll-behavior-y: contain;
+    touch-action: pan-y;
 }
 
 html {

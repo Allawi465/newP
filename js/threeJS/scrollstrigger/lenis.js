@@ -7,9 +7,8 @@ export default function setupLenis(context) {
         wrapper: document.documentElement,
         content: document.body,
         lerp: 0.12,
-        syncTouch: false,
-        autoToggle: true,
-        autoRaf: true,
+        smoothTouch: false,
+        autoRaf: false,
     });
 
     context.bodyLenis = lenis;
