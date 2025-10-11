@@ -3,26 +3,35 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import gsap from 'gsap';
 
 export default function setupLenis(context) {
-    if (ScrollTrigger.isTouch) {
-        console.log("Lenis disabled on touch devices");
-        return null;
-    }
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
     const lenis = new Lenis({
         wrapper: document.documentElement,
         content: document.body,
-        lerp: 0.1,
-        syncTouch: false,
-        touchMultiplier: 2,
+        lerp: isTouch ? 0.08 : 0.1,
+        syncTouch: isTouch ? true : false,
+        touchMultiplier: isTouch ? 1.0 : 2,
         autoRaf: false,
     });
 
     context.bodyLenis = lenis;
 
+    // Update ScrollTrigger on scroll
     lenis.on('scroll', ScrollTrigger.update);
 
-    gsap.ticker.add((t) => lenis.raf(t * 1000));
-    gsap.ticker.lagSmoothing(0);
+    // Drive Lenis frame updates
+    if (isTouch) {
+        // Mobile / touch: requestAnimationFrame loop
+        const update = (time) => {
+            lenis.raf(time);
+            requestAnimationFrame(update);
+        };
+        requestAnimationFrame(update);
+    } else {
+        // Desktop: use GSAP ticker
+        gsap.ticker.add((t) => lenis.raf(t * 1000));
+        gsap.ticker.lagSmoothing(0);
+    }
 
     // ScrollTrigger scroller proxy
     ScrollTrigger.scrollerProxy(document.documentElement, {
@@ -33,12 +42,14 @@ export default function setupLenis(context) {
         getBoundingClientRect() {
             return { top: 0, left: 0, width: innerWidth, height: innerHeight };
         },
-        pinType: document.documentElement.style.transform ? 'transform' : 'fixed',
+        pinType: document.documentElement.style.transform ? "transform" : "fixed",
     });
 
+    // Initialize scroll
     lenis.scrollTo(0, { immediate: true });
     ScrollTrigger.refresh();
 
+    // Helper functions for starting/stopping scroll
     context.startBodyScrolling = () => lenis.start();
     context.stopBodyScrolling = () => lenis.stop();
 
