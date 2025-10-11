@@ -3,6 +3,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import gsap from 'gsap';
 
 export default function setupLenis(context) {
+    if (ScrollTrigger.isTouch) {
+        console.log("Lenis disabled on touch devices");
+        return null;
+    }
+
     const lenis = new Lenis({
         wrapper: document.documentElement,
         content: document.body,
@@ -10,27 +15,16 @@ export default function setupLenis(context) {
         syncTouch: false,
         touchMultiplier: 2,
         autoRaf: false,
-
     });
 
     context.bodyLenis = lenis;
 
     lenis.on('scroll', ScrollTrigger.update);
 
-    // ✅ Use requestAnimationFrame on mobile for smoother sync
-    if (/Mobi|Android/i.test(navigator.userAgent)) {
-        const update = (time) => {
-            lenis.raf(time);
-            requestAnimationFrame(update);
-        };
-        requestAnimationFrame(update);
-    } else {
-        // ✅ Use GSAP ticker for desktop
-        gsap.ticker.add((t) => lenis.raf(t * 1000));
-        gsap.ticker.lagSmoothing(0);
-    }
+    gsap.ticker.add((t) => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
 
-    // ✅ Proper scroller proxy for GSAP
+    // ScrollTrigger scroller proxy
     ScrollTrigger.scrollerProxy(document.documentElement, {
         scrollTop(value) {
             if (arguments.length) lenis.scrollTo(value, { immediate: true });
