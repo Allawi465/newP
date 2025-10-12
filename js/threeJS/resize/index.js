@@ -88,7 +88,7 @@ export default function onWindowResize(context) {
         });
         context.meshSpacing = context.baseMeshSpacing * sliderFactor;
         context.updatePositions();
-        context.syncHtmlWithSlider();
+        /*       context.syncHtmlWithSlider(); */
 
     } if (context.material?.uniforms?.iResolution) {
         context.material.uniforms.iResolution.value.set(w, h);
