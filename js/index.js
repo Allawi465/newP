@@ -64,9 +64,6 @@ class EffectShell {
             ScrollTrigger.update();
         });
 
-        this.bodyLenis.raf(this.time * 1000);
-        gsap.ticker.lagSmoothing(0);
-
         ScrollTrigger.scrollerProxy(document.documentElement, {
             scrollTop(value) {
                 if (arguments.length) lenis.scrollTo(value, { immediate: true });
