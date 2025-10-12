@@ -102,9 +102,7 @@
 
     html,
     body {
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: none;
-        touch-action: pan-y;
+        overscroll-behavior-y: contain;
     }
 
     html {
@@ -128,7 +126,6 @@
         top: 0;
         left: 0;
         z-index: 10;
-        pointer-events: none;
     }
 
     ::-webkit-scrollbar {
