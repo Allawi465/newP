@@ -52,6 +52,8 @@ class EffectShell {
             wrapper: document.documentElement,
             content: document.body,
             lerp: 0.1,
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2., -10 * t)),
             syncTouch: false,
             touchMultiplier: 2,
         });
