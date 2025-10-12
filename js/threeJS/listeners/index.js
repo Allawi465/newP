@@ -13,13 +13,13 @@ export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
     window.addEventListener('mousemove', (event) => onMouseMoveHover(event, context));
 
-    /*     window.addEventListener('pointerdown', (e) => onPointerDown(e, context), { passive: false });
-        window.addEventListener('pointermove', (e) => onPointerMove(e, context), { passive: false });
-        window.addEventListener('pointerup', (e) => onPointerUp(e, context), { passive: false });
-    
-        window.addEventListener('touchstart', (e) => onPointerDown(e, context), { passive: false });
-        window.addEventListener('touchmove', (e) => onPointerMove(e, context), { passive: false });
-        window.addEventListener('touchend', (e) => onPointerUp(e, context), { passive: false }); */
+    window.addEventListener('pointerdown', (e) => onPointerDown(e, context), { passive: false });
+    window.addEventListener('pointermove', (e) => onPointerMove(e, context), { passive: false });
+    window.addEventListener('pointerup', (e) => onPointerUp(e, context), { passive: false });
+
+    window.addEventListener('touchstart', (e) => onPointerDown(e, context), { passive: false });
+    window.addEventListener('touchmove', (e) => onPointerMove(e, context), { passive: false });
+    window.addEventListener('touchend', (e) => onPointerUp(e, context), { passive: false });
 
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));

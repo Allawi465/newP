@@ -78,6 +78,13 @@
         --font-inter: var(--font-inter);
     }
 
+    body.mobile-no-scroll {
+        overflow: visible;
+        /* allow normal scroll */
+        -webkit-overflow-scrolling: touch;
+        /* smooth native scroll on iOS */
+    }
+
 
     html.lenis {
         height: auto;

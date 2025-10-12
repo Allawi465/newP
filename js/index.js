@@ -50,49 +50,40 @@ class EffectShell {
     setupLenis() {
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-        if (isMobile) {
-            // Mobile: skip Lenis entirely, use native scroll
-            this.bodyLenis = null;
-            return null;
+        let lenis = null;
+
+        if (!isMobile) {
+            // Desktop: smooth Lenis scroll
+            lenis = new Lenis({
+                duration: 1.0,
+                smooth: true,
+                smoothTouch: false, // disable smooth touch, like Thibaut
+                syncTouch: false,   // do not sync native touch
+                gestureDirection: 'vertical',
+                touchMultiplier: 1.35,
+                autoRaf: false,
+            });
+
+            // Update Lenis on GSAP ticker
+            gsap.ticker.add((t) => lenis.raf(t * 1000));
+
+            // Optional: integrate with ScrollTrigger
+            lenis.on('scroll', ScrollTrigger.update);
+
+            ScrollTrigger.scrollerProxy(document.documentElement, {
+                scrollTop(value) {
+                    if (arguments.length) lenis.scrollTo(value, { immediate: true });
+                    return lenis.scroll;
+                },
+                getBoundingClientRect() {
+                    return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+                },
+                pinType: document.documentElement.style.transform ? 'transform' : 'fixed'
+            });
+        } else {
+            // Mobile: do not use Lenis, let native scroll happen
+            document.body.classList.add('mobile-no-scroll'); // optional if you want to prevent overflow elsewhere
         }
-
-        // Desktop: setup Lenis normally
-        const lenis = new Lenis({
-            duration: 1.0,
-            smooth: true,
-            smoothTouch: false,
-            syncTouch: false,
-            gestureDirection: "vertical",
-            touchMultiplier: 1.35,
-            autoRaf: false
-        });
-
-        this.bodyLenis = lenis;
-
-        lenis.on('scroll', ScrollTrigger.update);
-
-        ScrollTrigger.scrollerProxy(document.documentElement, {
-            scrollTop(value) {
-                if (arguments.length) lenis.scrollTo(value, { immediate: true });
-                return lenis.scroll;
-            },
-            getBoundingClientRect() {
-                return {
-                    top: 0,
-                    left: 0,
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                };
-            },
-            pinType: document.documentElement.style.transform ? 'transform' : 'fixed'
-        });
-
-        // GSAP ticker
-        gsap.ticker.lagSmoothing(0);
-        gsap.ticker.add((t) => lenis.raf(t * 1000));
-
-        this.startBodyScrolling = () => lenis.start();
-        this.stopBodyScrolling = () => lenis.stop();
 
         return lenis;
     }
