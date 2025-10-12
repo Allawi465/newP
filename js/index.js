@@ -54,8 +54,7 @@ class EffectShell {
             content: document.body,
             lerp: 0.1,
             syncTouch: false,
-            touchMultiplier: 1.2,
-            touchInertiaMultiplier: 40,
+            touchMultiplier: 2,
         });
 
         this.bodyLenis = lenis;
@@ -66,7 +65,6 @@ class EffectShell {
 
         if (this.isTouch) {
             this.bodyLenis.raf(this.time);
-            ScrollTrigger.normalizeScroll(true);
         } else {
             this.bodyLenis.raf(this.time * 1000);
         }
