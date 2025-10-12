@@ -152,16 +152,3 @@ export default function addObjects(context) {
         }
     });
 }
-
-
-/*  const gui = new GUI({ width: 200 }); // Don't reuse any existing instance
- gui.title('Particles Color');
- 
- // Add controls directly to root (not in a folder)
- gui.addColor(colorParams, 'particleColor').onChange((value) => {
-     context.material.uniforms.uColor.value.set(new THREE.Color(value));
- });
- 
- gui.addColor(fogColorParams, 'uFogColor').name('Fog Color').onChange((value) => {
-     context.material.uniforms.uFogColor.value.set(new THREE.Color(value));
- }); */

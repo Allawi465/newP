@@ -11,10 +11,10 @@ export function setupAboutLenis(context) {
     const lenis = new Lenis({
         wrapper,
         content: contentElement,
-        lerp: isTouch ? 0.09 : 0.1,
+        lerp: 0.1,
         syncTouch: false,
         autoRaf: false,
-        touchMultiplier: isTouch ? 1.0 : 2,
+        touchMultiplier: 2
     });
 
     context.aboutLenis = lenis;

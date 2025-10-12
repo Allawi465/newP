@@ -8,9 +8,9 @@ export default function setupLenis(context) {
     const lenis = new Lenis({
         wrapper: document.documentElement,
         content: document.body,
-        lerp: isTouch ? 0.09 : 0.1,
-        syncTouch: true,
-        touchMultiplier: isTouch ? 1.0 : 2,
+        lerp: 0.1,
+        syncTouch: false,
+        touchMultiplier: 2,
     });
 
     context.bodyLenis = lenis;

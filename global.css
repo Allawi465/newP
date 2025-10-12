@@ -122,11 +122,6 @@ body {
     z-index: 10;
 }
 
-::-webkit-scrollbar {
-    width: 5px;
-    width: 0;
-}
-
 .name_scroll {
     color: rgba(255, 255, 255, 0);
 }

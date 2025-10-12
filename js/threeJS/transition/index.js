@@ -15,7 +15,9 @@ export default function createLargePlane(context) {
         },
         vertexShader: transitionVertex,
         fragmentShader: transitionFragment,
-        transparent: true
+        transparent: true,
+        depthWrite: true,
+        depthTest: true
     });
 
     const largeGeometry = new THREE.PlaneGeometry(1, 1, 24, 24);
