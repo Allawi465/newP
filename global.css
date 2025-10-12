@@ -78,13 +78,6 @@
         --font-inter: var(--font-inter);
     }
 
-    body.mobile-no-scroll {
-        overflow: visible;
-        /* allow normal scroll */
-        -webkit-overflow-scrolling: touch;
-        /* smooth native scroll on iOS */
-    }
-
 
     html.lenis {
         height: auto;
@@ -133,6 +126,8 @@
         top: 0;
         left: 0;
         z-index: 10;
+        outline: none;
+        pointer-events: none;
     }
 
     ::-webkit-scrollbar {

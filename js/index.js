@@ -80,9 +80,6 @@ class EffectShell {
                 },
                 pinType: document.documentElement.style.transform ? 'transform' : 'fixed'
             });
-        } else {
-            // Mobile: do not use Lenis, let native scroll happen
-            document.body.classList.add('mobile-no-scroll'); // optional if you want to prevent overflow elsewhere
         }
 
         return lenis;
