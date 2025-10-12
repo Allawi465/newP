@@ -18,7 +18,7 @@ export default function createMeshes(context) {
         context.group.add(planeMesh);
     });
 
-    context.scene.add(context.group);
+    /*     context.scene.add(context.group); */
 
     context.projectsElement = document.querySelector(".projects")
 
