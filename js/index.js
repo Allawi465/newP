@@ -253,8 +253,7 @@ class EffectShell {
             this.titleLabel.position.y = this.titleWorldPos.y;
         }
 
-        // Skip heavy updates during lag
-        if (deltaTime < 0.033) {
+        if (deltaTime < 0.033 && !this.isDragging) {
             this.updateUniforms(deltaTime);
             this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
             this.cubeCamera.position.copy(this.glassBall.position);

@@ -121,6 +121,12 @@ export function onPointerUp(event, context) {
         return;
     }
 
+    if (Math.abs(context.velocity) > 0.01) {
+        context.isMoving = true;
+    } else {
+        context.isMoving = false;
+    }
+
     const deltaX = Math.abs(endX - context.initialClick.x);
     const deltaY = Math.abs(endY - context.initialClick.y);
     const clickThreshold = 5;
