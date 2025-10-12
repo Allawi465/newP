@@ -97,6 +97,11 @@ export function onPointerDown(event, context) {
 
 export function onPointerUp(event, context) {
     if (context.bodyLenis) context.bodyLenis.start();
+    if (Math.abs(context.velocity) > 0.01) {
+        context.isMoving = true;
+    } else {
+        context.isMoving = false;
+    }
     const endX = event.clientX !== undefined
         ? event.clientX
         : (event.changedTouches && event.changedTouches[0]
@@ -119,12 +124,6 @@ export function onPointerUp(event, context) {
         context.isDragging = false;
         context.smoothingFactor = context.smoothingFactorDefault;
         return;
-    }
-
-    if (Math.abs(context.velocity) > 0.01) {
-        context.isMoving = true;
-    } else {
-        context.isMoving = false;
     }
 
     const deltaX = Math.abs(endX - context.initialClick.x);

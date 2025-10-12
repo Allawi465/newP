@@ -11,22 +11,25 @@ export default function setupEventListeners(context) {
     const sliderEl = document.getElementById('sliderContainer');
 
 
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    sliderEl.addEventListener('pointermove', (e) => {
+        if (!context.isDragging) return;
+        onPointerMove(e, context);
+        e.preventDefault();
+    }, { passive: false });
 
-    if (isMobile) {
-        // Allow native scroll + pointer drag
-        sliderEl.addEventListener('touchstart', (e) => onPointerDown(e, context), { passive: true });
-        sliderEl.addEventListener('touchmove', (e) => onPointerMove(e, context), { passive: true });
-        sliderEl.addEventListener('touchend', (e) => onPointerUp(e, context), { passive: true });
-    } else {
-        sliderEl.addEventListener('pointerdown', (e) => onPointerDown(e, context));
-        sliderEl.addEventListener('pointermove', (e) => {
-            if (!context.isDragging) return;
-            onPointerMove(e, context);
-            e.preventDefault();
-        }, { passive: false });
-        sliderEl.addEventListener('pointerup', (e) => onPointerUp(e, context));
-    }
+
+    sliderEl.addEventListener('touchmove', (e) => {
+        if (!context.isDragging) return;
+        onPointerMove(e, context);
+    }, { passive: false });
+
+    sliderEl.addEventListener('pointerdown', (e) => onPointerDown(e, context));
+    sliderEl.addEventListener('pointerup', (e) => onPointerUp(e, context));
+
+    sliderEl.addEventListener('touchstart', (e) => onPointerDown(e, context));
+    sliderEl.addEventListener('touchend', (e) => onPointerUp(e, context));
+    document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
+    document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
 
     window.addEventListener('pointermove', (event) => {
         if (!context.followMouse) return;
