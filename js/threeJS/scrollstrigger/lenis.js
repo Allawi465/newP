@@ -5,8 +5,9 @@ import gsap from 'gsap';
 export default function setupLenis(context) {
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
+    let scroller = document.documentElement;
+
     if (isTouch) {
-        const scroller = document.documentElement;
         ScrollTrigger.scrollerProxy(scroller, {
             scrollTop(value) {
                 if (arguments.length) scroller.scrollTop = value;
@@ -19,8 +20,6 @@ export default function setupLenis(context) {
         });
         ScrollTrigger.defaults({ scroller });
         ScrollTrigger.refresh();
-        context.bodyLenis = null;
-        return null;
     }
     // Desktop: Lenis smooth scroll
     const lenis = new Lenis({
