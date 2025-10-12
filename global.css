@@ -83,7 +83,7 @@ html.lenis {
 }
 
 .lenis.lenis-smooth {
-    scroll-behavior: auto;
+    scroll-behavior: auto !important;
 }
 
 .lenis.lenis-smooth [data-lenis-prevent] {
@@ -96,7 +96,8 @@ html.lenis {
 
 html,
 body {
-    overscroll-behavior-y: contain;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 html {
