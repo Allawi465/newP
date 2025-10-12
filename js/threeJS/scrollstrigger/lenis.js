@@ -5,13 +5,21 @@ import gsap from 'gsap';
 export default function setupLenis(context) {
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
-    // Create Lenis instance with conditional syncTouch
+    // ✅ Disable Lenis completely on mobile
+    if (isTouch) {
+        console.log("Lenis disabled on mobile — using native scroll");
+        ScrollTrigger.scrollerProxy(document.documentElement, {});
+        ScrollTrigger.refresh();
+        return null;
+    }
+
+
     const lenis = new Lenis({
         wrapper: document.documentElement,
         content: document.body,
         lerp: 0.1,
-        syncTouch: !isTouch ? true : false,
-        touchMultiplier: isTouch ? 1.1 : 1.0,
+        smoothWheel: true,
+        smoothTouch: false,
         autoRaf: false,
         autoResize: true,
     });
@@ -21,18 +29,8 @@ export default function setupLenis(context) {
     // Sync ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
 
-    if (isTouch) {
-        // --- Mobile: requestAnimationFrame loop ---
-        const update = (time) => {
-            lenis.raf(time);
-            requestAnimationFrame(update);
-        };
-        requestAnimationFrame(update);
-    } else {
-        // --- Desktop: GSAP ticker ---
-        gsap.ticker.add((t) => lenis.raf(t * 1000));
-        gsap.ticker.lagSmoothing(0);
-    }
+    gsap.ticker.add((t) => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
 
     // ScrollTrigger scroller proxy
     ScrollTrigger.scrollerProxy(document.documentElement, {
