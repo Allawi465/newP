@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import Lenis from 'lenis'
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { setupScene, setupFBO, addObjects, createCSS2DObjects, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
+import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
 import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
@@ -162,12 +162,12 @@ class EffectShell {
             child.position.x = this.calculatePositionX(index, this.currentPosition, this.meshSpacing);
         });
 
-        /*      this.syncHtmlWithSlider(); */
+        this.syncHtmlWithSlider();
     }
 
-    /*     syncHtmlWithSlider() {
-            syncHtmlWithSlider(this);
-        } */
+    syncHtmlWithSlider() {
+        syncHtmlWithSlider(this);
+    }
 
     getRenderTarget() {
         const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
@@ -257,7 +257,7 @@ class EffectShell {
         });
 
         this.updatePositions();
-        /*   this.syncHtmlWithSlider(); */
+        this.syncHtmlWithSlider();
 
         if (this.meshArray?.[0] && this.titleLabel) {
             const mesh = this.meshArray[0];
