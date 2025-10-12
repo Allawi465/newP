@@ -48,30 +48,34 @@ class EffectShell {
     }
 
     setupLenis() {
-        // ✅ Enable lag smoothing for mobile
-        gsap.ticker.lagSmoothing(500, 33);
+        gsap.ticker.lagSmoothing(0);
 
         const lenis = new Lenis({
-            lerp: 0.1,                  // Desktop smooth scroll speed
-            duration: 1.2,              // Animation duration
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2., -10 * t)),
-            smoothTouch: false,         // ✅ Native mobile scroll (fast!)
-            autoRaf: false,             // ✅ GSAP ticker controls RAF
+            lerp: 0.1,
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smoothTouch: false,
+            autoRaf: false,
         });
 
         this.bodyLenis = lenis;
 
-        // ✅ GSAP ticker drives Lenis (perfect sync!)
-        gsap.ticker.add((time) => {
-            lenis.raf(time * 1000);
-        });
+        if (!/Mobi|Android/i.test(navigator.userAgent)) {
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+        }
 
-        // ✅ Update ScrollTrigger on scroll
-        lenis.on('scroll', () => {
-            ScrollTrigger.update();
-        });
+        else {
+            const update = (time) => {
+                lenis.raf(time);
+                requestAnimationFrame(update);
+            };
+            requestAnimationFrame(update);
+        }
 
-        // ✅ ScrollTrigger proxy
+        lenis.on('scroll', ScrollTrigger.update);
+
         ScrollTrigger.scrollerProxy(document.documentElement, {
             scrollTop(value) {
                 if (arguments.length) {
@@ -90,8 +94,11 @@ class EffectShell {
             pinType: "transform",
         });
 
-        lenis.scrollTo(0, { immediate: true });
+        lenis.on('scroll', ScrollTrigger.update);
+        ScrollTrigger.addEventListener('refresh', () => lenis.raf(0));
         ScrollTrigger.refresh();
+
+        lenis.scrollTo(0, { immediate: true });
 
         this.startBodyScrolling = () => lenis.start();
         this.stopBodyScrolling = () => lenis.stop();
