@@ -16,7 +16,6 @@ class EffectShell {
         this.VIEW_WIDTH = 4.5;
         this.VIEW_HEIGHT = 6;
         this.clock = new THREE.Clock();
-        this.isTouch = window.matchMedia("(pointer: coarse)").matches;
 
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
@@ -63,11 +62,8 @@ class EffectShell {
             ScrollTrigger.update();
         });
 
-        if (this.isTouch) {
-            this.bodyLenis.raf(this.time);
-        } else {
-            this.bodyLenis.raf(this.time * 1000);
-        }
+        this.bodyLenis.raf(this.time * 1000);
+        gsap.ticker.lagSmoothing(0);
 
         ScrollTrigger.scrollerProxy(document.documentElement, {
             scrollTop(value) {
