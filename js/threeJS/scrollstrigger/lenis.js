@@ -1,14 +1,13 @@
 import Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import gsap from 'gsap';
+
 export default function setupLenis(context) {
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
-    // --- Mobile: disable Lenis ---
     if (isTouch) {
-        console.log("Lenis disabled on mobile, using native scroll");
+        const scroller = document.body;
 
-        const scroller = document.documentElement;
         ScrollTrigger.scrollerProxy(scroller, {
             scrollTop(value) {
                 if (arguments.length) scroller.scrollTop = value;
@@ -20,7 +19,6 @@ export default function setupLenis(context) {
             pinType: 'fixed',
         });
 
-        // Make sure ScrollTrigger defaults to native scroll
         ScrollTrigger.defaults({ scroller });
         ScrollTrigger.refresh();
 
@@ -28,7 +26,6 @@ export default function setupLenis(context) {
         return null;
     }
 
-    // --- Desktop: use Lenis ---
     const lenis = new Lenis({
         wrapper: document.documentElement,
         content: document.body,
