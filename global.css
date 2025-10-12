@@ -78,21 +78,27 @@
     --font-inter: var(--font-inter);
 }
 
+
 html.lenis {
-    height: auto;
+    height: auto
 }
 
 .lenis.lenis-smooth {
-    scroll-behavior: auto;
+    scroll-behavior: auto
 }
 
 .lenis.lenis-smooth [data-lenis-prevent] {
-    overscroll-behavior: contain;
+    overscroll-behavior: contain
 }
 
 .lenis.lenis-stopped {
-    overflow: hidden;
+    overflow: hidden
 }
+
+.lenis.lenis-scrolling iframe {
+    pointer-events: none
+}
+
 
 html,
 body {
@@ -120,9 +126,11 @@ body {
     top: 0;
     left: 0;
     z-index: 10;
-    height: 100vh;
-    width: 100%;
-    pointer-events: none !important;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    width: 0;
 }
 
 .name_scroll {

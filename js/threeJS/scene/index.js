@@ -26,7 +26,7 @@ export default function setupScene(context) {
         dithering: true
     });
 
-    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     context.renderer.setSize(window.innerWidth, window.innerHeight);
     context.renderer.autoClear = false;
     document.body.appendChild(context.renderer.domElement);

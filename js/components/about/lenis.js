@@ -6,15 +6,12 @@ export function setupAboutLenis(context) {
     const wrapper = document.querySelector('#about');
     const contentElement = wrapper.querySelector('.about_wrapper');
 
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
-
     const lenis = new Lenis({
         wrapper,
         content: contentElement,
         lerp: 0.1,
         syncTouch: false,
-        autoRaf: false,
-        touchMultiplier: 2
+        touchMultiplier: 2,
     });
 
     context.aboutLenis = lenis;
@@ -23,16 +20,8 @@ export function setupAboutLenis(context) {
         ScrollTrigger.update();
     });
 
-    if (isTouch) {
-        const update = (time) => {
-            lenis.raf(time);
-            requestAnimationFrame(update);
-        };
-        requestAnimationFrame(update);
-    } else {
-        gsap.ticker.add((time) => lenis.raf(time * 1000));
-        gsap.ticker.lagSmoothing(0);
-    }
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
 
     ScrollTrigger.scrollerProxy(wrapper, {
         scrollTop(value) {

@@ -31,7 +31,7 @@ class EffectShell {
         try {
             setupScene(this);
             this.textures = await this.loadTextures(images, this);
-            this.setupLenis();
+            this.setupLenis(this);
             createMeshes(this);
             setupPostProcessing(this);
             await setupFBO(this);
@@ -52,10 +52,10 @@ class EffectShell {
         const lenis = new Lenis({
             wrapper: document.documentElement,
             content: document.body,
-            lerp: 0.15,
+            lerp: 0.1,
             syncTouch: false,
-            touchMultiplier: 1.2,
-            touchInertiaMultiplier: 40,
+            touchMultiplier: 2,
+            duration: 1.1,
         });
 
         this.bodyLenis = lenis;
@@ -63,6 +63,12 @@ class EffectShell {
         lenis.on('scroll', () => {
             ScrollTrigger.update();
         });
+
+        if (this.isTouch) {
+            this.bodyLenis.raf(this.time);
+        } else {
+            this.bodyLenis.raf(this.time * 1000);
+        }
 
         ScrollTrigger.scrollerProxy(document.documentElement, {
             scrollTop(value) {
@@ -219,15 +225,9 @@ class EffectShell {
         // Cap deltaTime for performance
         deltaTime = Math.min(deltaTime, 0.033); // ~30 FPS minimum
 
-        // Conditional Lenis update
         if (this.bodyLenis) {
-            if (this.isTouch) {
-                this.bodyLenis.raf(this.time); // Use raw time for mobile
-            } else {
-                this.bodyLenis.raf(this.time * 1000); // As requested for desktop
-            }
+            this.bodyLenis.raf(performance.now());
         }
-        ScrollTrigger.update();
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);
@@ -288,5 +288,4 @@ class EffectShell {
     }
 }
 
-ScrollTrigger.normalizeScroll(true);
 new EffectShell();

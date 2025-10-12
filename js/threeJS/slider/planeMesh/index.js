@@ -37,7 +37,7 @@ export default function createPlaneMesh(content, texture, index) {
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         transparent: true,
-        depthWrite: false,
+        depthWrite: true,
         depthTest: true,
     });
 
@@ -69,7 +69,7 @@ export default function createPlaneMesh(content, texture, index) {
             trigger: ".projects",
             start: "top bottom",
             end: "bottom top",
-            scrub: true,
+            scrub: .5,
             scroller: document.documentElement,
         }
     });

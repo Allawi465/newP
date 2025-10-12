@@ -11,7 +11,7 @@ const valuesCards = document.querySelectorAll(".values_section");
 function showAbout(context) {
     if (context.isLoading || context.isDivOpen || context.isProjectsOpen) return;
 
-    context.stopBodyScrolling?.();
+    context.stopBodyScrolling();
 
     if (!context.aboutLenis) {
         setupAboutLenis(context);
@@ -38,9 +38,6 @@ function showAbout(context) {
         gsap.to(aboutDiv, {
             opacity: 1,
             duration: 1,
-            onComplete: () => {
-                ScrollTrigger.refresh();
-            }
         });
     });
 

@@ -96,11 +96,14 @@ export default function onWindowResize(context) {
 
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
-    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
     context.camera.left = -viewWidth / 2;
     context.camera.right = viewWidth / 2;
     context.camera.top = viewHeight / 2;
     context.camera.bottom = -viewHeight / 2;
+
     context.camera.updateProjectionMatrix();
     const planeHeight = context.camera.top - context.camera.bottom;
     const planeWidth = context.camera.right - context.camera.left;
@@ -124,9 +127,6 @@ export default function onWindowResize(context) {
         context.stopBounce(context);
         gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
     }
-
-    if (context.bodyLenis) context.bodyLenis.resize();
-    ScrollTrigger.refresh();
 
     setTimeout(() => {
         ScrollTrigger.refresh();
