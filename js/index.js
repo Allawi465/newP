@@ -48,31 +48,20 @@ class EffectShell {
     }
 
     setupLenis() {
-        gsap.ticker.lagSmoothing(0);
+        // detect mobile
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
+        // create Lenis with mobile-friendly defaults
         const lenis = new Lenis({
-            lerp: 0.1,
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smoothTouch: false,
+            duration: isMobile ? 1.3 : 1.0,
+            smooth: true,
+            smoothTouch: isMobile ? true : false,
+            syncTouch: false,
+            touchMultiplier: isMobile ? 1.25 : 1.0,
             autoRaf: false,
         });
 
         this.bodyLenis = lenis;
-
-        if (!/Mobi|Android/i.test(navigator.userAgent)) {
-            gsap.ticker.add((time) => {
-                lenis.raf(time * 1000);
-            });
-        }
-
-        else {
-            const update = (time) => {
-                lenis.raf(time);
-                requestAnimationFrame(update);
-            };
-            requestAnimationFrame(update);
-        }
 
         lenis.on('scroll', ScrollTrigger.update);
 
@@ -91,12 +80,24 @@ class EffectShell {
                     height: window.innerHeight,
                 };
             },
-            pinType: "transform",
+            pinType: document.documentElement.style.transform ? 'transform' : 'fixed',
         });
 
-        lenis.on('scroll', ScrollTrigger.update);
         ScrollTrigger.addEventListener('refresh', () => lenis.raf(0));
         ScrollTrigger.refresh();
+
+        if (!isMobile) {
+            gsap.ticker.lagSmoothing(0);
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+        } else {
+            const mobileRaf = (time) => {
+                lenis.raf(time);
+                requestAnimationFrame(mobileRaf);
+            };
+            requestAnimationFrame(mobileRaf);
+        }
 
         lenis.scrollTo(0, { immediate: true });
 
