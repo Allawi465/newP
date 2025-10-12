@@ -5,8 +5,15 @@ import gsap from 'gsap';
 export default function setupLenis(context) {
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
+    // --- Detect Firefox ---
+    const ua = navigator.userAgent.toLowerCase();
+    const isFirefox = ua.indexOf('firefox') > -1;
+
+    // Use body for Firefox, documentElement otherwise
+    const wrapper = isFirefox ? document.body : document.documentElement;
+
     const lenis = new Lenis({
-        wrapper: document.documentElement,
+        wrapper: wrapper,
         content: document.body,
         lerp: isTouch ? 0.07 : 0.1,
         syncTouch: !isTouch,
@@ -16,20 +23,24 @@ export default function setupLenis(context) {
 
     context.bodyLenis = lenis;
 
+    // Update ScrollTrigger on scroll
     lenis.on('scroll', ScrollTrigger.update);
 
     if (isTouch) {
+        // Mobile: requestAnimationFrame loop
         const update = (time) => {
             lenis.raf(time);
             requestAnimationFrame(update);
         };
         requestAnimationFrame(update);
     } else {
+        // Desktop: GSAP ticker
         gsap.ticker.add((t) => lenis.raf(t * 1000));
         gsap.ticker.lagSmoothing(0);
     }
 
-    ScrollTrigger.scrollerProxy(document.documentElement, {
+    // ScrollTrigger proxy
+    ScrollTrigger.scrollerProxy(wrapper, {
         scrollTop(value) {
             if (arguments.length) lenis.scrollTo(value, { immediate: true });
             return lenis.scroll;
