@@ -15,6 +15,8 @@ class EffectShell {
 
         this.VIEW_WIDTH = 4.5;
         this.VIEW_HEIGHT = 6;
+        this.clock = new THREE.Clock();
+        this.isTouch = window.matchMedia("(pointer: coarse)").matches;
 
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
@@ -50,10 +52,10 @@ class EffectShell {
         const lenis = new Lenis({
             wrapper: document.documentElement,
             content: document.body,
-            lerp: 0.15, // Smoother catch-up
-            syncTouch: false, // As requested, for inertia
-            touchMultiplier: 1.2, // Natural touch speed
-            touchInertiaMultiplier: 40, // Boost inertia
+            lerp: 0.15,
+            syncTouch: false,
+            touchMultiplier: 1.2,
+            touchInertiaMultiplier: 40,
         });
 
         this.bodyLenis = lenis;
@@ -61,17 +63,6 @@ class EffectShell {
         lenis.on('scroll', () => {
             ScrollTrigger.update();
         });
-
-        if (this.isTouch) {
-            const update = (time) => {
-                lenis.raf(time); // Use raw time for mobile RAF
-                requestAnimationFrame(update);
-            };
-            requestAnimationFrame(update);
-        } else {
-            gsap.ticker.add((time) => lenis.raf(time * 1000));
-            gsap.ticker.lagSmoothing(0);
-        }
 
         ScrollTrigger.scrollerProxy(document.documentElement, {
             scrollTop(value) {
@@ -86,7 +77,7 @@ class EffectShell {
                     height: window.innerHeight,
                 };
             },
-            pinType: "transform", // As requested
+            pinType: "transform",
         });
 
         lenis.scrollTo(0, { immediate: true });
@@ -97,6 +88,7 @@ class EffectShell {
 
         return lenis;
     }
+
     stopBodyScrolling() {
         if (this.bodyLenis) this.bodyLenis.stop();
         document.documentElement.style.overflow = "hidden";
@@ -224,17 +216,21 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        if (!this.isTouch) {
-            if (this.bodyLenis) {
-                this.bodyLenis.raf(this.time * 1000);
-            }
-            ScrollTrigger.update();
-        }
+        // Cap deltaTime for performance
+        deltaTime = Math.min(deltaTime, 0.033); // ~30 FPS minimum
 
+        // Conditional Lenis update
+        if (this.bodyLenis) {
+            if (this.isTouch) {
+                this.bodyLenis.raf(this.time); // Use raw time for mobile
+            } else {
+                this.bodyLenis.raf(this.time * 1000); // As requested for desktop
+            }
+        }
+        ScrollTrigger.update();
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
-        const referenceWidth = 1920;
-        const widthFactor = Math.min(referenceWidth / containerWidth, 4);
+        const widthFactor = Math.min(1920 / containerWidth, 4);
 
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
@@ -243,7 +239,6 @@ class EffectShell {
                 this.velocity = 0;
                 this.isMoving = false;
             }
-
             const momentumStrength = Math.min(Math.abs(this.velocity) / (70.0 / widthFactor), 1.0);
             if (this.meshArray) {
                 this.meshArray.forEach(mesh => {
@@ -254,7 +249,6 @@ class EffectShell {
         }
 
         this.currentPosition = this.currentPosition + (this.targetPosition - this.currentPosition) * this.lerpFactor;
-
         this.desiredOffset = this.velocity * this.offsetFactor;
         this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
 
@@ -271,12 +265,14 @@ class EffectShell {
             this.titleLabel.position.y = this.titleWorldPos.y;
         }
 
-        this.updateUniforms(deltaTime);
-        this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
-        this.cubeCamera.position.copy(this.glassBall.position);
-        this.cubeCamera.update(this.renderer, this.scene);
-
-        this.renderToFBO();
+        // Skip heavy updates during lag
+        if (deltaTime < 0.033) {
+            this.updateUniforms(deltaTime);
+            this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
+            this.cubeCamera.position.copy(this.glassBall.position);
+            this.cubeCamera.update(this.renderer, this.scene);
+            this.renderToFBO();
+        }
 
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();
@@ -286,11 +282,11 @@ class EffectShell {
         requestAnimationFrame(this.animate.bind(this));
     }
 
-
     onInitComplete() {
         console.log("Initialization complete!");
         setupScrollAnimation();
     }
 }
 
+ScrollTrigger.normalizeScroll(true);
 new EffectShell();
