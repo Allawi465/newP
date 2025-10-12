@@ -99,7 +99,6 @@
         pointer-events: none;
     }
 
-
     html,
     body {
         overscroll-behavior-y: contain;
@@ -125,11 +124,18 @@
         position: fixed;
         top: 0;
         left: 0;
+        z-index: 10;
     }
 
     ::-webkit-scrollbar {
         width: 5px;
         width: 0;
+    }
+
+    #sliderContainer {
+        touch-action: pan-y;
+        /* allow vertical scroll */
+        -ms-touch-action: pan-y;
     }
 
     .name_scroll {
