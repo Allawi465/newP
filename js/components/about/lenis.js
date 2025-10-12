@@ -14,7 +14,7 @@ export function setupAboutLenis(context) {
         lerp: isTouch ? 0.09 : 0.1,
         syncTouch: false,
         autoRaf: false,
-        touchMultiplier: isTouch ? 1.3 : 1.0,
+        touchMultiplier: isTouch ? 1.0 : 2,
     });
 
     context.aboutLenis = lenis;
