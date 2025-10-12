@@ -15,7 +15,6 @@ class EffectShell {
 
         this.VIEW_WIDTH = 4.5;
         this.VIEW_HEIGHT = 6;
-        this.clock = new THREE.Clock();
 
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
@@ -48,43 +47,50 @@ class EffectShell {
     }
 
     setupLenis() {
-        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+        const lenis = new Lenis({
+            wrapper: document.documentElement,
+            content: document.body,
+            lerp: 0.1,
+            syncTouch: true,
+            touchMultiplier: 2,
+        });
 
-        let lenis = null;
+        this.bodyLenis = lenis;
 
-        if (!isMobile) {
-            // Desktop: smooth Lenis scroll
-            lenis = new Lenis({
-                duration: 1.0,
-                smooth: true,
-                smoothTouch: false, // disable smooth touch, like Thibaut
-                syncTouch: false,   // do not sync native touch
-                gestureDirection: 'vertical',
-                touchMultiplier: 1.35,
-                autoRaf: false,
-            });
+        lenis.on('scroll', () => {
+            ScrollTrigger.update();
+        });
 
-            // Update Lenis on GSAP ticker
-            gsap.ticker.add((t) => lenis.raf(t * 1000));
-
-            // Optional: integrate with ScrollTrigger
-            lenis.on('scroll', ScrollTrigger.update);
-
-            ScrollTrigger.scrollerProxy(document.documentElement, {
-                scrollTop(value) {
-                    if (arguments.length) lenis.scrollTo(value, { immediate: true });
-                    return lenis.scroll;
-                },
-                getBoundingClientRect() {
-                    return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
-                },
-                pinType: document.documentElement.style.transform ? 'transform' : 'fixed'
-            });
+        if (this.isTouch) {
+            this.bodyLenis.raf(this.time);
+        } else {
+            this.bodyLenis.raf(this.time * 1000);
         }
+
+        ScrollTrigger.scrollerProxy(document.documentElement, {
+            scrollTop(value) {
+                if (arguments.length) lenis.scrollTo(value, { immediate: true });
+                return lenis.scroll;
+            },
+            getBoundingClientRect() {
+                return {
+                    top: 0,
+                    left: 0,
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                };
+            },
+            pinType: "transform",
+        });
+
+        lenis.scrollTo(0, { immediate: true });
+        ScrollTrigger.refresh();
+
+        this.startBodyScrolling = () => lenis.start();
+        this.stopBodyScrolling = () => lenis.stop();
 
         return lenis;
     }
-
 
     stopBodyScrolling() {
         if (this.bodyLenis) this.bodyLenis.stop();
@@ -111,7 +117,7 @@ class EffectShell {
 
                 resolve(texture);
             }, undefined, (err) => {
-                console.error(`Failed to load texture: ${image.src} `, err);
+                console.error(`Failed to load texture: ${image.src}`, err);
                 reject(err);
             });
         })));
@@ -213,9 +219,9 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        // Cap deltaTime for performance
-        deltaTime = Math.min(deltaTime, 0.033); // ~30 FPS minimum
-        if (this.bodyLenis) this.bodyLenis.raf(this.time * 1000);
+        if (this.bodyLenis) {
+            this.bodyLenis.raf(performance.now());
+        }
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);
@@ -253,13 +259,11 @@ class EffectShell {
             this.titleLabel.position.y = this.titleWorldPos.y;
         }
 
-        if (deltaTime < 0.033 && !this.isDragging) {
-            this.updateUniforms(deltaTime);
-            this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
-            this.cubeCamera.position.copy(this.glassBall.position);
-            this.cubeCamera.update(this.renderer, this.scene);
-            this.renderToFBO();
-        }
+        this.updateUniforms(deltaTime);
+        this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
+        this.cubeCamera.position.copy(this.glassBall.position);
+        this.cubeCamera.update(this.renderer, this.scene);
+        this.renderToFBO();
 
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();

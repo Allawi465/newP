@@ -61,7 +61,6 @@ export function onPointerMove(event, context) {
 }
 
 export function onPointerDown(event, context) {
-    if (context.bodyLenis) context.bodyLenis.stop();
     const isTouch = event.type.startsWith("touch");
     const clientX = isTouch ? event.touches[0].clientX : event.clientX;
     const clientY = isTouch ? event.touches[0].clientY : event.clientY;
@@ -96,12 +95,6 @@ export function onPointerDown(event, context) {
 }
 
 export function onPointerUp(event, context) {
-    if (context.bodyLenis) context.bodyLenis.start();
-    if (Math.abs(context.velocity) > 0.01) {
-        context.isMoving = true;
-    } else {
-        context.isMoving = false;
-    }
     const endX = event.clientX !== undefined
         ? event.clientX
         : (event.changedTouches && event.changedTouches[0]
