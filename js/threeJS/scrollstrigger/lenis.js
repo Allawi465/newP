@@ -6,10 +6,7 @@ export default function setupLenis(context) {
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
     if (isTouch) {
-        console.log("Mobile: native scroll");
-
-        const scroller = document.body;
-
+        const scroller = document.documentElement;
         ScrollTrigger.scrollerProxy(scroller, {
             scrollTop(value) {
                 if (arguments.length) scroller.scrollTop = value;
@@ -20,19 +17,18 @@ export default function setupLenis(context) {
             },
             pinType: 'fixed',
         });
-
+        ScrollTrigger.defaults({ scroller });
         ScrollTrigger.refresh();
         context.bodyLenis = null;
         return null;
     }
-
     // Desktop: Lenis smooth scroll
     const lenis = new Lenis({
         wrapper: document.documentElement,
         content: document.body,
         lerp: 0.1,
-        syncTouch: true,
-        autoRaf: true,
+        syncTouch: false,
+        autoRaf: false,
         touchMultiplier: 1.0,
     });
 
