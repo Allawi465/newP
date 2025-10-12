@@ -11,11 +11,10 @@ export function setupAboutLenis(context) {
     const lenis = new Lenis({
         wrapper,
         content: contentElement,
-        lerp: isTouch ? 0.07 : 0.1,
+        lerp: isTouch ? 0.09 : 0.1,
         syncTouch: false,
-        touchMultiplier: 2,
         autoRaf: false,
-        autoResize: true,
+        touchMultiplier: isTouch ? 1.3 : 1.0,
     });
 
     context.aboutLenis = lenis;
@@ -25,18 +24,13 @@ export function setupAboutLenis(context) {
     });
 
     if (isTouch) {
-        let lastTime = 0;
         const update = (time) => {
-            const delta = time - lastTime;
-            if (delta > 16) {
-                lenis.raf(time);
-                lastTime = time;
-            }
+            lenis.raf(time);
             requestAnimationFrame(update);
         };
         requestAnimationFrame(update);
     } else {
-        gsap.ticker.add((t) => lenis.raf(t * 1000));
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
         gsap.ticker.lagSmoothing(0);
     }
 
@@ -46,9 +40,14 @@ export function setupAboutLenis(context) {
             return lenis.scroll;
         },
         getBoundingClientRect() {
-            return { top: 0, left: 0, width: innerWidth, height: innerHeight };
+            return {
+                top: 0,
+                left: 0,
+                width: window.innerWidth,
+                height: window.innerHeight,
+            };
         },
-        pinType: 'transform',
+        pinType: "transform",
     });
 
     lenis.scrollTo(0, { immediate: true });
