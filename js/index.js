@@ -53,11 +53,11 @@ class EffectShell {
         const lenis = new Lenis({
             duration: isMobile ? 1.1 : 1.0,
             smooth: true,
-            smoothTouch: false,
-            syncTouch: false,
+            smoothTouch: true,   // <-- allow native touch smoothing
+            syncTouch: false,     // <-- important for proper momentum
             gestureDirection: "vertical",
             touchMultiplier: 1.35,
-            autoRaf: false
+            autoRaf: false       // <-- we will call raf inside animate()
         });
 
         this.bodyLenis = lenis;
@@ -79,23 +79,17 @@ class EffectShell {
                     height: window.innerHeight
                 };
             },
-            pinType: document.documentElement.style.transform ? 'transform' : 'fixed',
+            pinType: document.documentElement.style.transform ? 'transform' : 'fixed'
         });
 
+        // Desktop: hook into GSAP ticker
         if (!isMobile) {
             gsap.ticker.lagSmoothing(0);
-            gsap.ticker.add((t) => {
-                lenis.raf(t * 1000);
-            });
-        } else {
-
-            const mobileRaf = (time) => {
-                lenis.raf(time);
-                requestAnimationFrame(mobileRaf);
-            };
-            requestAnimationFrame(mobileRaf);
-
+            gsap.ticker.add((t) => lenis.raf(t * 1000));
         }
+
+        // Mobile: do NOT create RAF here, we will call lenis.raf inside animate()
+        // This prevents fighting native touch momentum
 
         this.startBodyScrolling = () => lenis.start();
         this.stopBodyScrolling = () => lenis.stop();
@@ -232,6 +226,7 @@ class EffectShell {
 
         // Cap deltaTime for performance
         deltaTime = Math.min(deltaTime, 0.033); // ~30 FPS minimum
+        if (this.bodyLenis) this.bodyLenis.raf(this.time * 1000);
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);
