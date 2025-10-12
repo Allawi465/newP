@@ -48,17 +48,16 @@ class EffectShell {
     }
 
     setupLenis() {
-        // detect mobile
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-        // create Lenis with mobile-friendly defaults
         const lenis = new Lenis({
-            duration: isMobile ? 1.3 : 1.0,
+            duration: isMobile ? 1.1 : 1.0,
             smooth: true,
-            smoothTouch: isMobile ? true : false,
+            smoothTouch: false,
             syncTouch: false,
-            touchMultiplier: isMobile ? 1.25 : 1.0,
-            autoRaf: false,
+            gestureDirection: "vertical",
+            touchMultiplier: 1.35,
+            autoRaf: false
         });
 
         this.bodyLenis = lenis;
@@ -77,29 +76,26 @@ class EffectShell {
                     top: 0,
                     left: 0,
                     width: window.innerWidth,
-                    height: window.innerHeight,
+                    height: window.innerHeight
                 };
             },
             pinType: document.documentElement.style.transform ? 'transform' : 'fixed',
         });
 
-        ScrollTrigger.addEventListener('refresh', () => lenis.raf(0));
-        ScrollTrigger.refresh();
-
         if (!isMobile) {
             gsap.ticker.lagSmoothing(0);
-            gsap.ticker.add((time) => {
-                lenis.raf(time * 1000);
+            gsap.ticker.add((t) => {
+                lenis.raf(t * 1000);
             });
         } else {
+
             const mobileRaf = (time) => {
                 lenis.raf(time);
                 requestAnimationFrame(mobileRaf);
             };
             requestAnimationFrame(mobileRaf);
-        }
 
-        lenis.scrollTo(0, { immediate: true });
+        }
 
         this.startBodyScrolling = () => lenis.start();
         this.stopBodyScrolling = () => lenis.stop();
