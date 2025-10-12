@@ -127,7 +127,6 @@
         left: 0;
         z-index: 10;
         outline: none;
-        pointer-events: none;
     }
 
     ::-webkit-scrollbar {
