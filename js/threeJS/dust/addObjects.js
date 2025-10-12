@@ -71,6 +71,7 @@ export default function addObjects(context) {
         transparent: true,
         color: new THREE.Color(0xF0F2F2),
         emissive: new THREE.Color(0x616161),
+        transparent: true,
         depthWrite: false,
         depthTest: true
     });

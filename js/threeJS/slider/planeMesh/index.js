@@ -37,7 +37,7 @@ export default function createPlaneMesh(content, texture, index) {
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         transparent: true,
-        depthWrite: true,
+        depthWrite: false,
         depthTest: true,
     });
 
