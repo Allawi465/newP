@@ -50,14 +50,21 @@ class EffectShell {
     setupLenis() {
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
+        if (isMobile) {
+            // Mobile: skip Lenis entirely, use native scroll
+            this.bodyLenis = null;
+            return null;
+        }
+
+        // Desktop: setup Lenis normally
         const lenis = new Lenis({
-            duration: isMobile ? 1.1 : 1.0,
+            duration: 1.0,
             smooth: true,
-            smoothTouch: true,   // <-- allow native touch smoothing
-            syncTouch: false,     // <-- important for proper momentum
+            smoothTouch: false,
+            syncTouch: false,
             gestureDirection: "vertical",
             touchMultiplier: 1.35,
-            autoRaf: false       // <-- we will call raf inside animate()
+            autoRaf: false
         });
 
         this.bodyLenis = lenis;
@@ -66,9 +73,7 @@ class EffectShell {
 
         ScrollTrigger.scrollerProxy(document.documentElement, {
             scrollTop(value) {
-                if (arguments.length) {
-                    lenis.scrollTo(value, { immediate: true });
-                }
+                if (arguments.length) lenis.scrollTo(value, { immediate: true });
                 return lenis.scroll;
             },
             getBoundingClientRect() {
@@ -82,20 +87,16 @@ class EffectShell {
             pinType: document.documentElement.style.transform ? 'transform' : 'fixed'
         });
 
-        // Desktop: hook into GSAP ticker
-        if (!isMobile) {
-            gsap.ticker.lagSmoothing(0);
-            gsap.ticker.add((t) => lenis.raf(t * 1000));
-        }
-
-        // Mobile: do NOT create RAF here, we will call lenis.raf inside animate()
-        // This prevents fighting native touch momentum
+        // GSAP ticker
+        gsap.ticker.lagSmoothing(0);
+        gsap.ticker.add((t) => lenis.raf(t * 1000));
 
         this.startBodyScrolling = () => lenis.start();
         this.stopBodyScrolling = () => lenis.stop();
 
         return lenis;
     }
+
 
     stopBodyScrolling() {
         if (this.bodyLenis) this.bodyLenis.stop();
