@@ -101,7 +101,7 @@ html.lenis {
 
 html,
 body {
-    overscroll-behavior-y: auto;
+    overscroll-behavior-y: contain;
 }
 
 html {

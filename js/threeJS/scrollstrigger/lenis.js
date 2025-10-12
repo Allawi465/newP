@@ -3,13 +3,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import gsap from 'gsap';
 
 export default function setupLenis(context) {
-    const wrapper = document.documentElement;
-    const content = document.body;
+    const wrapper = document.querySelector('.lenis-wrapper');
+    const content = document.querySelector('.lenis-content');
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
     const lenis = new Lenis({
-        wrapper: wrapper,
-        content: content,
+        wrapper,
+        content,
         lerp: isTouch ? 0.09 : 0.1,
         syncTouch: false,
         autoRaf: false,
@@ -20,6 +20,7 @@ export default function setupLenis(context) {
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    // Proper RAF handling
     if (isTouch) {
         const update = (time) => {
             lenis.raf(time);
@@ -31,6 +32,7 @@ export default function setupLenis(context) {
         gsap.ticker.lagSmoothing(0);
     }
 
+    // Connect to ScrollTrigger
     ScrollTrigger.scrollerProxy(wrapper, {
         scrollTop(value) {
             if (arguments.length) lenis.scrollTo(value, { immediate: true });
