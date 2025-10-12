@@ -9,23 +9,29 @@ export function setupAboutLenis(context) {
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
     const lenis = new Lenis({
-        wrapper: wrapper,
+        wrapper,
         content: contentElement,
-        lerp: 0.1,
-        syncTouch: !isTouch ? true : false,
-        touchMultiplier: isTouch ? 1.1 : 1.0,
+        lerp: isTouch ? 0.07 : 0.1,
+        syncTouch: false,
+        touchMultiplier: 2,
         autoRaf: false,
         autoResize: true,
     });
 
     context.aboutLenis = lenis;
 
-    // Update ScrollTrigger on scroll
-    lenis.on('scroll', ScrollTrigger.update);
+    lenis.on('scroll', () => {
+        ScrollTrigger.update();
+    });
 
     if (isTouch) {
+        let lastTime = 0;
         const update = (time) => {
-            lenis.raf(time);
+            const delta = time - lastTime;
+            if (delta > 16) {
+                lenis.raf(time);
+                lastTime = time;
+            }
             requestAnimationFrame(update);
         };
         requestAnimationFrame(update);
@@ -34,16 +40,15 @@ export function setupAboutLenis(context) {
         gsap.ticker.lagSmoothing(0);
     }
 
-    // ScrollTrigger scroller proxy
     ScrollTrigger.scrollerProxy(wrapper, {
         scrollTop(value) {
             if (arguments.length) lenis.scrollTo(value, { immediate: true });
             return lenis.scroll;
         },
         getBoundingClientRect() {
-            return { top: 0, left: 0, width: wrapper.clientWidth, height: wrapper.clientHeight };
+            return { top: 0, left: 0, width: innerWidth, height: innerHeight };
         },
-        pinType: wrapper.style.transform ? 'transform' : 'fixed',
+        pinType: 'transform',
     });
 
     lenis.scrollTo(0, { immediate: true });
