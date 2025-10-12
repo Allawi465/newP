@@ -69,7 +69,7 @@ export default function createPlaneMesh(content, texture, index) {
             trigger: ".projects",
             start: "top bottom",
             end: "bottom top",
-            scrub: .5,
+            scrub: true,
             scroller: document.documentElement,
         }
     });

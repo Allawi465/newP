@@ -1,5 +1,7 @@
 import * as THREE from 'three';
+import Lenis from 'lenis'
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
@@ -27,6 +29,7 @@ class EffectShell {
         try {
             setupScene(this);
             this.textures = await this.loadTextures(images, this);
+            this.setupLenis();
             createMeshes(this);
             setupPostProcessing(this);
             await setupFBO(this);
@@ -41,6 +44,41 @@ class EffectShell {
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
+    }
+
+    setupLenis() {
+        const isTouch = window.matchMedia("(pointer: coarse)").matches;
+
+        const lenis = new Lenis({
+            wrapper: document.documentElement,
+            content: document.body,
+            lerp: 0.1,
+            syncTouch: false,
+            touchMultiplier: 1,
+        });
+
+        this.bodyLenis = lenis;
+
+        lenis.on('scroll', ScrollTrigger.update);
+
+        ScrollTrigger.scrollerProxy(document.documentElement, {
+            scrollTop(value) {
+                if (arguments.length) lenis.scrollTo(value, { immediate: true });
+                return lenis.scroll;
+            },
+            getBoundingClientRect() {
+                return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+            },
+            pinType: document.documentElement.style.transform ? "transform" : "fixed",
+        });
+
+        lenis.scrollTo(0, { immediate: true });
+        ScrollTrigger.refresh();
+
+        this.startBodyScrolling = () => lenis.start();
+        this.stopBodyScrolling = () => lenis.stop();
+
+        return lenis;
     }
 
     stopBodyScrolling() {
@@ -165,9 +203,13 @@ class EffectShell {
         this.fbo1 = temp;
     }
 
+
     animate() {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
+
+        this.bodyLenis.raf(this.time * 1000);
+        ScrollTrigger.update();
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const referenceWidth = 1920;

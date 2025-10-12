@@ -124,6 +124,10 @@ export default function onWindowResize(context) {
         context.stopBounce(context);
         gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
     }
+
+    if (context.bodyLenis) context.bodyLenis.resize();
+    ScrollTrigger.refresh();
+
     setTimeout(() => {
         ScrollTrigger.refresh();
     }, 100);

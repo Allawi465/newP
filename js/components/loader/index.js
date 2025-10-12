@@ -1,7 +1,6 @@
 import gsap from "gsap";
 import SplitType from 'split-type';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { setupLenis } from "../../threeJS";
 import { loadingContainer } from "./loading";
 
 export default function initLoadingSequence(context) {
@@ -50,7 +49,6 @@ export default function initLoadingSequence(context) {
         },
         onComplete: () => {
             context.isLoading = false;
-            setupLenis(context);
             document.documentElement.style.overflow = '';
             document.body.style.overflow = '';
             if (aboutElement) {
