@@ -48,25 +48,35 @@ class EffectShell {
     }
 
     setupLenis() {
+        // ✅ Enable lag smoothing for mobile
+        gsap.ticker.lagSmoothing(500, 33);
+
         const lenis = new Lenis({
-            wrapper: document.documentElement,
-            content: document.body,
-            lerp: 0.1,
-            duration: 1.2,
+            lerp: 0.1,                  // Desktop smooth scroll speed
+            duration: 1.2,              // Animation duration
             easing: (t) => Math.min(1, 1.001 - Math.pow(2., -10 * t)),
-            syncTouch: false,
-            touchMultiplier: 2,
+            smoothTouch: false,         // ✅ Native mobile scroll (fast!)
+            autoRaf: false,             // ✅ GSAP ticker controls RAF
         });
 
         this.bodyLenis = lenis;
 
+        // ✅ GSAP ticker drives Lenis (perfect sync!)
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+
+        // ✅ Update ScrollTrigger on scroll
         lenis.on('scroll', () => {
             ScrollTrigger.update();
         });
 
+        // ✅ ScrollTrigger proxy
         ScrollTrigger.scrollerProxy(document.documentElement, {
             scrollTop(value) {
-                if (arguments.length) lenis.scrollTo(value, { immediate: true });
+                if (arguments.length) {
+                    lenis.scrollTo(value, { immediate: true });
+                }
                 return lenis.scroll;
             },
             getBoundingClientRect() {
@@ -114,7 +124,7 @@ class EffectShell {
 
                 resolve(texture);
             }, undefined, (err) => {
-                console.error(`Failed to load texture: ${image.src}`, err);
+                console.error(`Failed to load texture: ${image.src} `, err);
                 reject(err);
             });
         })));
@@ -218,10 +228,6 @@ class EffectShell {
 
         // Cap deltaTime for performance
         deltaTime = Math.min(deltaTime, 0.033); // ~30 FPS minimum
-
-        if (this.bodyLenis) {
-            this.bodyLenis.raf(performance.now());
-        }
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);
