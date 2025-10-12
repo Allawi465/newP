@@ -12,15 +12,15 @@ gsap.registerPlugin(ScrollTrigger);
 export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
     window.addEventListener('mousemove', (event) => onMouseMoveHover(event, context));
+    const sliderEl = document.getElementById('sliderContainer');
 
-    window.addEventListener('pointerdown', (e) => onPointerDown(e, context), { passive: false });
-    window.addEventListener('pointermove', (e) => onPointerMove(e, context), { passive: false });
-    window.addEventListener('pointerup', (e) => onPointerUp(e, context), { passive: false });
+    sliderEl.addEventListener('pointerdown', (e) => onPointerDown(e, context));
+    sliderEl.addEventListener('pointermove', (e) => onPointerMove(e, context));
+    sliderEl.addEventListener('pointerup', (e) => onPointerUp(e, context));
 
-    window.addEventListener('touchstart', (e) => onPointerDown(e, context), { passive: false });
-    window.addEventListener('touchmove', (e) => onPointerMove(e, context), { passive: false });
-    window.addEventListener('touchend', (e) => onPointerUp(e, context), { passive: false });
-
+    sliderEl.addEventListener('touchstart', (e) => onPointerDown(e, context));
+    sliderEl.addEventListener('touchmove', (e) => onPointerMove(e, context));
+    sliderEl.addEventListener('touchend', (e) => onPointerUp(e, context));
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
 
