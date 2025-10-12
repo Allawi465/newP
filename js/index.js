@@ -47,19 +47,31 @@ class EffectShell {
     }
 
     setupLenis() {
-        const isTouch = window.matchMedia("(pointer: coarse)").matches;
-
         const lenis = new Lenis({
             wrapper: document.documentElement,
             content: document.body,
-            lerp: 0.1,
-            syncTouch: false,
-            touchMultiplier: 1,
+            lerp: 0.15, // Smoother catch-up
+            syncTouch: false, // As requested, for inertia
+            touchMultiplier: 1.2, // Natural touch speed
+            touchInertiaMultiplier: 40, // Boost inertia
         });
 
         this.bodyLenis = lenis;
 
-        lenis.on('scroll', ScrollTrigger.update);
+        lenis.on('scroll', () => {
+            ScrollTrigger.update();
+        });
+
+        if (this.isTouch) {
+            const update = (time) => {
+                lenis.raf(time); // Use raw time for mobile RAF
+                requestAnimationFrame(update);
+            };
+            requestAnimationFrame(update);
+        } else {
+            gsap.ticker.add((time) => lenis.raf(time * 1000));
+            gsap.ticker.lagSmoothing(0);
+        }
 
         ScrollTrigger.scrollerProxy(document.documentElement, {
             scrollTop(value) {
@@ -67,9 +79,14 @@ class EffectShell {
                 return lenis.scroll;
             },
             getBoundingClientRect() {
-                return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+                return {
+                    top: 0,
+                    left: 0,
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                };
             },
-            pinType: document.documentElement.style.transform ? "transform" : "fixed",
+            pinType: "transform", // As requested
         });
 
         lenis.scrollTo(0, { immediate: true });
@@ -80,7 +97,6 @@ class EffectShell {
 
         return lenis;
     }
-
     stopBodyScrolling() {
         if (this.bodyLenis) this.bodyLenis.stop();
         document.documentElement.style.overflow = "hidden";
@@ -208,8 +224,13 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        this.bodyLenis.raf(this.time * 1000);
-        ScrollTrigger.update();
+        if (!this.isTouch) {
+            if (this.bodyLenis) {
+                this.bodyLenis.raf(this.time * 1000);
+            }
+            ScrollTrigger.update();
+        }
+
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const referenceWidth = 1920;
