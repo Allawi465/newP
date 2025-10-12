@@ -78,11 +78,6 @@
     --font-inter: var(--font-inter);
 }
 
-
-html.canvas-hidden #canvas {
-    display: none !important;
-}
-
 html.lenis {
     height: auto;
 }

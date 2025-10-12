@@ -60,10 +60,6 @@ export function animateProgress(context) {
         value: 0,
         duration: 1,
         ease: "sine.in",
-        onComplete: () => {
-            document.documentElement.classList.add('canvas-hidden');
-
-        }
     });
 }
 
