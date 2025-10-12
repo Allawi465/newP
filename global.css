@@ -126,10 +126,6 @@
         left: 0;
     }
 
-    #sliderContainer {
-        touch-action: pan-y;
-    }
-
     ::-webkit-scrollbar {
         width: 5px;
         width: 0;
