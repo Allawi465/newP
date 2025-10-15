@@ -30,7 +30,6 @@ class EffectShell {
             setupScene(this);
             this.textures = await this.loadTextures(images, this);
             this.setupLenis(this);
-            this.setupScrollTriggerProxy();
             createMeshes(this);
             setupPostProcessing(this);
             await setupFBO(this);
@@ -46,9 +45,29 @@ class EffectShell {
             console.error('Error initializing EffectShell:', error);
         }
     }
+    setupLenis() {
+        this.isTouch = 'ontouchstart' in window;
 
-    setupLenis(context) {
-        context.lenis = new Lenis({
+        if (this.isTouch) {
+            console.log('🔥 MOBILE: Native scroll ON!');
+            ScrollTrigger.normalizeScroll(false);
+            ScrollTrigger.scrollerProxy(document.documentElement, {
+                scrollTop(value) {
+                    if (arguments.length) window.scrollTo(0, value);
+                    return window.pageYOffset;
+                },
+                getBoundingClientRect() {
+                    return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+                },
+                pinType: "transform",
+            });
+            ScrollTrigger.refresh();
+            return;
+        }
+
+        const lenis = new Lenis({
+            wrapper: document.documentElement,
+            content: document.body,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             direction: 'vertical',
             gestureDirection: 'vertical',
@@ -58,39 +77,35 @@ class EffectShell {
             infinite: false,
         });
 
-        context.lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }) => {
+        this.bodyLenis = lenis;
+        lenis.on('scroll', () => ScrollTrigger.update());
 
-
-        });
-    }
-
-    setupScrollTriggerProxy() {
-        ScrollTrigger.scrollerProxy(document.body, {
-            scrollTop: (value) => {
-                if (!this.lenis) return 0;
-
-                if (arguments.length) {
-                    this.lenis.scrollTo(value, { immediate: true });
-                    return value;
-                }
-                return this.lenis.scroll;
+        ScrollTrigger.scrollerProxy(document.documentElement, {
+            scrollTop(value) {
+                if (arguments.length) lenis.scrollTo(value, { immediate: true });
+                return lenis.scroll;
             },
             getBoundingClientRect() {
                 return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
             },
-            pinType: document.body.style.transform ? "transform" : "fixed"
+            pinType: "transform",
         });
 
-        let frameCount = 0;
-        gsap.ticker.add((time) => {
-            this.lenis?.raf(time * 1000);
-            if (!('ontouchstart' in window) || frameCount++ % 2 === 0) {
-                ScrollTrigger.update();
-            }
-        });
-
-        gsap.ticker.lagSmoothing(0);
+        lenis.scrollTo(0, { immediate: true });
         ScrollTrigger.refresh();
+
+        this.startBodyScrolling = () => lenis.start();
+        this.stopBodyScrolling = () => lenis.stop();
+    }
+
+    stopBodyScrolling() {
+        if (this.bodyLenis) this.bodyLenis.stop();
+        document.documentElement.style.overflow = "hidden";
+    }
+
+    startBodyScrolling() {
+        if (this.bodyLenis) this.bodyLenis.start();
+        document.documentElement.style.overflow = "";
     }
 
     loadTextures(imageArray, context) {
@@ -210,6 +225,10 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
+        if (this.bodyLenis) {
+            this.bodyLenis.raf(performance.now());
+        }
+
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);
 
@@ -262,7 +281,7 @@ class EffectShell {
 
     onInitComplete() {
         console.log("Initialization complete!");
-        /*         setupScrollAnimation(); */
+        setupScrollAnimation();
     }
 }
 
