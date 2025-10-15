@@ -37,6 +37,7 @@ class EffectShell {
             addObjects(this);
             setupEventListeners(this);
             this.animate();
+            this.setupScrollTriggerProxy();
             onWindowResize(this);
             initLoadingSequence(this)
 
@@ -46,60 +47,48 @@ class EffectShell {
         }
     }
 
-    setupLenis() {
-        const lenis = new Lenis({
-            wrapper: document.documentElement,
-            content: document.body,
-            lerp: 0.1,
-            syncTouch: false,
+    setupLenis(context) {
+        context.lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
+            direction: 'vertical', // vertical, horizontal
+            gestureDirection: 'vertical',
+            mouseMultiplier: 1,
+            smoothTouch: false,
             touchMultiplier: 2,
+            infinite: false,
         });
 
-        this.bodyLenis = lenis;
+        //get scroll value
+        context.lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }) => {
+            console.log({ scroll, limit, velocity, direction, progress });
 
-        lenis.on('scroll', () => {
+        });
+    }
+
+    setupScrollTriggerProxy() {
+        ScrollTrigger.scrollerProxy(document.body, {
+            scrollTop(value) {
+                if (arguments.length) {
+                    this.lenis.scrollTo(value, { immediate: true });
+                    return value;
+                }
+                return this.lenis.scroll;
+            },
+            getBoundingClientRect() {
+                return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+            },
+            pinType: document.body.style.transform ? "transform" : "fixed"
+        });
+
+        gsap.ticker.add((time) => {
+            this.lenis.raf(time * 1000);
             ScrollTrigger.update();
         });
 
-        if (this.isTouch) {
-            this.bodyLenis.raf(this.time);
-        } else {
-            this.bodyLenis.raf(this.time * 1000);
-        }
+        gsap.ticker.lagSmoothing(0);
 
-        ScrollTrigger.scrollerProxy(document.documentElement, {
-            scrollTop(value) {
-                if (arguments.length) lenis.scrollTo(value, { immediate: true });
-                return lenis.scroll;
-            },
-            getBoundingClientRect() {
-                return {
-                    top: 0,
-                    left: 0,
-                    width: window.innerWidth,
-                    height: window.innerHeight,
-                };
-            },
-            pinType: "transform",
-        });
-
-        lenis.scrollTo(0, { immediate: true });
         ScrollTrigger.refresh();
-
-        this.startBodyScrolling = () => lenis.start();
-        this.stopBodyScrolling = () => lenis.stop();
-
-        return lenis;
-    }
-
-    stopBodyScrolling() {
-        if (this.bodyLenis) this.bodyLenis.stop();
-        document.documentElement.style.overflow = "hidden";
-    }
-
-    startBodyScrolling() {
-        if (this.bodyLenis) this.bodyLenis.start();
-        document.documentElement.style.overflow = "";
     }
 
     loadTextures(imageArray, context) {
@@ -218,10 +207,6 @@ class EffectShell {
     animate() {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
-
-        if (this.bodyLenis) {
-            this.bodyLenis.raf(performance.now());
-        }
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);

@@ -6,7 +6,7 @@ export const loadingContainer = document.getElementById('loadingContainer');
 export const loadingProgress = { value: 0 };
 
 // Calculate transform based on progress to prevent overflow
-export default function getTransform(progress) {
+/* export default function getTransform(progress) {
     if (progress <= 10) {
         return '0%';
     } else if (progress >= 95) {
@@ -74,4 +74,4 @@ gsap.to(loadingProgress, {
             x: getTransform(currentProgress)
         });
     },
-});
+}); */

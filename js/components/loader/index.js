@@ -70,7 +70,7 @@ export default function initLoadingSequence(context) {
         onUpdate: () => {
             context.material.needsUpdate = true;
         },
-    }, 1.8,).to(".header", {
+    }, 1.8,)/* .to(".header", {
         opacity: 1,
         duration: 1,
     }, 2.2,).to(".hero", {
@@ -83,7 +83,7 @@ export default function initLoadingSequence(context) {
                 aboutElement.classList.add("transition-all", "duration-300");
             }
         }
-    }, 2.2,)/* .from(
+    }, 2.2,) *//* .from(
         '.hero_title .char',
         {
             x: "-1em",

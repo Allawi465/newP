@@ -69,8 +69,8 @@ export default function createPlaneMesh(content, texture, index) {
             trigger: ".projects",
             start: "top bottom",
             end: "bottom top",
-            scrub: .5,
-            scroller: document.documentElement,
+            scrub: true,
+            scroller: document.body,
         }
     });
 
@@ -83,7 +83,7 @@ export default function createPlaneMesh(content, texture, index) {
         trigger: '.hero',
         start: 'bottom center',
         scrub: true,
-        scroller: document.documentElement,
+        scroller: document.body,
         onUpdate: (self) => {
             planeMesh.material.uniforms.uGrayscale.value = self.progress;
             planeMesh.material.uniforms.opacity.value = self.progress;
