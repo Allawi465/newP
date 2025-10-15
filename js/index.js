@@ -48,44 +48,39 @@ class EffectShell {
 
 
     setupLenis() {
-        // Detect touch devices
         this.isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        const lenis = new Lenis({
-            wrapper: document.documentElement,
-            content: document.body,
-            smoothWheel: true,
-            smoothTouch: false,
-            touchMultiplier: 1,
-            syncTouch: false,
-            autoRaf: false,
-            orientation: 'vertical',
-            gestureOrientation: 'vertical',
-        });
+        if (!this.isTouch) {
+            const lenis = new Lenis({
+                wrapper: document.documentElement,
+                content: document.body,
+                smoothWheel: true,
+                smoothTouch: false,
+                touchMultiplier: 1,
+                syncTouch: false,
+                autoRaf: false,
+                overscroll: true,
+                orientation: 'vertical',
+                gestureOrientation: 'vertical',
+            });
 
+            this.bodyLenis = lenis;
+            lenis.on('scroll', ScrollTrigger.update);
 
-        lenis.touch = false;
+            this.startBodyScrolling = () => lenis.start();
+            this.stopBodyScrolling = () => lenis.stop();
 
-        if (this.isTouch) {
-            console.log('Touch device detected, Lenis disabled for touch.');
-            return;
-        }
+            lenis.scrollTo(0, { immediate: true });
+            ScrollTrigger.refresh();
 
-        this.bodyLenis = lenis;
-
-        lenis.on('scroll', ScrollTrigger.update);
-
-        this.startBodyScrolling = () => lenis.start();
-        this.stopBodyScrolling = () => lenis.stop();
-
-        lenis.scrollTo(0, { immediate: true });
-        ScrollTrigger.refresh();
-
-        const raf = (time) => {
-            lenis.raf(time);
+            const raf = (time) => {
+                lenis.raf(time);
+                requestAnimationFrame(raf);
+            };
             requestAnimationFrame(raf);
-        };
-        requestAnimationFrame(raf);
+        } else {
+            this.bodyLenis = null;
+        }
     }
 
     stopBodyScrolling() {
