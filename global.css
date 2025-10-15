@@ -106,8 +106,7 @@
 
     html,
     body {
-        height: auto;
-        overflow: auto;
+        overscroll-behavior: contain;
         touch-action: pan-y;
     }
 
