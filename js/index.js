@@ -48,39 +48,35 @@ class EffectShell {
 
 
     setupLenis() {
-        this.isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        if (!this.isTouch) {
-            const lenis = new Lenis({
-                wrapper: document.documentElement,
-                content: document.body,
-                smoothWheel: true,
-                smoothTouch: false,
-                touchMultiplier: 1,
-                syncTouch: false,
-                autoRaf: false,
-                overscroll: true,
-                orientation: 'vertical',
-                gestureOrientation: 'vertical',
-            });
+        // Lenis options
+        const lenisOptions = {
+            wrapper: document.documentElement,
+            content: document.body,
+            smooth: true,
+            smoothTouch: false,
+            syncTouch: false,
+            autoRaf: false,
+            overscroll: true,
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+        };
 
-            this.bodyLenis = lenis;
-            lenis.on('scroll', ScrollTrigger.update);
-
-            this.startBodyScrolling = () => lenis.start();
-            this.stopBodyScrolling = () => lenis.stop();
-
-            lenis.scrollTo(0, { immediate: true });
-            ScrollTrigger.refresh();
-
-            const raf = (time) => {
-                lenis.raf(time);
-                requestAnimationFrame(raf);
-            };
-            requestAnimationFrame(raf);
-        } else {
-            this.bodyLenis = null;
+        if (isTouch) {
+            lenisOptions.smooth = false;
         }
+
+        const lenis = new Lenis(lenisOptions);
+        this.bodyLenis = lenis;
+
+        lenis.on('scroll', ScrollTrigger.update);
+
+        const raf = (time) => {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        };
+        requestAnimationFrame(raf);
     }
 
     stopBodyScrolling() {
@@ -210,7 +206,7 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        if (this.bodyLenis && !this.isTouch) {
+        if (this.bodyLenis) {
             this.bodyLenis.raf(performance.now());
         }
 
