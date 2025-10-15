@@ -225,7 +225,7 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        if (this.bodyLenis) {
+        if (this.bodyLenis && !this.isTouch) {
             this.bodyLenis.raf(performance.now());
         }
 

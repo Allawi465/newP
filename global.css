@@ -267,3 +267,10 @@
     .animate-float {
         animation: float 3s ease-in-out infinite;
     }
+
+    @media (pointer: coarse) {
+        html {
+            -webkit-overflow-scrolling: touch !important;
+            overscroll-behavior-y: auto !important;
+        }
+    }
