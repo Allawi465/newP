@@ -83,7 +83,7 @@ export default function initLoadingSequence(context) {
                 aboutElement.classList.add("transition-all", "duration-300");
             }
         }
-    }, 2.2,).from(
+    }, 2.2,)/* .from(
         '.hero_title .char',
         {
             x: "-1em",
@@ -155,5 +155,5 @@ export default function initLoadingSequence(context) {
         opacity: 1,
         duration: 1.0,
         ease: "power2.out",
-    }, 2.5)
+    }, 2.5) */
 }

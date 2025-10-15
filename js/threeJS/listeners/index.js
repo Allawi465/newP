@@ -28,8 +28,8 @@ export default function setupEventListeners(context) {
 
     sliderEl.addEventListener('touchstart', (e) => onPointerDown(e, context));
     sliderEl.addEventListener('touchend', (e) => onPointerUp(e, context));
-    document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
-    document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
+    /*    document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
+       document.getElementById('close').addEventListener('click', () => closeInfoDiv(context)); */
 
     window.addEventListener('pointermove', (event) => {
         if (!context.followMouse) return;

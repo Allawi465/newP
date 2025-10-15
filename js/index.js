@@ -51,7 +51,7 @@ class EffectShell {
             wrapper: document.documentElement,
             content: document.body,
             lerp: 0.1,
-            syncTouch: true,
+            syncTouch: false,
             touchMultiplier: 2,
         });
 
@@ -275,7 +275,7 @@ class EffectShell {
 
     onInitComplete() {
         console.log("Initialization complete!");
-        setupScrollAnimation();
+        /*         setupScrollAnimation(); */
     }
 }
 
