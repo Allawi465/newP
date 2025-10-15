@@ -32,9 +32,9 @@ class EffectShell {
             this.setupLenis(this);
             createMeshes(this);
             setupPostProcessing(this);
-            await setupFBO(this);
+         /*    await setupFBO(this) */;
             /*    createCSS2DObjects(this, images); */
-            addObjects(this);
+            /*  addObjects(this); */
             setupEventListeners(this);
             this.animate();
             onWindowResize(this);
@@ -46,37 +46,37 @@ class EffectShell {
         }
     }
 
-
     setupLenis() {
-        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        // Detect touch devices
+        this.isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        // Lenis options
-        const lenisOptions = {
-            wrapper: document.documentElement,
-            content: document.body,
-            smooth: true,
-            smoothTouch: false,
-            syncTouch: false,
-            autoRaf: false,
-            overscroll: true,
-            orientation: 'vertical',
-            gestureOrientation: 'vertical',
-        };
+        if (!this.isTouch) {
+            // Only create Lenis on desktop
+            const lenis = new Lenis({
+                wrapper: document.documentElement,
+                content: document.body,
+                smoothWheel: true,
+                smoothTouch: false,
+                syncTouch: false,
+                autoRaf: false,
+                overscroll: true,
+                orientation: 'vertical',
+                gestureOrientation: 'vertical',
+            });
 
-        if (isTouch) {
-            lenisOptions.smooth = false;
-        }
+            this.bodyLenis = lenis;
 
-        const lenis = new Lenis(lenisOptions);
-        this.bodyLenis = lenis;
+            lenis.on('scroll', ScrollTrigger.update);
 
-        lenis.on('scroll', ScrollTrigger.update);
-
-        const raf = (time) => {
-            lenis.raf(time);
+            const raf = (time) => {
+                lenis.raf(time);
+                requestAnimationFrame(raf);
+            };
             requestAnimationFrame(raf);
-        };
-        requestAnimationFrame(raf);
+        } else {
+            this.bodyLenis = null;
+            document.body.style.overflow = 'auto';
+        }
     }
 
     stopBodyScrolling() {
@@ -253,11 +253,11 @@ class EffectShell {
             this.titleLabel.position.y = this.titleWorldPos.y;
         }
 
-        this.updateUniforms(deltaTime);
-        this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
-        this.cubeCamera.position.copy(this.glassBall.position);
-        this.cubeCamera.update(this.renderer, this.scene);
-        this.renderToFBO();
+        /*    this.updateUniforms(deltaTime);
+           this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
+           this.cubeCamera.position.copy(this.glassBall.position);
+           this.cubeCamera.update(this.renderer, this.scene);
+           this.renderToFBO(); */
 
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();

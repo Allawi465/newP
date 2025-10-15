@@ -56,7 +56,7 @@ export default function initLoadingSequence(context) {
             }
             ScrollTrigger.refresh();
         }
-    }, 0).to(context.glassMaterial, {
+    }, 0)/* .to(context.glassMaterial, {
         opacity: 1.0,
         duration: 0.5,
         ease: "power2.out",
@@ -70,7 +70,7 @@ export default function initLoadingSequence(context) {
         onUpdate: () => {
             context.material.needsUpdate = true;
         },
-    }, 1.8,).to(".header", {
+    }, 1.8,) */.to(".header", {
         opacity: 1,
         duration: 1,
     }, 2.2,).to(".hero", {
