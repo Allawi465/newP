@@ -203,24 +203,31 @@ class EffectShell {
 
 
     animate() {
-        let deltaTime = this.clock.getDelta();
+        const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
+        // Update Lenis scroll for both desktop and mobile
         if (this.bodyLenis) {
+            // On mobile with smoothTouch: false, we still need to update manually
             this.bodyLenis.raf(performance.now());
+            this.currentScroll = this.bodyLenis.scroll; // current scroll position
         }
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);
 
+        // Apply momentum/damping for slider
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
             this.velocity *= Math.pow(this.friction, 60 * deltaTime);
+
             if (Math.abs(this.velocity) < 0.01) {
                 this.velocity = 0;
                 this.isMoving = false;
             }
+
             const momentumStrength = Math.min(Math.abs(this.velocity) / (70.0 / widthFactor), 1.0);
+
             if (this.meshArray) {
                 this.meshArray.forEach(mesh => {
                     mesh.material.uniforms.uIsDragging.value += (momentumStrength - mesh.material.uniforms.uIsDragging.value) * 0.03;
@@ -229,9 +236,9 @@ class EffectShell {
             }
         }
 
-        this.currentPosition = this.currentPosition + (this.targetPosition - this.currentPosition) * this.lerpFactor;
-        this.desiredOffset = this.velocity * this.offsetFactor;
-        this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
+        // Update slider position using lerp
+        this.currentPosition += (this.targetPosition - this.currentPosition) * this.lerpFactor;
+        this.desiredOffset = Math.max(Math.min(this.velocity * this.offsetFactor, this.offsetMax), -this.offsetMax);
 
         this.group.children.forEach(child => {
             child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
