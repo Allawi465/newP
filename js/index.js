@@ -30,6 +30,7 @@ class EffectShell {
             setupScene(this);
             this.textures = await this.loadTextures(images, this);
             this.setupLenis(this);
+            this.setupScrollTriggerProxy();
             createMeshes(this);
             setupPostProcessing(this);
             await setupFBO(this);
@@ -37,7 +38,6 @@ class EffectShell {
             addObjects(this);
             setupEventListeners(this);
             this.animate();
-            this.setupScrollTriggerProxy();
             onWindowResize(this);
             initLoadingSequence(this)
 
@@ -54,19 +54,21 @@ class EffectShell {
             gestureDirection: 'vertical',
             mouseMultiplier: 1,
             smoothTouch: false,
-            touchMultiplier: 1.5,  // ← CHANGED: Less aggressive = smoother iOS
+            touchMultiplier: 1.5,
             infinite: false,
         });
 
         context.lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }) => {
-            console.log({ scroll, limit, velocity, direction, progress });
+
 
         });
     }
 
     setupScrollTriggerProxy() {
         ScrollTrigger.scrollerProxy(document.body, {
-            scrollTop(value) {
+            scrollTop: (value) => {
+                if (!this.lenis) return 0;
+
                 if (arguments.length) {
                     this.lenis.scrollTo(value, { immediate: true });
                     return value;
@@ -79,13 +81,15 @@ class EffectShell {
             pinType: document.body.style.transform ? "transform" : "fixed"
         });
 
+        let frameCount = 0;
         gsap.ticker.add((time) => {
-            this.lenis.raf(time * 1000);
-            ScrollTrigger.update();
+            this.lenis?.raf(time * 1000);
+            if (!('ontouchstart' in window) || frameCount++ % 2 === 0) {
+                ScrollTrigger.update();
+            }
         });
 
         gsap.ticker.lagSmoothing(0);
-
         ScrollTrigger.refresh();
     }
 
