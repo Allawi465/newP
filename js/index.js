@@ -49,17 +49,15 @@ class EffectShell {
 
     setupLenis(context) {
         context.lenis = new Lenis({
-            duration: 1.2,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             direction: 'vertical',
             gestureDirection: 'vertical',
             mouseMultiplier: 1,
             smoothTouch: false,
-            touchMultiplier: 2,
+            touchMultiplier: 1.5,  // ← CHANGED: Less aggressive = smoother iOS
             infinite: false,
         });
 
-        //get scroll value
         context.lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }) => {
             console.log({ scroll, limit, velocity, direction, progress });
 

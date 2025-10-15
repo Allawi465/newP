@@ -90,7 +90,5 @@ export default function createPlaneMesh(content, texture, index) {
         }
     });
 
-    ScrollTrigger.update();
-
     return planeMesh;
 }
