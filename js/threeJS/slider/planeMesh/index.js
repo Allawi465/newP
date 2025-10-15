@@ -6,6 +6,7 @@ import { vertexShader, fragmentShader } from '../../glsl/shader';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function createPlaneMesh(content, texture, index) {
+
     const planeGeometry = new THREE.PlaneGeometry(
         content.slideWidth * content.scaleFactor,
         content.slideHeight * content.scaleFactor,
@@ -56,39 +57,40 @@ export default function createPlaneMesh(content, texture, index) {
         .to(shaderMaterial.uniforms.uzom, { value: .9, duration: 0.5, ease: "power2.inOut" }, 0);
 
     planeMesh.layers.set(content.slider_mesh);
+
     planeMesh.renderOrder = 999;
     planeMesh.position.x = content.calculatePositionX(index, 0, content.meshSpacing);
 
     content.meshArray = content.meshArray || [];
     content.meshArray.push(planeMesh);
 
-    requestAnimationFrame(() => {
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: ".projects",
-                start: "top bottom",
-                end: "bottom top",
-                scrub: true,
-                scroller: document.body,
-            }
-        });
-
-        tl.to(planeMesh.position, {
-            y: 8,
-            ease: "none",
-        }, 0);
-
-        ScrollTrigger.create({
-            trigger: '.hero',
-            start: 'bottom center',
+    const tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: ".projects",
+            start: "top bottom",
+            end: "bottom top",
             scrub: true,
             scroller: document.body,
-            onUpdate: (self) => {
-                planeMesh.material.uniforms.uGrayscale.value = self.progress;
-                planeMesh.material.uniforms.opacity.value = self.progress;
-            }
-        });
+        }
     });
+
+    tl.to(planeMesh.position, {
+        y: 8,
+        ease: "none",
+    }, 0);
+
+    ScrollTrigger.create({
+        trigger: '.hero',
+        start: 'bottom center',
+        scrub: true,
+        scroller: document.body,
+        onUpdate: (self) => {
+            planeMesh.material.uniforms.uGrayscale.value = self.progress;
+            planeMesh.material.uniforms.opacity.value = self.progress;
+        }
+    });
+
+    ScrollTrigger.update();
 
     return planeMesh;
 }

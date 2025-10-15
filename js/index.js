@@ -32,9 +32,9 @@ class EffectShell {
             this.setupLenis(this);
             createMeshes(this);
             setupPostProcessing(this);
-         /*    await setupFBO(this) */;
-            /*    createCSS2DObjects(this, images); */
-            /*  addObjects(this); */
+            await setupFBO(this);
+            createCSS2DObjects(this, images);
+            addObjects(this);
             setupEventListeners(this);
             this.animate();
             onWindowResize(this);
@@ -50,33 +50,55 @@ class EffectShell {
         // Detect touch devices
         this.isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        if (!this.isTouch) {
-            // Only create Lenis on desktop
-            const lenis = new Lenis({
-                wrapper: document.documentElement,
-                content: document.body,
-                smoothWheel: true,
-                smoothTouch: false,
-                syncTouch: false,
-                autoRaf: false,
-                overscroll: true,
-                orientation: 'vertical',
-                gestureOrientation: 'vertical',
-            });
+        // Create Lenis instance
+        this.bodyLenis = new Lenis({
+            wrapper: document.documentElement,
+            content: document.body,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // smooth easing
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            mouseMultiplier: 1,
+            touchMultiplier: 1,
+            smoothWheel: true,
+            smoothTouch: true,    // smooth scrolling for touch
+            syncTouch: true,      // sync native touch scroll
+            infinite: false,
+            lerp: 0.08,           // lower lerp = more natural
+        });
 
-            this.bodyLenis = lenis;
+        // Keep GSAP ScrollTrigger in sync
+        this.bodyLenis.on('scroll', () => ScrollTrigger.update());
 
-            lenis.on('scroll', ScrollTrigger.update);
-
-            const raf = (time) => {
-                lenis.raf(time);
-                requestAnimationFrame(raf);
-            };
+        // Continuous RAF loop (required for mobile and desktop)
+        const raf = (time) => {
+            this.bodyLenis.raf(time);
             requestAnimationFrame(raf);
-        } else {
-            this.bodyLenis = null;
-            document.body.style.overflow = 'auto';
-        }
+        };
+        requestAnimationFrame(raf);
+
+        ScrollTrigger.scrollerProxy(document.documentElement, {
+            scrollTop: (value) => {
+                if (arguments.length) this.bodyLenis.scrollTo(value, { immediate: true });
+                return this.bodyLenis.scroll;
+            },
+            getBoundingClientRect: () => ({
+                top: 0,
+                left: 0,
+                width: window.innerWidth,
+                height: window.innerHeight,
+            }),
+            pinType: document.querySelector('.pin-spacer') ? "transform" : "fixed",
+        });
+
+        // Reset scroll
+        this.bodyLenis.scrollTo(0, { immediate: true });
+        ScrollTrigger.refresh();
+
+        // Utility methods
+        this.startBodyScrolling = () => this.bodyLenis.start();
+        this.stopBodyScrolling = () => this.bodyLenis.stop();
+
+        return this.bodyLenis;
     }
 
     stopBodyScrolling() {
@@ -203,31 +225,24 @@ class EffectShell {
 
 
     animate() {
-        const deltaTime = this.clock.getDelta();
+        let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        // Update Lenis scroll for both desktop and mobile
         if (this.bodyLenis) {
-            // On mobile with smoothTouch: false, we still need to update manually
             this.bodyLenis.raf(performance.now());
-            this.currentScroll = this.bodyLenis.scroll; // current scroll position
         }
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);
 
-        // Apply momentum/damping for slider
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
             this.velocity *= Math.pow(this.friction, 60 * deltaTime);
-
             if (Math.abs(this.velocity) < 0.01) {
                 this.velocity = 0;
                 this.isMoving = false;
             }
-
             const momentumStrength = Math.min(Math.abs(this.velocity) / (70.0 / widthFactor), 1.0);
-
             if (this.meshArray) {
                 this.meshArray.forEach(mesh => {
                     mesh.material.uniforms.uIsDragging.value += (momentumStrength - mesh.material.uniforms.uIsDragging.value) * 0.03;
@@ -236,9 +251,9 @@ class EffectShell {
             }
         }
 
-        // Update slider position using lerp
-        this.currentPosition += (this.targetPosition - this.currentPosition) * this.lerpFactor;
-        this.desiredOffset = Math.max(Math.min(this.velocity * this.offsetFactor, this.offsetMax), -this.offsetMax);
+        this.currentPosition = this.currentPosition + (this.targetPosition - this.currentPosition) * this.lerpFactor;
+        this.desiredOffset = this.velocity * this.offsetFactor;
+        this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
 
         this.group.children.forEach(child => {
             child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
@@ -253,11 +268,11 @@ class EffectShell {
             this.titleLabel.position.y = this.titleWorldPos.y;
         }
 
-        /*    this.updateUniforms(deltaTime);
-           this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
-           this.cubeCamera.position.copy(this.glassBall.position);
-           this.cubeCamera.update(this.renderer, this.scene);
-           this.renderToFBO(); */
+        this.updateUniforms(deltaTime);
+        this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
+        this.cubeCamera.position.copy(this.glassBall.position);
+        this.cubeCamera.update(this.renderer, this.scene);
+        this.renderToFBO();
 
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();
