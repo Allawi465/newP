@@ -46,25 +46,29 @@ class EffectShell {
         }
     }
     setupLenis() {
-        this.isTouch = 'ontouchstart' in window;
+        this.isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        if (this.isTouch) {
-            console.log('🔥 MOBILE: Native scroll ON!');
-            ScrollTrigger.normalizeScroll(false);
-            ScrollTrigger.scrollerProxy(document.documentElement, {
-                scrollTop(value) {
-                    if (arguments.length) window.scrollTo(0, value);
-                    return window.pageYOffset;
-                },
-                getBoundingClientRect() {
-                    return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
-                },
-                pinType: "transform",
-            });
-            ScrollTrigger.refresh();
-            return;
-        }
+        // Always set scrollerProxy for scroll-driven libs (GSAP).
+        ScrollTrigger.scrollerProxy(document.documentElement, {
+            scrollTop(value) {
+                if (arguments.length) {
+                    // if lenis exists we'll delegate; otherwise fallback native
+                    if (thisLenis) {
+                        thisLenis.scrollTo(value, { immediate: true });
+                    } else {
+                        window.scrollTo(0, value);
+                    }
+                }
+                return window.pageYOffset;
+            },
+            getBoundingClientRect() {
+                return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+            },
+            pinType: "transform"
+        });
 
+        // Create Lenis for both desktop and touch.
+        // For touch we enable smoothTouch: true (helps on many mobile browsers)
         const lenis = new Lenis({
             wrapper: document.documentElement,
             content: document.body,
@@ -72,30 +76,29 @@ class EffectShell {
             direction: 'vertical',
             gestureDirection: 'vertical',
             mouseMultiplier: 1,
-            smoothTouch: false,
-            touchMultiplier: 1.5,
+            smooth: true,
+            // use a touch-friendly setting on mobile:
+            smoothTouch: this.isTouch ? true : false,
+            touchMultiplier: this.isTouch ? 1.5 : 2,
             infinite: false,
         });
 
         this.bodyLenis = lenis;
+
+        // ensure ScrollTrigger updates when Lenis scrolls
         lenis.on('scroll', () => ScrollTrigger.update());
 
-        ScrollTrigger.scrollerProxy(document.documentElement, {
-            scrollTop(value) {
-                if (arguments.length) lenis.scrollTo(value, { immediate: true });
-                return lenis.scroll;
-            },
-            getBoundingClientRect() {
-                return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
-            },
-            pinType: "transform",
-        });
+        // expose start/stop helpers
+        this.startBodyScrolling = () => lenis.start();
+        this.stopBodyScrolling = () => lenis.stop();
 
+        // reset scroll immediately and refresh ScrollTrigger
         lenis.scrollTo(0, { immediate: true });
         ScrollTrigger.refresh();
 
-        this.startBodyScrolling = () => lenis.start();
-        this.stopBodyScrolling = () => lenis.stop();
+        // small helper so scrollerProxy closure can reach lenis instance
+        // (we used thisLenis in scrollerProxy above)
+        const thisLenis = lenis;
     }
 
     stopBodyScrolling() {
