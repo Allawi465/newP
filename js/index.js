@@ -48,6 +48,7 @@ class EffectShell {
 
 
     setupLenis() {
+        // Detect touch devices
         this.isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
         const lenis = new Lenis({
@@ -58,10 +59,17 @@ class EffectShell {
             touchMultiplier: 1,
             syncTouch: false,
             autoRaf: false,
-            overscroll: true,
             orientation: 'vertical',
             gestureOrientation: 'vertical',
         });
+
+
+        lenis.touch = false;
+
+        if (this.isTouch) {
+            console.log('Touch device detected, Lenis disabled for touch.');
+            return;
+        }
 
         this.bodyLenis = lenis;
 

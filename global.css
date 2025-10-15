@@ -106,8 +106,7 @@
 
     html,
     body {
-        overscroll-behavior: contain;
-        touch-action: pan-y;
+        overscroll-behavior-y: contain;
     }
 
     body {
