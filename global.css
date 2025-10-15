@@ -79,6 +79,10 @@
     }
 
 
+    html {
+        scroll-behavior: auto !important;
+    }
+
     html.lenis {
         height: auto;
     }
@@ -124,7 +128,6 @@
         position: fixed;
         top: 0;
         left: 0;
-        z-index: 10;
     }
 
     ::-webkit-scrollbar {
