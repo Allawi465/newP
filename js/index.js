@@ -45,60 +45,39 @@ class EffectShell {
             console.error('Error initializing EffectShell:', error);
         }
     }
+
+
     setupLenis() {
         this.isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        // Always set scrollerProxy for scroll-driven libs (GSAP).
-        ScrollTrigger.scrollerProxy(document.documentElement, {
-            scrollTop(value) {
-                if (arguments.length) {
-                    // if lenis exists we'll delegate; otherwise fallback native
-                    if (thisLenis) {
-                        thisLenis.scrollTo(value, { immediate: true });
-                    } else {
-                        window.scrollTo(0, value);
-                    }
-                }
-                return window.pageYOffset;
-            },
-            getBoundingClientRect() {
-                return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
-            },
-            pinType: "transform"
-        });
-
-        // Create Lenis for both desktop and touch.
-        // For touch we enable smoothTouch: true (helps on many mobile browsers)
         const lenis = new Lenis({
             wrapper: document.documentElement,
             content: document.body,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            direction: 'vertical',
-            gestureDirection: 'vertical',
-            mouseMultiplier: 1,
-            smooth: true,
-            // use a touch-friendly setting on mobile:
-            smoothTouch: this.isTouch ? true : false,
-            touchMultiplier: this.isTouch ? 1.5 : 2,
-            infinite: false,
+            smoothWheel: true,
+            smoothTouch: false,
+            touchMultiplier: 1,
+            syncTouch: false,
+            autoRaf: false,
+            overscroll: true,
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
         });
 
         this.bodyLenis = lenis;
 
-        // ensure ScrollTrigger updates when Lenis scrolls
-        lenis.on('scroll', () => ScrollTrigger.update());
+        lenis.on('scroll', ScrollTrigger.update);
 
-        // expose start/stop helpers
         this.startBodyScrolling = () => lenis.start();
         this.stopBodyScrolling = () => lenis.stop();
 
-        // reset scroll immediately and refresh ScrollTrigger
         lenis.scrollTo(0, { immediate: true });
         ScrollTrigger.refresh();
 
-        // small helper so scrollerProxy closure can reach lenis instance
-        // (we used thisLenis in scrollerProxy above)
-        const thisLenis = lenis;
+        const raf = (time) => {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        };
+        requestAnimationFrame(raf);
     }
 
     stopBodyScrolling() {
