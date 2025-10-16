@@ -18,12 +18,6 @@ export default function setupScene(context) {
     context.camera.updateProjectionMatrix();
 
     const canvas = document.getElementById('canvas');
-    canvas.style.pointerEvents = 'none';
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
 
     context.renderer = new THREE.WebGLRenderer({
         antialias: true,
