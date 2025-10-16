@@ -13,7 +13,7 @@ class EffectShell {
 
         this.VIEW_WIDTH = 4.5;
         this.VIEW_HEIGHT = 6;
-
+        this.hasMovedEnough = false;
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
         this.bounceTween = null;

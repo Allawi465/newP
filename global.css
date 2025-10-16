@@ -86,9 +86,8 @@
 
     html,
     body {
-        overscroll-behavior: auto;
-        overflow-y: auto;
-        height: auto;
+        overscroll-behavior-y: contain;
+        touch-action: pan-y;
     }
 
     body {
@@ -100,7 +99,6 @@
         -webkit-user-select: none !important;
         user-select: none !important;
     }
-
 
     #canvas {
         pointer-events: none;
