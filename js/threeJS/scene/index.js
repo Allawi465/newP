@@ -24,7 +24,6 @@ export default function setupScene(context) {
     canvas.style.left = '0';
     canvas.style.width = '100%';
     canvas.style.height = '100%';
-    canvas.style.zIndex = '0';
 
     context.renderer = new THREE.WebGLRenderer({
         antialias: true,
