@@ -14,13 +14,22 @@ export default function setupEventListeners(context) {
     sliderEl.addEventListener('pointermove', (e) => {
         if (!context.isDragging) return;
         onPointerMove(e, context);
+
         e.preventDefault();
     }, { passive: false });
 
 
     sliderEl.addEventListener('touchmove', (e) => {
         if (!context.isDragging) return;
-        onPointerMove(e, context);
+
+        const touch = e.touches[0];
+        const deltaX = Math.abs(touch.clientX - context.startX);
+        const deltaY = Math.abs(touch.clientY - context.startY);
+
+        if (deltaX > deltaY) {
+            onPointerMove(e, context);
+            e.preventDefault();
+        }
     }, { passive: false });
 
     sliderEl.addEventListener('pointerdown', (e) => onPointerDown(e, context));
