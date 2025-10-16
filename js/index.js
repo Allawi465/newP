@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { setupScene, setupFBO, addObjects, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
+import { setupScene, onWindowResize, createMeshes, setupFBO, addObjects, setupPostProcessing, setupEventListeners } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
-import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
 
 class EffectShell {
     constructor() {

@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { CSS2DRenderer } from 'three/examples/jsm/Addons.js';
 
 export default function setupScene(context) {
     context.scene = new THREE.Scene();
@@ -27,21 +26,4 @@ export default function setupScene(context) {
 
     context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     context.renderer.setSize(window.innerWidth, window.innerHeight);
-    /*     context.renderer.autoClear = false; */
-
-    /*     context.labelRenderer = new CSS2DRenderer();
-        context.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        context.labelRenderer.domElement.style.position = 'fixed';
-        context.labelRenderer.domElement.style.top = '0px';
-        context.labelRenderer.domElement.style.left = '0px';
-        context.labelRenderer.domElement.style.pointerEvents = 'none';
-        context.labelRenderer.domElement.style.zIndex = '15';
-        context.labelRenderer.domElement.style.overflow = 'hidden';
-        document.body.appendChild(context.labelRenderer.domElement);
-    
-        context.group = new THREE.Group();
-        context.scene.add(context.group);
-    
-        context.cssGroup = new THREE.Group();
-        context.scene.add(context.cssGroup); */
 }
