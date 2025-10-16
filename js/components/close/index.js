@@ -6,7 +6,6 @@ function closeInfoDiv(context) {
     const aboutDiv = document.getElementById('about');
     const isAboutDivOpen = aboutDiv && aboutDiv.classList.contains('show');
 
-    // Kill existing GSAP tweens
     gsap.killTweensOf([
         context.largeShaderMaterial.uniforms.progress,
         ...context.meshArray.map(mesh => mesh.material.uniforms.opacity),
@@ -14,30 +13,18 @@ function closeInfoDiv(context) {
     gsap.killTweensOf("*");
 
     if (isAboutDivOpen) {
-        // Run the close animation timeline
         context.tm = aboutCloseTimeline(context);
 
-        // Animate the aboutDiv opacity to 0 and handle scroll in onComplete
         gsap.to(aboutDiv, {
             opacity: 0,
             duration: 0.5,
             onComplete: () => {
-                // Scroll to top after the animation completes
-                if (context.aboutLenis) {
-                    context.aboutLenis.scrollTo(0, { immediate: true });
-                    requestAnimationFrame(() => {
-                        context.aboutLenis.stop();
-                    });
-                }
-
-                // Hide the div after scrolling
                 aboutDiv.classList.remove('show');
                 aboutDiv.style.display = "none";
             }
         });
     }
 
-    // Reset other UI elements and animations
     document.documentElement.classList.remove('canvas-hidden');
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
@@ -52,7 +39,6 @@ function closeInfoDiv(context) {
     document.getElementById('close').style.zIndex = '0';
     gsap.set(".scroll_line", { opacity: 1, "--scaleY": 1 });
 
-    context.startBodyScrolling();
     setupScrollAnimation();
     ScrollTrigger.refresh();
 

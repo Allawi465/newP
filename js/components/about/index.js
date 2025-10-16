@@ -1,6 +1,5 @@
 import gsap from "gsap";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { setupAboutLenis } from "./lenis";
 import SplitType from "split-type";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -11,35 +10,23 @@ const valuesCards = document.querySelectorAll(".values_section");
 function showAbout(context) {
     if (context.isLoading || context.isDivOpen || context.isProjectsOpen) return;
 
-    context.stopBodyScrolling();
-
-    if (!context.aboutLenis) {
-        setupAboutLenis(context);
-    }
 
     const aboutDiv = document.getElementById('about');
     aboutDiv.classList.add('show');
     aboutDiv.style.display = "block"
 
-    requestAnimationFrame(() => {
-        if (context.aboutLenis) {
-            context.aboutLenis.resize();
-            context.aboutLenis.scrollTo(0, { immediate: true });
-            context.aboutLenis.start();
-        }
+    reset(context);
 
-        reset(context);
+    animateProgress(context);
+    setupScrollAnimations();
 
-        animateProgress(context);
-        setupScrollAnimations();
+    context.tm = setupTimeline(context);
 
-        context.tm = setupTimeline(context);
-
-        gsap.to(aboutDiv, {
-            opacity: 1,
-            duration: 1,
-        });
+    gsap.to(aboutDiv, {
+        opacity: 1,
+        duration: 1,
     });
+
 
     context.isDivOpen = true;
 

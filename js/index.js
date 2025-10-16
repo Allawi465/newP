@@ -1,7 +1,5 @@
 import * as THREE from 'three';
-import Lenis from 'lenis'
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
@@ -29,7 +27,6 @@ class EffectShell {
         try {
             setupScene(this);
             this.textures = await this.loadTextures(images, this);
-            this.setupLenis(this);
             createMeshes(this);
             setupPostProcessing(this);
             await setupFBO(this);
@@ -44,71 +41,6 @@ class EffectShell {
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
-    }
-
-    setupLenis() {
-        // Detect touch devices
-        this.isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-        // Create Lenis instance
-        this.bodyLenis = new Lenis({
-            wrapper: document.documentElement,
-            content: document.body,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // smooth easing
-            direction: 'vertical',
-            gestureDirection: 'vertical',
-            mouseMultiplier: 1,
-            touchMultiplier: 1,
-            smoothWheel: true,
-            smoothTouch: true,    // smooth scrolling for touch
-            syncTouch: true,      // sync native touch scroll
-            infinite: false,
-            lerp: 0.08,           // lower lerp = more natural
-        });
-
-        // Keep GSAP ScrollTrigger in sync
-        this.bodyLenis.on('scroll', () => ScrollTrigger.update());
-
-        // Continuous RAF loop (required for mobile and desktop)
-        const raf = (time) => {
-            this.bodyLenis.raf(time);
-            requestAnimationFrame(raf);
-        };
-        requestAnimationFrame(raf);
-
-        ScrollTrigger.scrollerProxy(document.documentElement, {
-            scrollTop: (value) => {
-                if (arguments.length) this.bodyLenis.scrollTo(value, { immediate: true });
-                return this.bodyLenis.scroll;
-            },
-            getBoundingClientRect: () => ({
-                top: 0,
-                left: 0,
-                width: window.innerWidth,
-                height: window.innerHeight,
-            }),
-            pinType: document.querySelector('.pin-spacer') ? "transform" : "fixed",
-        });
-
-        // Reset scroll
-        this.bodyLenis.scrollTo(0, { immediate: true });
-        ScrollTrigger.refresh();
-
-        // Utility methods
-        this.startBodyScrolling = () => this.bodyLenis.start();
-        this.stopBodyScrolling = () => this.bodyLenis.stop();
-
-        return this.bodyLenis;
-    }
-
-    stopBodyScrolling() {
-        if (this.bodyLenis) this.bodyLenis.stop();
-        document.documentElement.style.overflow = "hidden";
-    }
-
-    startBodyScrolling() {
-        if (this.bodyLenis) this.bodyLenis.start();
-        document.documentElement.style.overflow = "";
     }
 
     loadTextures(imageArray, context) {
@@ -227,10 +159,6 @@ class EffectShell {
     animate() {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
-
-        if (this.bodyLenis) {
-            this.bodyLenis.raf(performance.now());
-        }
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);
