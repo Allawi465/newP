@@ -86,7 +86,7 @@
 
     html,
     body {
-        overscroll-behavior-y: contain;
+        overscroll-behavior-y: auto;
     }
 
     body {
@@ -108,9 +108,14 @@
         pointer-events: none;
     }
 
+
     .projects {
         touch-action: pan-y;
         -webkit-overflow-scrolling: touch;
+    }
+
+    #sliderContainer {
+        touch-action: pan-y pinch-zoom;
     }
 
     ::-webkit-scrollbar {
