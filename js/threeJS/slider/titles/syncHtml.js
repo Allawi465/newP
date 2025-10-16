@@ -1,4 +1,4 @@
-export default function syncHtmlWithSlider(content) {
+/* export default function syncHtmlWithSlider(content) {
     const followSpeed = 0.09;
     const sliderFactor = content.sliderFactor || 1;
     const offsetX = 3.09 * sliderFactor;
@@ -22,3 +22,4 @@ export default function syncHtmlWithSlider(content) {
     });
 }
 
+ */

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { setupScene, setupFBO, addObjects, createCSS2DObjects, syncHtmlWithSlider, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
+import { setupScene, setupFBO, addObjects, setupPostProcessing, onWindowResize, setupEventListeners, createMeshes } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
 import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
@@ -30,8 +30,8 @@ class EffectShell {
             createMeshes(this);
             setupPostProcessing(this);
             await setupFBO(this);
-            createCSS2DObjects(this, images);
-            /*  addObjects(this); */
+            /*       createCSS2DObjects(this, images); */
+            addObjects(this);
             setupEventListeners(this);
             this.animate();
             onWindowResize(this);
@@ -82,27 +82,27 @@ class EffectShell {
         ctx.bounceDirection = null;
     }
 
-    calculatePositionX(index, currentPosition, meshSpacing) {
-        const totalLength = meshSpacing * images.length;
-        return ((((index * meshSpacing + currentPosition) % totalLength) + totalLength) % totalLength) - totalLength / 2;
-    }
-
-    updateAdjustedMeshSpacing() {
-        this.meshSpacing = this.baseMeshSpacing * this.scaleFactor_cards;
-    }
-
-    updatePositions() {
-
-        this.group.children.forEach((child, index) => {
-            child.position.x = this.calculatePositionX(index, this.currentPosition, this.meshSpacing);
-        });
-
-        this.syncHtmlWithSlider();
-    }
-
-    syncHtmlWithSlider() {
-        syncHtmlWithSlider(this);
-    }
+    /*     calculatePositionX(index, currentPosition, meshSpacing) {
+            const totalLength = meshSpacing * images.length;
+            return ((((index * meshSpacing + currentPosition) % totalLength) + totalLength) % totalLength) - totalLength / 2;
+        }
+    
+        updateAdjustedMeshSpacing() {
+            this.meshSpacing = this.baseMeshSpacing * this.scaleFactor_cards;
+        }
+    
+        updatePositions() {
+    
+            this.group.children.forEach((child, index) => {
+                child.position.x = this.calculatePositionX(index, this.currentPosition, this.meshSpacing);
+            });
+    
+            this.syncHtmlWithSlider();
+        }
+    
+        syncHtmlWithSlider() {
+            syncHtmlWithSlider(this);
+        } */
 
     getRenderTarget() {
         const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
@@ -126,41 +126,41 @@ class EffectShell {
         return [l, c, u];
     }
 
-    /*    updateUniforms(deltaTime) {
-           this.material.uniforms.uMouse.value.copy(this.pointer);
-           this.material.uniforms.uMousePrev.value.copy(this.pointerPrev);
-   
-           this.material.uniforms.time.value = this.time;
-           this.fboMaterial.uniforms.time.value = this.time;
-           this.fboMaterial.uniforms.uDelta.value = this.time
-           this.fboMaterial.uniforms.uDelta.value = Math.min(deltaTime, 0.1);
-   
-           this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random() * 0.9;
-           this.fboMaterial.uniforms.uRandom2.value = 0.5 + Math.random() * 0.9;
-   
-           this.material.uniforms.uCameraPos.value.copy(this.camera.position);
-           this.fboMaterial.uniforms.uSpherePos.value.copy(this.glassBall.position);
-       } */
+    updateUniforms(deltaTime) {
+        this.material.uniforms.uMouse.value.copy(this.pointer);
+        this.material.uniforms.uMousePrev.value.copy(this.pointerPrev);
 
-    /*  renderToFBO() {
-         this.renderer.setRenderTarget(this.fbo);
-         this.renderer.render(this.fboScene, this.fboCamera);
-         this.renderer.setRenderTarget(null);
- 
-         this.material.uniforms.uPositions.value = this.fbo1.texture;
-         this.fboMaterial.uniforms.uPositions.value = this.fbo.texture;
- 
-         let temp = this.fbo;
-         this.fbo = this.fbo1;
-         this.fbo1 = temp;
-     } */
+        this.material.uniforms.time.value = this.time;
+        this.fboMaterial.uniforms.time.value = this.time;
+        this.fboMaterial.uniforms.uDelta.value = this.time
+        this.fboMaterial.uniforms.uDelta.value = Math.min(deltaTime, 0.1);
+
+        this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random() * 0.9;
+        this.fboMaterial.uniforms.uRandom2.value = 0.5 + Math.random() * 0.9;
+
+        this.material.uniforms.uCameraPos.value.copy(this.camera.position);
+        this.fboMaterial.uniforms.uSpherePos.value.copy(this.glassBall.position);
+    }
+
+    renderToFBO() {
+        this.renderer.setRenderTarget(this.fbo);
+        this.renderer.render(this.fboScene, this.fboCamera);
+        this.renderer.setRenderTarget(null);
+
+        this.material.uniforms.uPositions.value = this.fbo1.texture;
+        this.fboMaterial.uniforms.uPositions.value = this.fbo.texture;
+
+        let temp = this.fbo;
+        this.fbo = this.fbo1;
+        this.fbo1 = temp;
+    }
 
 
     animate() {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
+        /* const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const widthFactor = Math.min(1920 / containerWidth, 4);
 
         if (!this.isDragging && this.isMoving) {
@@ -187,23 +187,23 @@ class EffectShell {
             child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
         });
         this.updatePositions();
-        this.syncHtmlWithSlider();
+        this.syncHtmlWithSlider(); */
 
-        if (this.meshArray?.[0] && this.titleLabel) {
+        /* if (this.meshArray?.[0] && this.titleLabel) {
             const mesh = this.meshArray[0];
             mesh.getWorldPosition(this.titleWorldPos);
             this.titleLabel.position.y = this.titleWorldPos.y;
         }
-
-        /*   this.updateUniforms(deltaTime);
-          this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
-          this.cubeCamera.position.copy(this.glassBall.position);
-          this.cubeCamera.update(this.renderer, this.scene); */
-        /* this.renderToFBO(); */
+ */
+        this.updateUniforms(deltaTime);
+        this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
+        this.cubeCamera.position.copy(this.glassBall.position);
+        this.cubeCamera.update(this.renderer, this.scene);
+        this.renderToFBO();
 
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();
-        this.labelRenderer.render(this.scene, this.camera);
+        /*      this.labelRenderer.render(this.scene, this.camera); */
         this.composer.render();
 
         requestAnimationFrame(this.animate.bind(this));

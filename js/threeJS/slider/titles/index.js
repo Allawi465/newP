@@ -1,4 +1,4 @@
-import { CSS2DObject } from 'three/examples/jsm/Addons.js';
+/* import { CSS2DObject } from 'three/examples/jsm/Addons.js';
 
 export default function createCSS2DObjects(content, images) {
     images.forEach((image, index) => {
@@ -31,4 +31,4 @@ export default function createCSS2DObjects(content, images) {
         objectCSS.layers.set(content.slider_mesh);
         content.cssObjects.push(objectCSS);
     });
-}
+} */

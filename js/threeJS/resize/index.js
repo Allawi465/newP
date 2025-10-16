@@ -66,37 +66,37 @@ export default function onWindowResize(context) {
         }
     }
 
-    let sliderFactor = 1;
-    if (h <= MIN_HEIGHT) {
-        let effective_h = Math.max(h, CLAMP_HEIGHT);
-        let tempFactor = MIN_HEIGHT / effective_h;
-        tempFactor = Math.min(tempFactor, 2.);
-        if (w <= 500) {
-            tempFactor = 1.1;
-        }
-        sliderFactor = 1 / tempFactor;
-    }
-
-    context.sliderFactor = sliderFactor;
-    if (context.meshArray) {
-        context.meshArray.forEach((mesh) => {
-            const base = mesh.userData.baseScale ?? new THREE.Vector3(1, 1, 1);
-            mesh.scale.set(base.x * sliderFactor, base.y * sliderFactor, base.z * sliderFactor);
-            if (!mesh.userData.baseScale) {
-                mesh.userData.baseScale = base;
+    /*     let sliderFactor = 1;
+        if (h <= MIN_HEIGHT) {
+            let effective_h = Math.max(h, CLAMP_HEIGHT);
+            let tempFactor = MIN_HEIGHT / effective_h;
+            tempFactor = Math.min(tempFactor, 2.);
+            if (w <= 500) {
+                tempFactor = 1.1;
             }
-        });
-        context.meshSpacing = context.baseMeshSpacing * sliderFactor;
-        context.updatePositions();
-        context.syncHtmlWithSlider();
-
-    } if (context.material?.uniforms?.iResolution) {
-        context.material.uniforms.iResolution.value.set(w, h);
-    }
+            sliderFactor = 1 / tempFactor;
+        }
+    
+        context.sliderFactor = sliderFactor;
+        if (context.meshArray) {
+            context.meshArray.forEach((mesh) => {
+                const base = mesh.userData.baseScale ?? new THREE.Vector3(1, 1, 1);
+                mesh.scale.set(base.x * sliderFactor, base.y * sliderFactor, base.z * sliderFactor);
+                if (!mesh.userData.baseScale) {
+                    mesh.userData.baseScale = base;
+                }
+            });
+            context.meshSpacing = context.baseMeshSpacing * sliderFactor;
+            context.updatePositions();
+            context.syncHtmlWithSlider();
+    
+        } if (context.material?.uniforms?.iResolution) {
+            context.material.uniforms.iResolution.value.set(w, h);
+        } */
 
     context.renderer.setSize(w, h);
-    context.labelRenderer.setSize(w, h);
-
+    /*     context.labelRenderer.setSize(w, h);
+     */
     context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 
     context.camera.left = -viewWidth / 2;
@@ -110,11 +110,11 @@ export default function onWindowResize(context) {
     context.largePlane.geometry.dispose();
     context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
 
-    context.smoothingFactor = w <= 1024 ? 0.2 : 0.03;
+    /* context.smoothingFactor = w <= 1024 ? 0.2 : 0.03;
     context.lerpFactor = w <= 1024 ? 0.25 : 0.12;
     context.friction = w <= 1024 ? 0.95 : 0.96;
-    context.lastTime = performance.now();
-    context.updatePositions();
+    context.lastTime = performance.now(); */
+    /*     context.updatePositions(); */
 
     if (context.isSmall()) {
         context.followMouse = false;

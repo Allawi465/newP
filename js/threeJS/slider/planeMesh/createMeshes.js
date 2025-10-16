@@ -10,22 +10,22 @@ export default function createMeshes(context) {
 
     context.group = new THREE.Group();
 
-    context.textures.forEach((texture, i) => {
-        const planeMesh = createPlaneMesh(context, texture, i, context.renderer);
-
-        planeMesh.layers.set(context.slider_mesh);
-
-        context.group.add(planeMesh);
-    });
+    /*     context.textures.forEach((texture, i) => {
+            const planeMesh = createPlaneMesh(context, texture, i, context.renderer);
+    
+            planeMesh.layers.set(context.slider_mesh);
+    
+            context.group.add(planeMesh);
+        }); */
 
     context.scene.add(context.group);
 
-    context.projectsElement = document.querySelector(".projects")
-
-    context.titleElement = document.querySelector(".projects__title");
-    context.titleLabel = new CSS2DObject(context.titleElement);
-    context.titleLabel.layers.set(context.slider_mesh);
-    context.scene.add(context.titleLabel);
-
-    context.titleWorldPos = new THREE.Vector3();
+    /*     context.projectsElement = document.querySelector(".projects")
+    
+        context.titleElement = document.querySelector(".projects__title");
+        context.titleLabel = new CSS2DObject(context.titleElement);
+        context.titleLabel.layers.set(context.slider_mesh);
+        context.scene.add(context.titleLabel);
+    
+        context.titleWorldPos = new THREE.Vector3(); */
 }
