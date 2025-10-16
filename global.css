@@ -86,7 +86,9 @@
 
     html,
     body {
-        overscroll-behavior-y: auto;
+        overscroll-behavior: auto;
+        overflow-y: auto;
+        height: auto;
     }
 
     body {
@@ -99,18 +101,18 @@
         user-select: none !important;
     }
 
+
     #canvas {
-        outline: none;
+        pointer-events: none;
         position: fixed;
         top: 0;
         left: 0;
-        outline: none;
-        pointer-events: none !important;
     }
 
-
     .projects {
-        pointer-events: none !important;
+        pointer-events: auto;
+        touch-action: pan-y pinch-zoom;
+        -webkit-overflow-scrolling: touch;
     }
 
     ::-webkit-scrollbar {
