@@ -30,7 +30,6 @@ class EffectShell {
             createMeshes(this);
             setupPostProcessing(this);
             await setupFBO(this);
-            /*       createCSS2DObjects(this, images); */
             addObjects(this);
             setupEventListeners(this);
             this.animate();
@@ -81,28 +80,6 @@ class EffectShell {
         ctx.bounceTween = null;
         ctx.bounceDirection = null;
     }
-
-    /*     calculatePositionX(index, currentPosition, meshSpacing) {
-            const totalLength = meshSpacing * images.length;
-            return ((((index * meshSpacing + currentPosition) % totalLength) + totalLength) % totalLength) - totalLength / 2;
-        }
-    
-        updateAdjustedMeshSpacing() {
-            this.meshSpacing = this.baseMeshSpacing * this.scaleFactor_cards;
-        }
-    
-        updatePositions() {
-    
-            this.group.children.forEach((child, index) => {
-                child.position.x = this.calculatePositionX(index, this.currentPosition, this.meshSpacing);
-            });
-    
-            this.syncHtmlWithSlider();
-        }
-    
-        syncHtmlWithSlider() {
-            syncHtmlWithSlider(this);
-        } */
 
     getRenderTarget() {
         const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
@@ -160,41 +137,6 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        /* const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
-        const widthFactor = Math.min(1920 / containerWidth, 4);
-
-        if (!this.isDragging && this.isMoving) {
-            this.targetPosition += this.velocity * deltaTime;
-            this.velocity *= Math.pow(this.friction, 60 * deltaTime);
-            if (Math.abs(this.velocity) < 0.01) {
-                this.velocity = 0;
-                this.isMoving = false;
-            }
-            const momentumStrength = Math.min(Math.abs(this.velocity) / (70.0 / widthFactor), 1.0);
-            if (this.meshArray) {
-                this.meshArray.forEach(mesh => {
-                    mesh.material.uniforms.uIsDragging.value += (momentumStrength - mesh.material.uniforms.uIsDragging.value) * 0.03;
-                    mesh.material.uniforms.uIsDragging.needsUpdate = true;
-                });
-            }
-        }
-
-        this.currentPosition = this.currentPosition + (this.targetPosition - this.currentPosition) * this.lerpFactor;
-        this.desiredOffset = this.velocity * this.offsetFactor;
-        this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
-
-        this.group.children.forEach(child => {
-            child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
-        });
-        this.updatePositions();
-        this.syncHtmlWithSlider(); */
-
-        /* if (this.meshArray?.[0] && this.titleLabel) {
-            const mesh = this.meshArray[0];
-            mesh.getWorldPosition(this.titleWorldPos);
-            this.titleLabel.position.y = this.titleWorldPos.y;
-        }
- */
         this.updateUniforms(deltaTime);
         this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
         this.cubeCamera.position.copy(this.glassBall.position);
@@ -203,7 +145,6 @@ class EffectShell {
 
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();
-        /*      this.labelRenderer.render(this.scene, this.camera); */
         this.composer.render();
 
         requestAnimationFrame(this.animate.bind(this));
@@ -211,7 +152,6 @@ class EffectShell {
 
     onInitComplete() {
         console.log("Initialization complete!");
-        /*  setupScrollAnimation(); */
     }
 }
 
