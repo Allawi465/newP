@@ -31,21 +31,21 @@ export default function setupEventListeners(context) {
       document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
       document.getElementById('close').addEventListener('click', () => closeInfoDiv(context)); */
 
-    window.addEventListener('pointermove', (event) => {
-        if (!context.followMouse) return;
-
-        context.pointerPrev.copy(context.pointer);
-        context.pointer.set(
-            (event.clientX / window.innerWidth) * 2 - 1,
-            -(event.clientY / window.innerHeight) * 2 + 1
-        );
-
-        let targetPos = new THREE.Vector3(context.pointer.x, context.pointer.y, 0);
-        targetPos.unproject(context.camera);
-        targetPos.z = context.glassBall.position.z;
-
-        context.targetPositionSphre.lerp(targetPos, 0.2);
-    }, { passive: false });
+    /*   window.addEventListener('pointermove', (event) => {
+          if (!context.followMouse) return;
+  
+          context.pointerPrev.copy(context.pointer);
+          context.pointer.set(
+              (event.clientX / window.innerWidth) * 2 - 1,
+              -(event.clientY / window.innerHeight) * 2 + 1
+          );
+  
+          let targetPos = new THREE.Vector3(context.pointer.x, context.pointer.y, 0);
+          targetPos.unproject(context.camera);
+          targetPos.z = context.glassBall.position.z;
+  
+          context.targetPositionSphre.lerp(targetPos, 0.2);
+      }, { passive: false }); */
 
     /*     document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
