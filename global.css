@@ -89,8 +89,6 @@
         overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior-y: auto;
-        -webkit-user-select: auto;
-        user-select: auto;
         -webkit-touch-callout: none;
     }
 
@@ -104,6 +102,7 @@
 
     .hero,
     .footer,
+    .projects,
     #about {
         touch-action: auto;
         pointer-events: auto;
@@ -115,6 +114,7 @@
         position: fixed;
         top: 0;
         left: 0;
+        z-index: -1;
     }
 
     ::-webkit-scrollbar {

@@ -212,7 +212,7 @@ class EffectShell {
 
     onInitComplete() {
         console.log("Initialization complete!");
-        setupScrollAnimation();
+        /*  setupScrollAnimation(); */
     }
 }
 
