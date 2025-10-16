@@ -30,9 +30,9 @@ class EffectShell {
             createMeshes(this);
             setupPostProcessing(this);
             await setupFBO(this);
-            /*      createCSS2DObjects(this, images); */
+            createCSS2DObjects(this, images);
             /*  addObjects(this); */
-            /*     setupEventListeners(this); */
+            setupEventListeners(this);
             this.animate();
             onWindowResize(this);
             initLoadingSequence(this)
@@ -160,41 +160,40 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        /*    const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
-           const widthFactor = Math.min(1920 / containerWidth, 4);
-   
-           if (!this.isDragging && this.isMoving) {
-               this.targetPosition += this.velocity * deltaTime;
-               this.velocity *= Math.pow(this.friction, 60 * deltaTime);
-               if (Math.abs(this.velocity) < 0.01) {
-                   this.velocity = 0;
-                   this.isMoving = false;
-               }
-               const momentumStrength = Math.min(Math.abs(this.velocity) / (70.0 / widthFactor), 1.0);
-               if (this.meshArray) {
-                   this.meshArray.forEach(mesh => {
-                       mesh.material.uniforms.uIsDragging.value += (momentumStrength - mesh.material.uniforms.uIsDragging.value) * 0.03;
-                       mesh.material.uniforms.uIsDragging.needsUpdate = true;
-                   });
-               }
-           }
-   
-           this.currentPosition = this.currentPosition + (this.targetPosition - this.currentPosition) * this.lerpFactor;
-           this.desiredOffset = this.velocity * this.offsetFactor;
-           this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
-   
-           this.group.children.forEach(child => {
-               child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
-           }); */
-        /* 
-                this.updatePositions();
-                this.syncHtmlWithSlider(); */
+        const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
+        const widthFactor = Math.min(1920 / containerWidth, 4);
 
-        /*    if (this.meshArray?.[0] && this.titleLabel) {
-               const mesh = this.meshArray[0];
-               mesh.getWorldPosition(this.titleWorldPos);
-               this.titleLabel.position.y = this.titleWorldPos.y;
-           } */
+        if (!this.isDragging && this.isMoving) {
+            this.targetPosition += this.velocity * deltaTime;
+            this.velocity *= Math.pow(this.friction, 60 * deltaTime);
+            if (Math.abs(this.velocity) < 0.01) {
+                this.velocity = 0;
+                this.isMoving = false;
+            }
+            const momentumStrength = Math.min(Math.abs(this.velocity) / (70.0 / widthFactor), 1.0);
+            if (this.meshArray) {
+                this.meshArray.forEach(mesh => {
+                    mesh.material.uniforms.uIsDragging.value += (momentumStrength - mesh.material.uniforms.uIsDragging.value) * 0.03;
+                    mesh.material.uniforms.uIsDragging.needsUpdate = true;
+                });
+            }
+        }
+
+        this.currentPosition = this.currentPosition + (this.targetPosition - this.currentPosition) * this.lerpFactor;
+        this.desiredOffset = this.velocity * this.offsetFactor;
+        this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
+
+        this.group.children.forEach(child => {
+            child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
+        });
+        this.updatePositions();
+        this.syncHtmlWithSlider();
+
+        if (this.meshArray?.[0] && this.titleLabel) {
+            const mesh = this.meshArray[0];
+            mesh.getWorldPosition(this.titleWorldPos);
+            this.titleLabel.position.y = this.titleWorldPos.y;
+        }
 
         /*   this.updateUniforms(deltaTime);
           this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
