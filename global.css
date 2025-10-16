@@ -86,7 +86,12 @@
 
     html,
     body {
-        overscroll-behavior-y: contain;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior-y: auto;
+        -webkit-user-select: auto;
+        user-select: auto;
+        -webkit-touch-callout: none;
     }
 
     body {
@@ -95,9 +100,15 @@
         font-family: "Inter", Arial, Helvetica, sans-serif;
         margin: 0;
         overflow-x: hidden;
-        -webkit-user-select: none !important;
-        user-select: none !important;
     }
+
+    .hero,
+    .footer,
+    #about {
+        touch-action: auto;
+        pointer-events: auto;
+    }
+
 
     #canvas {
         pointer-events: none !important;
@@ -105,12 +116,6 @@
         top: 0;
         left: 0;
     }
-
-    /*    .projects {
-        pointer-events: auto;
-        touch-action: pan-y pinch-zoom;
-        -webkit-overflow-scrolling: touch;
-    } */
 
     ::-webkit-scrollbar {
         width: 5px;

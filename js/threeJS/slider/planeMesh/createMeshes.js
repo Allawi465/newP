@@ -10,13 +10,13 @@ export default function createMeshes(context) {
 
     context.group = new THREE.Group();
 
-    context.textures.forEach((texture, i) => {
-        const planeMesh = createPlaneMesh(context, texture, i, context.renderer);
-
-        planeMesh.layers.set(context.slider_mesh);
-
-        context.group.add(planeMesh);
-    });
+    /*  context.textures.forEach((texture, i) => {
+         const planeMesh = createPlaneMesh(context, texture, i, context.renderer);
+ 
+         planeMesh.layers.set(context.slider_mesh);
+ 
+         context.group.add(planeMesh);
+     }); */
 
     context.scene.add(context.group);
 

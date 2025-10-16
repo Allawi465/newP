@@ -8,8 +8,6 @@ import { onWindowResize } from '../index.js';
 export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
     /*  window.addEventListener('mousemove', (event) => onMouseMoveHover(event, context)); */
-    const sliderEl = document.getElementById('sliderContainer');
-
 
     /*   sliderEl.addEventListener('pointermove', (e) => {
           if (!context.isDragging) return;

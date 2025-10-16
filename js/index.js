@@ -30,7 +30,7 @@ class EffectShell {
             createMeshes(this);
             setupPostProcessing(this);
             await setupFBO(this);
-            createCSS2DObjects(this, images);
+            /*      createCSS2DObjects(this, images); */
             addObjects(this);
             setupEventListeners(this);
             this.animate();
