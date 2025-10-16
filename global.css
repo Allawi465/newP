@@ -106,13 +106,6 @@
         z-index: 10;
     }
 
-    .projects,
-    .hero,
-    #loadingContainer,
-    footer {
-        pointer-events: none !important;
-    }
-
     ::-webkit-scrollbar {
         width: 5px;
         width: 0;
