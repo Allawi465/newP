@@ -4,6 +4,27 @@
         box-sizing: border-box;
     }
 
+    :root {
+        --font-size: 16px;
+        --font-grotesk: 'Space Grotesk', sans-serif;
+        --font-inter: 'Inter', sans-serif;
+        --background: #ffffff;
+        --foreground: oklch(0.145 0 0);
+        --card: #ffffff;
+        --card-foreground: oklch(0.145 0 0);
+        --primary: #0A0A0A;
+        --primary-foreground: oklch(1 0 0);
+        --muted: #ececf0;
+        --muted-foreground: #717182;
+        --destructive: #d4183d;
+        --destructive-foreground: #ffffff;
+        --border: rgba(0, 0, 0, 0.1);
+        --font-weight-medium: 500;
+        --font-weight-normal: 400;
+        --radius: 0.625rem;
+        --w1: calc((100% - 26px * 2 - 24px * (12 - 1)) / 12);
+    }
+
     @font-face {
         font-family: 'Space Grotesk';
         font-style: normal;
@@ -67,6 +88,80 @@
         justify-content: flex-start;
         align-items: center;
     }
+
+    #loadingContainer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .loading-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+
+    .loading-inner {
+        position: relative;
+        width: 100%;
+        max-width: 220px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .progress-track {
+        height: 1px;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    #progressBar {
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        transform-origin: left;
+    }
+
+    #progressCounter {
+        position: absolute;
+        top: -3rem;
+        left: 0;
+        white-space: nowrap;
+        pointer-events: none;
+        transform: translateX(0);
+    }
+
+    #counterNumber {
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+        letter-spacing: -0.05em;
+        color: rgba(0, 0, 0, 0.9);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .counter-percent {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        letter-spacing: -0.05em;
+        color: rgba(0, 0, 0, 0.5);
+        margin-left: 0.25rem;
+    }
+
+
 
     .name_scroll {
         color: rgba(255, 255, 255, 0);
