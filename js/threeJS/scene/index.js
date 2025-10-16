@@ -17,9 +17,18 @@ export default function setupScene(context) {
     context.camera.position.z = context.defaultCameraZ;
     context.camera.updateProjectionMatrix();
 
+    const canvas = document.getElementById('canvas');
+    canvas.style.pointerEvents = 'none';
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '0';
+
     context.renderer = new THREE.WebGLRenderer({
         antialias: true,
-        canvas: document.getElementById('canvas'),
+        canvas: canvas,
         alpha: true,
         powerPreference: 'high-performance',
         precision: 'highp',
@@ -29,7 +38,6 @@ export default function setupScene(context) {
     context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     context.renderer.setSize(window.innerWidth, window.innerHeight);
     context.renderer.autoClear = false;
-    document.body.appendChild(context.renderer.domElement);
 
     context.labelRenderer = new CSS2DRenderer();
     context.labelRenderer.setSize(window.innerWidth, window.innerHeight);
