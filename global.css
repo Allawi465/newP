@@ -87,7 +87,6 @@
     html,
     body {
         overscroll-behavior-y: contain;
-        touch-action: pan-y;
     }
 
     body {
@@ -101,17 +100,17 @@
     }
 
     #canvas {
-        pointer-events: none;
+        pointer-events: none !important;
         position: fixed;
         top: 0;
         left: 0;
     }
 
-    .projects {
+    /*    .projects {
         pointer-events: auto;
         touch-action: pan-y pinch-zoom;
         -webkit-overflow-scrolling: touch;
-    }
+    } */
 
     ::-webkit-scrollbar {
         width: 5px;

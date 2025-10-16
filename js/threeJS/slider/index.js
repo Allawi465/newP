@@ -77,15 +77,12 @@ export function onPointerDown(event, context) {
         clientY <= rect.bottom;
 
     if (!inside) {
+
         context.isDragging = false;
-        context.hasMovedEnough = false; // ✅ ADDED: Reset flag
         return;
     }
 
-    // ✅ FIXED: Don't set isDragging immediately
-    // Just record the starting position and wait for movement
-    context.isDragging = false; // Don't drag until we detect horizontal movement
-    context.hasMovedEnough = false; // ✅ ADDED: Track if user has moved enough
+    context.isDragging = true;
     context.startX = clientX;
     context.startY = clientY;
     context.dragDelta = 1;
@@ -114,16 +111,10 @@ export function onPointerUp(event, context) {
                 ? event.touches[0].clientY
                 : undefined));
 
-    if (endX === undefined || endY === undefined) {
-        context.isDragging = false;
-        context.hasMovedEnough = false; // ✅ ADDED: Reset flag
-        context.smoothingFactor = context.smoothingFactorDefault;
-        return;
-    }
+    if (endX === undefined || endY === undefined) return;
 
     if (!context.initialClick) {
         context.isDragging = false;
-        context.hasMovedEnough = false; // ✅ ADDED: Reset flag
         context.smoothingFactor = context.smoothingFactorDefault;
         return;
     }
@@ -132,20 +123,14 @@ export function onPointerUp(event, context) {
     const deltaY = Math.abs(endY - context.initialClick.y);
     const clickThreshold = 5;
 
-    const wasDragging = context.isDragging;
-
     context.isDragging = false;
-    context.hasMovedEnough = false; // ✅ ADDED: Reset flag
     context.smoothingFactor = context.smoothingFactorDefault;
 
-    // Only treat as click if movement was minimal
     if (deltaX < clickThreshold && deltaY < clickThreshold) {
         handleClick(event, context);
-    } else if (wasDragging && Math.abs(context.velocity) > 0.01) {
-        // Only apply momentum if user was actually dragging
+    } else if (Math.abs(context.velocity) > 0.01) {
         context.isMoving = true;
-    } else if (wasDragging) {
-        // Dragged but stopped - animate back to rest
+    } else {
         if (context.meshArray) {
             context.meshArray.forEach(mesh => {
                 const currentStrength = mesh.material.uniforms.uIsDragging.value;
