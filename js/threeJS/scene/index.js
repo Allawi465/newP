@@ -23,14 +23,11 @@ export default function setupScene(context) {
         antialias: true,
         canvas: canvas,
         alpha: true,
-        powerPreference: 'high-performance',
-        precision: 'highp',
-        dithering: true
     });
 
     context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     context.renderer.setSize(window.innerWidth, window.innerHeight);
-    context.renderer.autoClear = false;
+    /*     context.renderer.autoClear = false; */
 
     /*     context.labelRenderer = new CSS2DRenderer();
         context.labelRenderer.setSize(window.innerWidth, window.innerHeight);
