@@ -105,17 +105,12 @@
         top: 0;
         left: 0;
         outline: none;
-        pointer-events: none;
+        pointer-events: none !important;
     }
 
 
     .projects {
-        touch-action: pan-y;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    #sliderContainer {
-        touch-action: pan-y pinch-zoom;
+        pointer-events: none !important;
     }
 
     ::-webkit-scrollbar {
