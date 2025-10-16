@@ -54,9 +54,8 @@ export default function initLoadingSequence(context) {
             if (aboutElement) {
                 aboutElement.style.pointerEvents = 'auto';
             }
-            ScrollTrigger.refresh();
         }
-    }, 0).to(context.glassMaterial, {
+    }, 0)/* .to(context.glassMaterial, {
         opacity: 1.0,
         duration: 0.5,
         ease: "power2.out",
@@ -155,5 +154,5 @@ export default function initLoadingSequence(context) {
         opacity: 1,
         duration: 1.0,
         ease: "power2.out",
-    }, 2.5)
+    }, 2.5) */
 }
