@@ -3,12 +3,11 @@ import gsap from 'gsap';
 import { setupScene, onWindowResize, createMeshes, setupFBO, addObjects, setupPostProcessing, setupEventListeners } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
+import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
 
 class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
-
-        this.init().then(() => this.onInitComplete());
 
         this.VIEW_WIDTH = 4.5;
         this.VIEW_HEIGHT = 6;
@@ -16,6 +15,8 @@ class EffectShell {
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
         this.bounceTween = null;
+
+        this.init().then(() => this.onInitComplete());
     }
 
     async loadFont(family = "Space Grotesk", weight = "600", size = 180) {
@@ -151,6 +152,7 @@ class EffectShell {
 
     onInitComplete() {
         console.log("Initialization complete!");
+        setupScrollAnimation();
     }
 }
 

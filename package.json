@@ -2,7 +2,7 @@
   "name": "allawi_portfolio",
   "version": "1.0.0",
   "type": "module",
-  "description": "Interactive 3D portfolio by Allawi using Three.js and GSAP",
+  "description": "Interactive 3D portfolio by Allawi using Three.js, GSAP and lenis",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -15,13 +15,15 @@
     "gsap",
     "vite",
     "webgl",
-    "3d"
+    "3d",
+    "lenis"
   ],
   "author": "Mohammed Allawi",
   "license": "MIT",
   "dependencies": {
     "@pmndrs/vanilla": "^1.19.3",
     "gsap": "^3.12.5",
+    "lenis": "^1.3.11",
     "split-type": "^0.3.4",
     "three": "^0.176.0"
   },

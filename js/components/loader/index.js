@@ -24,8 +24,6 @@ export default function initLoadingSequence(context) {
 
     const aboutElement = document.querySelector(".about");
     if (aboutElement) {
-        aboutElement.classList.remove("transition", "duration-300");
-        aboutElement.style.transition = "none";
         aboutElement.style.pointerEvents = 'none';
     }
 
@@ -69,7 +67,7 @@ export default function initLoadingSequence(context) {
         onUpdate: () => {
             context.material.needsUpdate = true;
         },
-    }, 1.8,)/* .to(".header", {
+    }, 1.8,).to(".header", {
         opacity: 1,
         duration: 1,
     }, 2.2,).to(".hero", {
@@ -77,11 +75,6 @@ export default function initLoadingSequence(context) {
         duration: 1,
     }, 2.2,).to(".about", {
         opacity: 1,
-        onComplete: () => {
-            if (aboutElement) {
-                aboutElement.classList.add("transition-all", "duration-300");
-            }
-        }
     }, 2.2,).from(
         '.hero_title .char',
         {
@@ -154,5 +147,5 @@ export default function initLoadingSequence(context) {
         opacity: 1,
         duration: 1.0,
         ease: "power2.out",
-    }, 2.5) */
+    }, 2.5)
 }

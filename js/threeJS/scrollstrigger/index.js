@@ -57,24 +57,24 @@ export default function setupScrollAnimation() {
         }),
     });
 
-    const typeSplit = new SplitType(".projects__title", { types: 'char', tagName: 'span' });
-
-    ScrollTrigger.create({
-        trigger: '.hero',
-        start: 'bottom 25%',
-        scrub: 1,
-        animation: gsap.fromTo(
-            '.projects__title .char',
-            {
-                color: 'rgba(255, 255, 255, 0)',
-                ease: "customBezier",
-                stagger: 0.05,
-            },
-            {
-                color: 'rgba(255, 255, 255, 1)',
-                ease: "customBezier",
-                stagger: 0.05,
-            }
-        ),
-    });
+    /*   const typeSplit = new SplitType(".projects__title", { types: 'char', tagName: 'span' });
+  
+      ScrollTrigger.create({
+          trigger: '.hero',
+          start: 'bottom 25%',
+          scrub: 1,
+          animation: gsap.fromTo(
+              '.projects__title .char',
+              {
+                  color: 'rgba(255, 255, 255, 0)',
+                  ease: "customBezier",
+                  stagger: 0.05,
+              },
+              {
+                  color: 'rgba(255, 255, 255, 1)',
+                  ease: "customBezier",
+                  stagger: 0.05,
+              }
+          ),
+      }); */
 }

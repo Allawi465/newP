@@ -86,6 +86,7 @@
         border-radius: 9999px;
         z-index: 999;
         mix-blend-mode: difference;
+        opacity: 0;
     }
 
     .header span {
@@ -113,6 +114,7 @@
         backdrop-filter: blur(4px);
         z-index: 999;
         mix-blend-mode: difference;
+        opacity: 0;
     }
 
     .about:hover {
@@ -169,15 +171,15 @@
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
         border-radius: 9999px;
-        z-index: 30;
+        z-index: 999;
         mix-blend-mode: difference;
     }
 
-    .name-badge .name_scroll {
+    .name_scroll {
         font-size: 0.75rem;
         letter-spacing: 0.15em;
         text-transform: uppercase;
-        color: white;
+        color: rgba(255, 255, 255, 0);
     }
 
     .scroll {
@@ -189,6 +191,7 @@
         font-size: 0.875rem;
         letter-spacing: 0.15em;
         font-weight: bold;
+        opacity: 0;
     }
 
     .scroll-line {
@@ -196,13 +199,14 @@
         bottom: 35px;
         right: 35px;
         z-index: 10;
+        opacity: 0;
     }
 
     .scroll_line {
         position: relative;
         width: 3px;
         height: 130px;
-        background: white;
+        color: rgba(255, 255, 255, 0);
     }
 
     /* Loading Screen */
@@ -549,10 +553,6 @@
 
     a:visited {
         color: inherit;
-    }
-
-    .name_scroll {
-        color: rgba(255, 255, 255, 0);
     }
 
     .about span:hover,
