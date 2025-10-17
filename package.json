@@ -2,7 +2,7 @@
   "name": "allawi_portfolio",
   "version": "1.0.0",
   "type": "module",
-  "description": "Interactive 3D portfolio by Allawi using Three.js, tailwind and GSAP",
+  "description": "Interactive 3D portfolio by Allawi using Three.js and GSAP",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -21,10 +21,8 @@
   "license": "MIT",
   "dependencies": {
     "@pmndrs/vanilla": "^1.19.3",
-    "@tailwindcss/vite": "^4.1.13",
     "gsap": "^3.12.5",
     "split-type": "^0.3.4",
-    "tailwindcss": "^4.1.13",
     "three": "^0.176.0"
   },
   "devDependencies": {
