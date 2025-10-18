@@ -6,7 +6,6 @@ import { vertexShader, fragmentShader } from '../../glsl/shader';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function createPlaneMesh(content, texture, index) {
-
     const planeGeometry = new THREE.PlaneGeometry(
         content.slideWidth * content.scaleFactor,
         content.slideHeight * content.scaleFactor,
@@ -44,7 +43,8 @@ export default function createPlaneMesh(content, texture, index) {
     const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
 
     planeMesh.position.x = content.calculatePositionX(index, 0, content.meshSpacing);
-    planeMesh.position.y = -10;
+    planeMesh.position.y = 0;
+
     planeMesh.userData = {
         index,
         hovered: false,
@@ -63,17 +63,6 @@ export default function createPlaneMesh(content, texture, index) {
 
     content.meshArray = content.meshArray || [];
     content.meshArray.push(planeMesh);
-
-    ScrollTrigger.create({
-        trigger: '.hero',
-        start: 'bottom center',
-        scrub: true,
-        scroller: document.body,
-        onUpdate: (self) => {
-            planeMesh.material.uniforms.uGrayscale.value = self.progress;
-            planeMesh.material.uniforms.opacity.value = self.progress;
-        }
-    });
 
     return planeMesh;
 }

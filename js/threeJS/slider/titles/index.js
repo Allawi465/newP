@@ -5,7 +5,6 @@ export default function createCSS2DObjects(content, images) {
         const element = document.createElement('div');
         element.className = 'slider-project';
         element.dataset.index = index;
-
         element.id = image.id;
 
         const container = document.createElement('div');
@@ -31,4 +30,4 @@ export default function createCSS2DObjects(content, images) {
         objectCSS.layers.set(content.slider_mesh);
         content.cssObjects.push(objectCSS);
     });
-} 
+}

@@ -17,6 +17,14 @@ class EffectShell {
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
         this.bounceTween = null;
+        this.isTouch =
+            window.matchMedia('(pointer: coarse)').matches ||
+            'ontouchstart' in window ||
+            navigator.maxTouchPoints > 0;
+        this.scrollProgress = 0;
+        this.projectsElement = document.querySelector(".projects");
+        this.raycaster = new THREE.Raycaster();
+        this.plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
         this.init().then(() => this.onInitComplete());
     }
@@ -48,10 +56,6 @@ class EffectShell {
 
 
     setupLenis() {
-        this.isTouch =
-            window.matchMedia('(pointer: coarse)').matches ||
-            'ontouchstart' in window ||
-            navigator.maxTouchPoints > 0;
 
         if (!this.isTouch) {
             const lenis = new Lenis({
@@ -211,6 +215,26 @@ class EffectShell {
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
+        if (this.projectsElement && this.camera) {
+            const rect = this.projectsElement.getBoundingClientRect();
+            const divCenterX = rect.left + rect.width / 2;
+            const divCenterY = rect.top + rect.height / 2;
+            const ndcX = (divCenterX / window.innerWidth) * 2 - 1;
+            const ndcY = -(divCenterY / window.innerHeight) * 2 + 1;
+            const mouse = new THREE.Vector2(ndcX, ndcY);
+            this.raycaster.setFromCamera(mouse, this.camera);
+            const pos = new THREE.Vector3();
+            if (this.raycaster.ray.intersectPlane(this.plane, pos)) {
+                this.group.position.y = pos.y;
+            }
+        }
+
+        const grayscale = this.scrollProgress;
+        this.meshArray.forEach(mesh => {
+            mesh.material.uniforms.uGrayscale.value = grayscale;
+            mesh.material.uniforms.opacity.value = 1 - grayscale;
+        });
+
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const referenceWidth = 1920;
         const widthFactor = Math.min(referenceWidth / containerWidth, 4);
@@ -271,19 +295,15 @@ class EffectShell {
     onInitComplete() {
         console.log("Initialization complete!");
         setupScrollAnimation();
-
         gsap.to({}, {
             scrollTrigger: {
                 trigger: ".projects",
                 start: "top bottom",
                 end: "bottom top",
-                scrub: true,
+                scrub: this.isTouch ? 0.5 : true,
                 scroller: document.body,
                 onUpdate: (self) => {
-                    const progress = self.progress;
-                    this.meshArray.forEach(mesh => {
-                        mesh.position.y = -10 + 18 * progress;
-                    });
+                    this.scrollProgress = self.progress;
                 }
             }
         });

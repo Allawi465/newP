@@ -4,25 +4,21 @@ export default function syncHtmlWithSlider(content) {
     const offsetY = content.slideWidth * sliderFactor;
     const offsetYAdd = 0.23 * sliderFactor;
     const threshold = 10 * sliderFactor;
-
     const meshCount = content.group.children.length;
     const totalLength = content.meshSpacing * meshCount;
+
+    const groupYOffset = content.group.position.y || 0;
 
     content.group.children.forEach((mesh, index) => {
         const objectCSS = content.cssObjects[index];
         if (!objectCSS) return;
 
-        // Keep titles aligned under cards on left
-        objectCSS.position.y = mesh.position.y - offsetY + offsetYAdd;
+        objectCSS.position.y = (mesh.position.y - offsetY + offsetYAdd) + groupYOffset;
 
-        // Target X using same wrapping logic as slider
         const targetX = ((((index * content.meshSpacing + content.currentPosition) % totalLength) + totalLength) % totalLength) - totalLength / 2;
-
-        // Shift left a bit to align under left of card
         const leftOffset = -content.meshSpacing / 2.5;
         const finalTargetX = targetX + leftOffset;
 
-        // Smooth follow X with threshold
         const distanceToTargetX = Math.abs(finalTargetX - objectCSS.position.x);
         if (distanceToTargetX < threshold) {
             objectCSS.position.x += (finalTargetX - objectCSS.position.x) * followSpeed;
@@ -32,8 +28,7 @@ export default function syncHtmlWithSlider(content) {
 
         objectCSS.position.z = mesh.position.z;
 
-        // Apply CSS2D transform for proper rendering
-        objectCSS.element.style.transform = `translate(-50%, -50%) translate3d(${objectCSS.position.x}px, 0, 0)`;
+        objectCSS.element.style.transform = `translate(-50%, -50%) translate3d(${objectCSS.position.x}px, ${objectCSS.position.y}px, 0)`;
 
         objectCSS.updateMatrixWorld();
     });
