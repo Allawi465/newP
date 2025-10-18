@@ -4,18 +4,18 @@ export default function syncHtmlWithSlider(content) {
     const offsetY = content.slideWidth * sliderFactor;
     const offsetYAdd = 0.23 * sliderFactor;
     const threshold = 10 * sliderFactor;
+
     const meshCount = content.group.children.length;
     const totalLength = content.meshSpacing * meshCount;
-
-    const groupYOffset = content.group.position.y || 0;
 
     content.group.children.forEach((mesh, index) => {
         const objectCSS = content.cssObjects[index];
         if (!objectCSS) return;
 
-        objectCSS.position.y = (mesh.position.y - offsetY + offsetYAdd) + groupYOffset;
+        objectCSS.position.y = (mesh.position.y - offsetY + offsetYAdd) + content.group.position.y;
 
         const targetX = ((((index * content.meshSpacing + content.currentPosition) % totalLength) + totalLength) % totalLength) - totalLength / 2;
+
         const leftOffset = -content.meshSpacing / 2.5;
         const finalTargetX = targetX + leftOffset;
 

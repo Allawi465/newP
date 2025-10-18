@@ -21,18 +21,7 @@ class EffectShell {
             window.matchMedia('(pointer: coarse)').matches ||
             'ontouchstart' in window ||
             navigator.maxTouchPoints > 0;
-        this.scrollProgress = 0;
-        this.projectsElement = document.querySelector(".projects");
-        this.raycaster = new THREE.Raycaster();
-        this.plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-
-        // PERFORMANCE OPTIMIZATION: Cache div position
-        this.cachedDivPosition = { x: 0, y: 0 };
-        this.needsPositionUpdate = true;
-
-        // PERFORMANCE OPTIMIZATION: Throttle position updates
-        this.frameCount = 0;
-        this.updateInterval = this.isTouch ? 2 : 1; // Update every 2 frames on mobile
+        this.scrollProgress = 0
 
         this.init().then(() => this.onInitComplete());
     }
@@ -54,45 +43,17 @@ class EffectShell {
             setupEventListeners(this);
             this.animate();
             onWindowResize(this);
-            initLoadingSequence(this);
+            initLoadingSequence(this)
 
-            this.setupPositionCache();
 
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
     }
 
-    setupPositionCache() {
-        const updateCache = () => {
-            this.needsPositionUpdate = true;
-        };
-
-        window.addEventListener('scroll', updateCache, { passive: true });
-        window.addEventListener('resize', updateCache, { passive: true });
-
-        // Initial cache
-        this.updateCachedPosition();
-    }
-
-    updateCachedPosition() {
-        if (this.projectsElement && this.camera) {
-            const rect = this.projectsElement.getBoundingClientRect();
-            const divCenterX = rect.left + rect.width / 2;
-            const divCenterY = rect.top + rect.height / 2;
-            const ndcX = (divCenterX / window.innerWidth) * 2 - 1;
-            const ndcY = -(divCenterY / window.innerHeight) * 2 + 1;
-            const mouse = new THREE.Vector2(ndcX, ndcY);
-            this.raycaster.setFromCamera(mouse, this.camera);
-            const pos = new THREE.Vector3();
-            if (this.raycaster.ray.intersectPlane(this.plane, pos)) {
-                this.cachedDivPosition.y = pos.y;
-            }
-            this.needsPositionUpdate = false;
-        }
-    }
 
     setupLenis() {
+
         if (!this.isTouch) {
             const lenis = new Lenis({
                 wrapper: document.documentElement,
@@ -144,8 +105,7 @@ class EffectShell {
                 texture.generateMipmaps = true;
                 texture.minFilter = THREE.LinearMipMapLinearFilter;
                 texture.magFilter = THREE.LinearFilter;
-                const maxAnisotropy = context.isTouch ? 4 : 8;
-                texture.anisotropy = Math.min(context.renderer.capabilities.getMaxAnisotropy(), maxAnisotropy);
+                texture.anisotropy = Math.min(context.renderer.capabilities.getMaxAnisotropy(), 8);
                 texture.needsUpdate = true;
 
                 resolve(texture);
@@ -184,6 +144,7 @@ class EffectShell {
     }
 
     updatePositions() {
+
         this.group.children.forEach((child, index) => {
             child.position.x = this.calculatePositionX(index, this.currentPosition, this.meshSpacing);
         });
@@ -223,7 +184,7 @@ class EffectShell {
 
         this.material.uniforms.time.value = this.time;
         this.fboMaterial.uniforms.time.value = this.time;
-        this.fboMaterial.uniforms.uDelta.value = this.time;
+        this.fboMaterial.uniforms.uDelta.value = this.time
         this.fboMaterial.uniforms.uDelta.value = Math.min(deltaTime, 0.1);
 
         this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random() * 0.9;
@@ -246,28 +207,10 @@ class EffectShell {
         this.fbo1 = temp;
     }
 
+
     animate() {
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
-
-
-        this.frameCount++;
-
-        if (this.needsPositionUpdate && this.frameCount % this.updateInterval === 0) {
-            this.updateCachedPosition();
-        }
-
-        if (this.group) {
-            this.group.position.y += (this.cachedDivPosition.y - this.group.position.y) * 0.1;
-        }
-
-        if (this.frameCount % this.updateInterval === 0) {
-            const grayscale = this.scrollProgress;
-            this.meshArray.forEach(mesh => {
-                mesh.material.uniforms.uGrayscale.value = grayscale;
-                mesh.material.uniforms.opacity.value = grayscale;
-            });
-        }
 
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const referenceWidth = 1920;
@@ -301,15 +244,19 @@ class EffectShell {
         });
 
         this.updatePositions();
-
-        if (this.frameCount % this.updateInterval === 0) {
-            this.syncHtmlWithSlider();
-        }
+        this.syncHtmlWithSlider();
 
         if (this.meshArray?.[0] && this.titleLabel) {
             const mesh = this.meshArray[0];
             mesh.getWorldPosition(this.titleWorldPos);
             this.titleLabel.position.y = this.titleWorldPos.y;
+        }
+
+        if (this.meshArray) {
+            this.meshArray.forEach(mesh => {
+                mesh.material.uniforms.uGrayscale.value = this.scrollProgress;
+                mesh.material.uniforms.opacity.value = this.scrollProgress;
+            });
         }
 
         this.updateUniforms(deltaTime);
@@ -330,21 +277,7 @@ class EffectShell {
 
     onInitComplete() {
         console.log("Initialization complete!");
-        setupScrollAnimation();
-
-        gsap.to({}, {
-            scrollTrigger: {
-                trigger: ".projects",
-                start: "top bottom",
-                end: "bottom top",
-                scrub: this.isTouch ? 0.5 : true,
-                scroller: document.body,
-                onUpdate: (self) => {
-                    this.scrollProgress = self.progress;
-                    this.needsPositionUpdate = true;
-                }
-            }
-        });
+        setupScrollAnimation(this);
     }
 }
 

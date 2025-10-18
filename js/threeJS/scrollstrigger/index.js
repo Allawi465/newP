@@ -3,7 +3,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CustomEase } from "gsap/CustomEase";
 import SplitType from "split-type";
 
-export default function setupScrollAnimation() {
+export default function setupScrollAnimation(context) {
     gsap.registerPlugin(CustomEase)
     CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
 
@@ -44,6 +44,7 @@ export default function setupScrollAnimation() {
         }),
     });
 
+
     const scrollNameText = new SplitType('.name_scroll', { types: 'chars' });
     ScrollTrigger.create({
         trigger: ".hero",
@@ -56,6 +57,29 @@ export default function setupScrollAnimation() {
             ease: "customBezier",
         }),
     });
+
+    gsap.to(context.group.position, {
+        y: 18,
+        ease: "none",
+        scrollTrigger: {
+            trigger: ".projects",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+            scroller: document.body,
+        }
+    });
+
+    ScrollTrigger.create({
+        trigger: '.hero',
+        start: 'bottom center',
+        scrub: true,
+        scroller: document.body,
+        onUpdate: (self) => {
+            context.scrollProgress = self.progress;
+        }
+    });
+
 
     const typeSplit = new SplitType(".projects__title", { types: 'char', tagName: 'span' });
 

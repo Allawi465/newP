@@ -12,19 +12,11 @@ export default function createMeshes(context) {
 
     context.textures.forEach((texture, i) => {
         const planeMesh = createPlaneMesh(context, texture, i, context.renderer);
-
-        planeMesh.layers.set(context.slider_mesh);
-
         context.group.add(planeMesh);
     });
 
     context.scene.add(context.group);
     context.titleElement = document.querySelector(".projects__title");
-
-
-    context.titleLabel = new CSS2DObject(context.titleElement);
-    context.titleLabel.layers.set(context.slider_mesh);
-    context.scene.add(context.titleLabel);
 
     context.titleLabel = new CSS2DObject(context.titleElement);
     context.titleLabel.layers.set(context.slider_mesh);

@@ -1,9 +1,6 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { vertexShader, fragmentShader } from '../../glsl/shader';
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function createPlaneMesh(content, texture, index) {
     const segments = content.isTouch ? 8 : 32;
@@ -27,12 +24,12 @@ export default function createPlaneMesh(content, texture, index) {
             uOffset: { value: new THREE.Vector2(0.0, 0.0) },
             uzom: { value: 1.0 },
             uBorderRadius: { value: 0.02 },
-            uGrayscale: { value: 0.0 },
-            opacity: { value: 0 },
+            uGrayscale: { value: 0. },
+            opacity: { value: 0. },
             uAspectRatio: { value: aspectRatio },
             uMaxDist: { value: content.maxDist },
             uRotation: { value: 0.0 },
-            uDistanceScale: { value: 1.0 },
+            uDistanceScale: { value: 1. },
             uIsDragging: { value: 0.0 },
         },
         vertexShader: vertexShader,
@@ -45,7 +42,7 @@ export default function createPlaneMesh(content, texture, index) {
     const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
 
     planeMesh.position.x = content.calculatePositionX(index, 0, content.meshSpacing);
-    planeMesh.position.y = 0;
+    planeMesh.position.y = -10;
 
     planeMesh.userData = {
         index,
@@ -60,7 +57,6 @@ export default function createPlaneMesh(content, texture, index) {
 
     planeMesh.layers.set(content.slider_mesh);
     planeMesh.renderOrder = 999;
-    planeMesh.position.x = content.calculatePositionX(index, 0, content.meshSpacing);
 
     content.meshArray = content.meshArray || [];
     content.meshArray.push(planeMesh);
