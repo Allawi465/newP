@@ -6,11 +6,13 @@ import { vertexShader, fragmentShader } from '../../glsl/shader';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function createPlaneMesh(content, texture, index) {
+    const segments = content.isTouch ? 8 : 32;
+
     const planeGeometry = new THREE.PlaneGeometry(
         content.slideWidth * content.scaleFactor,
         content.slideHeight * content.scaleFactor,
-        32,
-        32
+        segments,
+        segments
     );
 
     const textureAspect = texture.image.width / texture.image.height;
@@ -57,7 +59,6 @@ export default function createPlaneMesh(content, texture, index) {
         .to(shaderMaterial.uniforms.uzom, { value: .9, duration: 0.5, ease: "power2.inOut" }, 0);
 
     planeMesh.layers.set(content.slider_mesh);
-
     planeMesh.renderOrder = 999;
     planeMesh.position.x = content.calculatePositionX(index, 0, content.meshSpacing);
 
