@@ -64,21 +64,6 @@ export default function createPlaneMesh(content, texture, index) {
     content.meshArray = content.meshArray || [];
     content.meshArray.push(planeMesh);
 
-    const tl = gsap.timeline({
-        scrollTrigger: {
-            trigger: ".projects",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-            scroller: document.body,
-        }
-    });
-
-    tl.to(planeMesh.position, {
-        y: 8,
-        ease: "none",
-    }, 0);
-
     ScrollTrigger.create({
         trigger: '.hero',
         start: 'bottom center',
@@ -89,8 +74,6 @@ export default function createPlaneMesh(content, texture, index) {
             planeMesh.material.uniforms.opacity.value = self.progress;
         }
     });
-
-    ScrollTrigger.update();
 
     return planeMesh;
 }

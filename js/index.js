@@ -46,6 +46,7 @@ class EffectShell {
         }
     }
 
+
     setupLenis() {
         this.isTouch =
             window.matchMedia('(pointer: coarse)').matches ||
@@ -207,10 +208,9 @@ class EffectShell {
 
 
     animate() {
-        let deltaTime = this.clock.getDelta();
+        const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        // Normalization for screen size (computed here for momentum phase)
         const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
         const referenceWidth = 1920;
         const widthFactor = Math.min(referenceWidth / containerWidth, 4);
@@ -218,6 +218,7 @@ class EffectShell {
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
             this.velocity *= Math.pow(this.friction, 60 * deltaTime);
+
             if (Math.abs(this.velocity) < 0.01) {
                 this.velocity = 0;
                 this.isMoving = false;
@@ -232,7 +233,7 @@ class EffectShell {
             }
         }
 
-        this.currentPosition = this.currentPosition + (this.targetPosition - this.currentPosition) * this.lerpFactor;
+        this.currentPosition += (this.targetPosition - this.currentPosition) * this.lerpFactor;
 
         this.desiredOffset = this.velocity * this.offsetFactor;
         this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
@@ -251,6 +252,7 @@ class EffectShell {
         }
 
         this.updateUniforms(deltaTime);
+
         this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
         this.cubeCamera.position.copy(this.glassBall.position);
         this.cubeCamera.update(this.renderer, this.scene);
@@ -269,6 +271,22 @@ class EffectShell {
     onInitComplete() {
         console.log("Initialization complete!");
         setupScrollAnimation();
+
+        gsap.to({}, {
+            scrollTrigger: {
+                trigger: ".projects",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+                scroller: document.body,
+                onUpdate: (self) => {
+                    const progress = self.progress;
+                    this.meshArray.forEach(mesh => {
+                        mesh.position.y = -10 + 18 * progress;
+                    });
+                }
+            }
+        });
     }
 }
 
