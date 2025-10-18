@@ -2,20 +2,9 @@ export const vertexShader = `
   uniform vec2 uOffset;
   uniform float uRotation;
   uniform float uDistanceScale; 
-  uniform float uIsDragging; 
   varying vec2 vUv;
   const float PI = 3.141592653589793;
 
-  vec3 setPosition(vec3 position) {
-      vec3 positionNew = position;
-      // Auto-adapt to viewport width for consistent panoramic effect on resize
-      float viewWidth = 2.0 / projectionMatrix[0][0];
-      float normalizedX = abs((modelMatrix * vec4(position, 1.0)).x);
-      float distanceFromCenter = normalizedX * uDistanceScale;
-      float bulge = 0.029 * pow(distanceFromCenter, 2.) * uIsDragging;
-      positionNew.y *= 1. + bulge;
-      return positionNew;
-  }
 
   vec3 deformation(vec3 position, vec2 uv, vec2 offset) {
       float PI = 3.141592653589793238;
@@ -30,7 +19,6 @@ export const vertexShader = `
   void main() {
       vUv = uv;
       vec3 pos = deformation(position, uv, uOffset);
-      pos = setPosition(pos);
       float cosA = cos(uRotation);
       float sinA = sin(uRotation);
       float x = pos.x;

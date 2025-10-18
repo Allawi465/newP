@@ -97,23 +97,19 @@ class EffectShell {
 
     loadTextures(imageArray, context) {
         const textureLoader = new THREE.TextureLoader();
-        return Promise.all(imageArray.map(image => new Promise((resolve, reject) => {
-            textureLoader.load(image.src, (texture) => {
-                texture.wrapS = THREE.ClampToEdgeWrapping;
-                texture.wrapT = THREE.ClampToEdgeWrapping;
-
-                texture.generateMipmaps = true;
-                texture.minFilter = THREE.LinearMipMapLinearFilter;
-                texture.magFilter = THREE.LinearFilter;
-                texture.anisotropy = Math.min(context.renderer.capabilities.getMaxAnisotropy(), 8);
-                texture.needsUpdate = true;
-
-                resolve(texture);
-            }, undefined, (err) => {
-                console.error(`Failed to load texture: ${image.src}`, err);
-                reject(err);
-            });
-        })));
+        return Promise.all(imageArray.map(image =>
+            new Promise(resolve =>
+                textureLoader.load(image.src, texture => {
+                    texture.wrapS = THREE.ClampToEdgeWrapping;
+                    texture.wrapT = THREE.ClampToEdgeWrapping;
+                    texture.generateMipmaps = true;
+                    texture.minFilter = THREE.LinearMipMapLinearFilter;
+                    texture.magFilter = THREE.LinearFilter;
+                    texture.anisotropy = Math.min(context.renderer.capabilities.getMaxAnisotropy(), 8);
+                    resolve(texture);
+                })
+            )
+        ));
     }
 
     smootherstep(x) {
@@ -187,8 +183,8 @@ class EffectShell {
         this.fboMaterial.uniforms.uDelta.value = this.time
         this.fboMaterial.uniforms.uDelta.value = Math.min(deltaTime, 0.1);
 
-        this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random() * 0.9;
-        this.fboMaterial.uniforms.uRandom2.value = 0.5 + Math.random() * 0.9;
+        this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random();
+        this.fboMaterial.uniforms.uRandom2.value = 0.5 + Math.random();
 
         this.material.uniforms.uCameraPos.value.copy(this.camera.position);
         this.fboMaterial.uniforms.uSpherePos.value.copy(this.glassBall.position);
@@ -212,10 +208,6 @@ class EffectShell {
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
-        const referenceWidth = 1920;
-        const widthFactor = Math.min(referenceWidth / containerWidth, 4);
-
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
             this.velocity *= Math.pow(this.friction, 60 * deltaTime);
@@ -225,13 +217,6 @@ class EffectShell {
                 this.isMoving = false;
             }
 
-            const momentumStrength = Math.min(Math.abs(this.velocity) / (70.0 / widthFactor), 1.0);
-            if (this.meshArray) {
-                this.meshArray.forEach(mesh => {
-                    mesh.material.uniforms.uIsDragging.value += (momentumStrength - mesh.material.uniforms.uIsDragging.value) * 0.03;
-                    mesh.material.uniforms.uIsDragging.needsUpdate = true;
-                });
-            }
         }
 
         this.currentPosition += (this.targetPosition - this.currentPosition) * this.lerpFactor;
@@ -266,7 +251,6 @@ class EffectShell {
         this.cubeCamera.update(this.renderer, this.scene);
 
         this.renderToFBO();
-
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();
         this.labelRenderer.render(this.scene, this.camera);

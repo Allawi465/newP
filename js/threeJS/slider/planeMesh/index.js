@@ -30,12 +30,11 @@ export default function createPlaneMesh(content, texture, index) {
             uMaxDist: { value: content.maxDist },
             uRotation: { value: 0.0 },
             uDistanceScale: { value: 1. },
-            uIsDragging: { value: 0.0 },
         },
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         transparent: true,
-        depthWrite: true,
+        depthWrite: false,
         depthTest: true,
     });
 

@@ -57,10 +57,10 @@ export default async function setupFBO(context) {
         },
         vertexShader: simVertex,
         fragmentShader: simFragment,
+        blending: THREE.NoBlending,
         transparent: true,
         depthWrite: false,
         depthTest: true,
-        blending: THREE.NoBlending,
     });
 
     context.fboMesh = new THREE.Mesh(geometry, context.fboMaterial);

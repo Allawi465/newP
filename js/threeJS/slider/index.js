@@ -46,16 +46,6 @@ export function onPointerMove(event, context) {
     context.dragSpeed = context.dragSpeed * (1 - context.smoothingFactor) + (clientX - context.lastX) * widthFactor * context.smoothingFactor;
     context.dragSpeed = Math.max(Math.min(context.dragSpeed, 25 * widthFactor), -25 * widthFactor);
 
-    const baseStrength = Math.min(Math.abs(context.velocity) / (70.0 / widthFactor), 1.0);
-    const targetStrength = Math.max(baseStrength, 0.1);
-
-    if (context.meshArray) {
-        context.meshArray.forEach(mesh => {
-            mesh.material.uniforms.uIsDragging.value += (targetStrength - mesh.material.uniforms.uIsDragging.value) * 0.1;
-            mesh.material.uniforms.uIsDragging.needsUpdate = true;
-        });
-    }
-
     context.startX = clientX;
     context.lastX = clientX;
 }
@@ -130,21 +120,5 @@ export function onPointerUp(event, context) {
         handleClick(event, context);
     } else if (Math.abs(context.velocity) > 0.01) {
         context.isMoving = true;
-    } else {
-        if (context.meshArray) {
-            context.meshArray.forEach(mesh => {
-                const currentStrength = mesh.material.uniforms.uIsDragging.value;
-                if (currentStrength > 0.01) {
-                    gsap.to(mesh.material.uniforms.uIsDragging, {
-                        value: 0.0,
-                        duration: 0.15,
-                        ease: "power2.inOut",
-                        onUpdate: () => {
-                            mesh.material.uniforms.uIsDragging.needsUpdate = true;
-                        }
-                    });
-                }
-            });
-        }
     }
 }
