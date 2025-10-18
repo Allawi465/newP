@@ -1,4 +1,3 @@
-import gsap from 'gsap';
 import { handleClick } from './handleClick/index.js';
 
 export function onPointerMove(event, context) {
@@ -24,7 +23,6 @@ export function onPointerMove(event, context) {
 
     const delta = clientX - context.startX;
 
-    // Normalization for screen size
     const containerWidth = context.container ? context.container.clientWidth : window.innerWidth;
     const referenceWidth = 1920;
     const widthFactor = Math.min(referenceWidth / containerWidth, 4);

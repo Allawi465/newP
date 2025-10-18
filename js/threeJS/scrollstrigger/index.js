@@ -65,7 +65,7 @@ export default function setupScrollAnimation(context) {
             trigger: ".projects",
             start: "top bottom",
             end: "bottom top",
-            scrub: true,
+            scrub: 0.5,
             scroller: document.body,
         }
     });
