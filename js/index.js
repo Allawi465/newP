@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
+import Lenis from 'lenis'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { setupScene, onWindowResize, createMeshes, setupFBO, addObjects, setupPostProcessing, setupEventListeners } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
@@ -26,6 +28,7 @@ class EffectShell {
     async init() {
         try {
             setupScene(this);
+            this.setupLenis(this);
             this.textures = await this.loadTextures(images, this);
             createMeshes(this);
             setupPostProcessing(this);
@@ -41,6 +44,56 @@ class EffectShell {
             console.error('Error initializing EffectShell:', error);
         }
     }
+
+    setupLenis() {
+        // Detect touch devices — disable Lenis there
+        this.isTouch =
+            window.matchMedia('(pointer: coarse)').matches ||
+            'ontouchstart' in window ||
+            navigator.maxTouchPoints > 0;
+
+        if (!this.isTouch) {
+            // Initialize Lenis only for desktop
+            const lenis = new Lenis({
+                wrapper: document.documentElement,
+                content: document.body,
+                orientation: 'vertical',
+                gestureOrientation: 'vertical',
+                smoothWheel: true,
+                mouseMultiplier: 0.9,
+                lerp: 0.07,
+                smoothTouch: false,
+                syncTouch: false,
+                autoRaf: false,
+            });
+
+            this.bodyLenis = lenis;
+
+            lenis.on('scroll', ScrollTrigger.update);
+
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+
+            gsap.ticker.lagSmoothing(0);
+
+        } else {
+            this.bodyLenis = null;
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+        }
+    }
+
+    stopBodyScrolling() {
+        if (this.bodyLenis) this.bodyLenis.stop();
+        document.documentElement.style.overflow = "hidden";
+    }
+
+    startBodyScrolling() {
+        if (this.bodyLenis) this.bodyLenis.start();
+        document.documentElement.style.overflow = "";
+    }
+
 
     loadTextures(imageArray, context) {
         const textureLoader = new THREE.TextureLoader();
