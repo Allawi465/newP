@@ -1,12 +1,19 @@
 import * as THREE from 'three';
-/* import { onPointerDown, onPointerMove, onPointerUp } from '../slider/index.js'; */
-/* import { onMouseMoveHover } from '../slider/mouseHover/index.js'; */
+import { onPointerDown, onPointerMove, onPointerUp } from '../slider/index.js';
+import { onMouseMoveHover } from '../slider/mouseHover/index.js';
 import showAbout from '../../components/about/index.js';
 import closeInfoDiv from '../../components/close/index.js';
 import { onWindowResize } from '../index.js';
 
 export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
+
+    window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: false });
+    window.addEventListener('pointermove', (event) => onPointerMove(event, context), { passive: false });
+    window.addEventListener('pointerup', (event) => onPointerUp(event, context), { passive: false });
+    window.addEventListener('touchstart', (event) => onPointerDown(event, context), { passive: false });
+    window.addEventListener('touchmove', (event) => onPointerMove(event, context), { passive: false });
+    window.addEventListener('touchend', (event) => onPointerUp(event, context), { passive: false });
 
     window.addEventListener('pointermove', (event) => {
         if (event.pointerType !== 'mouse') return;

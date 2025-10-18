@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { setupScene, onWindowResize, createMeshes, setupFBO, addObjects, setupPostProcessing, setupEventListeners } from './threeJS/index.js';
+import { setupScene, onWindowResize, createCSS2DObjects, syncHtmlWithSlider, createMeshes, setupFBO, addObjects, setupPostProcessing, setupEventListeners } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
 import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
@@ -31,6 +31,7 @@ class EffectShell {
             this.setupLenis(this);
             this.textures = await this.loadTextures(images, this);
             createMeshes(this);
+            createCSS2DObjects(this, images);
             setupPostProcessing(this);
             await setupFBO(this);
             addObjects(this);
@@ -46,14 +47,12 @@ class EffectShell {
     }
 
     setupLenis() {
-        // Detect touch devices — disable Lenis there
         this.isTouch =
             window.matchMedia('(pointer: coarse)').matches ||
             'ontouchstart' in window ||
             navigator.maxTouchPoints > 0;
 
         if (!this.isTouch) {
-            // Initialize Lenis only for desktop
             const lenis = new Lenis({
                 wrapper: document.documentElement,
                 content: document.body,
@@ -94,7 +93,6 @@ class EffectShell {
         document.documentElement.style.overflow = "";
     }
 
-
     loadTextures(imageArray, context) {
         const textureLoader = new THREE.TextureLoader();
         return Promise.all(imageArray.map(image => new Promise((resolve, reject) => {
@@ -132,6 +130,28 @@ class EffectShell {
         if (ctx.bounceTween) ctx.bounceTween.kill();
         ctx.bounceTween = null;
         ctx.bounceDirection = null;
+    }
+
+    calculatePositionX(index, currentPosition, meshSpacing) {
+        const totalLength = meshSpacing * images.length;
+        return ((((index * meshSpacing + currentPosition) % totalLength) + totalLength) % totalLength) - totalLength / 2;
+    }
+
+    updateAdjustedMeshSpacing() {
+        this.meshSpacing = this.baseMeshSpacing * this.scaleFactor_cards;
+    }
+
+    updatePositions() {
+
+        this.group.children.forEach((child, index) => {
+            child.position.x = this.calculatePositionX(index, this.currentPosition, this.meshSpacing);
+        });
+
+        this.syncHtmlWithSlider();
+    }
+
+    syncHtmlWithSlider() {
+        syncHtmlWithSlider(this);
     }
 
     getRenderTarget() {
@@ -190,18 +210,61 @@ class EffectShell {
         let deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
+        // Normalization for screen size (computed here for momentum phase)
+        const containerWidth = this.container ? this.container.clientWidth : window.innerWidth;
+        const referenceWidth = 1920;
+        const widthFactor = Math.min(referenceWidth / containerWidth, 4);
+
+        if (!this.isDragging && this.isMoving) {
+            this.targetPosition += this.velocity * deltaTime;
+            this.velocity *= Math.pow(this.friction, 60 * deltaTime);
+            if (Math.abs(this.velocity) < 0.01) {
+                this.velocity = 0;
+                this.isMoving = false;
+            }
+
+            const momentumStrength = Math.min(Math.abs(this.velocity) / (70.0 / widthFactor), 1.0);
+            if (this.meshArray) {
+                this.meshArray.forEach(mesh => {
+                    mesh.material.uniforms.uIsDragging.value += (momentumStrength - mesh.material.uniforms.uIsDragging.value) * 0.03;
+                    mesh.material.uniforms.uIsDragging.needsUpdate = true;
+                });
+            }
+        }
+
+        this.currentPosition = this.currentPosition + (this.targetPosition - this.currentPosition) * this.lerpFactor;
+
+        this.desiredOffset = this.velocity * this.offsetFactor;
+        this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
+
+        this.group.children.forEach(child => {
+            child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
+        });
+
+        this.updatePositions();
+        this.syncHtmlWithSlider();
+
+        if (this.meshArray?.[0] && this.titleLabel) {
+            const mesh = this.meshArray[0];
+            mesh.getWorldPosition(this.titleWorldPos);
+            this.titleLabel.position.y = this.titleWorldPos.y;
+        }
+
         this.updateUniforms(deltaTime);
         this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
         this.cubeCamera.position.copy(this.glassBall.position);
         this.cubeCamera.update(this.renderer, this.scene);
+
         this.renderToFBO();
 
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();
+        this.labelRenderer.render(this.scene, this.camera);
         this.composer.render();
 
         requestAnimationFrame(this.animate.bind(this));
     }
+
 
     onInitComplete() {
         console.log("Initialization complete!");

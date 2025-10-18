@@ -49,12 +49,11 @@ export default function onWindowResize(context) {
     const viewHeight = viewWidth / aspect;
     const objectScale = typeof factor !== 'undefined' ? factor : 1;
 
-    // Points (particles)
     if (context.points) {
         const base = context.points.userData?.baseScale ?? new THREE.Vector3(1, 1, 1);
         context.points.scale.set(base.x * objectScale, base.y * objectScale, base.z * objectScale);
     }
-    // Glass ball
+
     if (context.glassBall) {
         const base = context.glassBall.userData?.baseScale ?? new THREE.Vector3(1, 1, 1);
         context.glassBall.scale.set(base.x * objectScale, base.y * objectScale, base.z * objectScale);
@@ -64,18 +63,26 @@ export default function onWindowResize(context) {
     }
 
     context.renderer.setSize(w, h);
-    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    context.labelRenderer.setSize(w, h);
+    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     context.camera.left = -viewWidth / 2;
     context.camera.right = viewWidth / 2;
     context.camera.top = viewHeight / 2;
     context.camera.bottom = -viewHeight / 2;
-
     context.camera.updateProjectionMatrix();
+
     const planeHeight = context.camera.top - context.camera.bottom;
     const planeWidth = context.camera.right - context.camera.left;
     context.largePlane.geometry.dispose();
     context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
+
+    context.smoothingFactor = w <= 1024 ? 0.2 : 0.03;
+    context.lerpFactor = w <= 1024 ? 0.25 : 0.12;
+    context.friction = w <= 1024 ? 0.95 : 0.96;
+    context.lastTime = performance.now();
+
+    context.updatePositions();
 
     if (context.isSmall()) {
         context.followMouse = false;
@@ -88,6 +95,5 @@ export default function onWindowResize(context) {
         context.stopBounce(context);
         gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
     }
-
 }
 

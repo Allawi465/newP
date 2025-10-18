@@ -44,42 +44,7 @@ export const images = [
         link: 'https://robelmahta.netlify.app/'
     },
     {
-        id: 'slider_1',
-        src: '1.jpg',
-        title: 'Adventure',
-        slogan: 'Explore the Uncharted',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_2',
-        src: '2.jpg',
-        title: 'Holidaze',
-        slogan: 'Relax in Style',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_3',
-        src: '1.jpg',
-        title: 'NoxB',
-        slogan: 'Innovating Tomorrow',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_4',
-        src: '4.jpg',
-        title: 'Buyers',
-        slogan: 'Shop Smart',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_5',
-        src: '5.jpg',
-        title: 'Portfolio 02',
-        slogan: 'Digital Craftsmanship',
-        link: 'https://robelmahta.netlify.app/'
-    },
-    {
-        id: 'slider_6',
+        id: 'slider_7',
         src: '6.jpg',
         title: 'Note',
         slogan: 'Moments That Matter',

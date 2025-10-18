@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import { handleClick } from './handleClick/index.js';
 
-/* export function onPointerMove(event, context) {
+export function onPointerMove(event, context) {
     if (!context.isDragging) return;
 
     const clientX = event.clientX !== undefined
@@ -147,4 +147,4 @@ export function onPointerUp(event, context) {
             });
         }
     }
-} */
+}
