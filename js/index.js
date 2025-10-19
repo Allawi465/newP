@@ -6,6 +6,7 @@ import { setupScene, onWindowResize, createCSS2DObjects, syncHtmlWithSlider, cre
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
 import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
+gsap.registerPlugin(ScrollTrigger);
 
 class EffectShell {
     constructor() {
@@ -17,11 +18,12 @@ class EffectShell {
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
         this.bounceTween = null;
+        this.scrollTargetY = 0;
         this.isTouch =
             window.matchMedia('(pointer: coarse)').matches ||
             'ontouchstart' in window ||
             navigator.maxTouchPoints > 0;
-        this.scrollProgress = 0
+
 
         this.init().then(() => this.onInitComplete());
     }
@@ -51,38 +53,35 @@ class EffectShell {
         }
     }
 
-
     setupLenis() {
-
         if (!this.isTouch) {
             const lenis = new Lenis({
                 wrapper: document.documentElement,
                 content: document.body,
-                orientation: 'vertical',
-                gestureOrientation: 'vertical',
                 smoothWheel: true,
-                mouseMultiplier: 1,
-                duration: 1.2,
-                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
                 smoothTouch: false,
-                syncTouch: false,
                 autoRaf: false,
+                duration: 1.1,
+                easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             });
-
             this.bodyLenis = lenis;
 
             lenis.on('scroll', ScrollTrigger.update);
 
-            gsap.ticker.add((time) => {
-                lenis.raf(time * 1000);
-            });
-
+            gsap.ticker.add(t => lenis.raf(t * 1000));
             gsap.ticker.lagSmoothing(0);
 
+            ScrollTrigger.scrollerProxy(document.documentElement, {
+                scrollTop: (v) => v != null ? lenis.scrollTo(v, { immediate: true }) : lenis.scroll,
+                getBoundingClientRect: () => ({ top: 0, left: 0, width: innerWidth, height: innerHeight }),
+                pinType: "transform"
+            });
+            ScrollTrigger.defaults({ scroller: document.documentElement });
         } else {
             this.bodyLenis = null;
             document.documentElement.style.overflow = '';
             document.body.style.overflow = '';
+            ScrollTrigger.defaults({});
         }
     }
 
@@ -96,20 +95,15 @@ class EffectShell {
         document.documentElement.style.overflow = "";
     }
 
-    loadTextures(imageArray, context) {
-        const textureLoader = new THREE.TextureLoader();
-        return Promise.all(imageArray.map(image =>
-            new Promise(resolve =>
-                textureLoader.load(image.src, texture => {
-                    texture.wrapS = THREE.ClampToEdgeWrapping;
-                    texture.wrapT = THREE.ClampToEdgeWrapping;
-                    texture.generateMipmaps = true;
-                    texture.minFilter = THREE.LinearMipMapLinearFilter;
-                    texture.magFilter = THREE.LinearFilter;
-                    texture.anisotropy = Math.min(context.renderer.capabilities.getMaxAnisotropy(), 8);
-                    resolve(texture);
-                })
-            )
+    loadTextures(images) {
+        const loader = new THREE.TextureLoader();
+        return Promise.all(images.map(img =>
+            new Promise(res => loader.load(img.src, tex => {
+                tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+                tex.minFilter = THREE.LinearFilter;
+                tex.magFilter = THREE.LinearFilter;
+                res(tex);
+            }))
         ));
     }
 
@@ -204,8 +198,11 @@ class EffectShell {
         this.fbo1 = temp;
     }
 
+    lerp = (start, end, t) => start + (end - start) * t;
+
 
     animate() {
+        requestAnimationFrame(this.animate.bind(this));
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
@@ -229,8 +226,6 @@ class EffectShell {
             child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
         });
 
-        this.updatePositions();
-        this.syncHtmlWithSlider();
 
         if (this.meshArray?.[0] && this.titleLabel) {
             const mesh = this.meshArray[0];
@@ -238,15 +233,10 @@ class EffectShell {
             this.titleLabel.position.y = this.titleWorldPos.y;
         }
 
-        if (this.meshArray) {
-            this.meshArray.forEach(mesh => {
-                mesh.material.uniforms.uGrayscale.value = this.scrollProgress;
-                mesh.material.uniforms.opacity.value = this.scrollProgress;
-            });
-        }
+        this.updatePositions();
+        this.syncHtmlWithSlider();
 
         this.updateUniforms(deltaTime);
-
 
         this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
         this.cubeCamera.position.copy(this.glassBall.position);
@@ -257,8 +247,6 @@ class EffectShell {
         this.camera.layers.enableAll();
         this.labelRenderer.render(this.scene, this.camera);
         this.composer.render();
-
-        requestAnimationFrame(this.animate.bind(this));
     }
 
     onInitComplete() {

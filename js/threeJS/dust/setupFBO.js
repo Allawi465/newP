@@ -3,7 +3,6 @@ import simFragment from '../glsl/dust/simFragment.js';
 import simVertex from '../glsl/dust/simVertex.js';
 import makeTextTargetsSimple from './ctx.js';
 
-
 export default async function setupFBO(context) {
     await context.loadFont("Space Grotesk", "600", 180);
 

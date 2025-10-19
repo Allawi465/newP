@@ -4,6 +4,8 @@ import gsap from "gsap";
 import fragment from '../glsl/dust/fragment.js';
 import vertex from '../glsl/dust/vertex.js';
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function addObjects(context) {
     const colorParams = { particleColor: '#d0e2eb' };
     const fogColorParams = { uFogColor: '#ffffff' };

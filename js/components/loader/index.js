@@ -1,6 +1,5 @@
 import gsap from "gsap";
 import SplitType from 'split-type';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { loadingContainer } from "./loading";
 
 export default function initLoadingSequence(context) {

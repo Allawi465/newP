@@ -2,6 +2,9 @@ import Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import gsap from 'gsap';
 
+gsap.registerPlugin(ScrollTrigger);
+
+
 export function setupAboutLenis(context) {
     const wrapper = document.querySelector('#about');
     const contentElement = wrapper.querySelector('.about_wrapper');

@@ -5,7 +5,6 @@ export const progressCounter = document.getElementById('progressCounter');
 export const loadingContainer = document.getElementById('loadingContainer');
 export const loadingProgress = { value: 0 };
 
-// Calculate transform based on progress to prevent overflow
 export default function getTransform(progress) {
     if (progress <= 10) {
         return '0%';
@@ -26,13 +25,10 @@ gsap.to(loadingProgress, {
         const currentProgress = loadingProgress.value;
         const displayProgress = Math.floor(currentProgress);
 
-        // Update counter number
         counterNumber.textContent = displayProgress;
 
-        // Update progress bar width
         gsap.set(progressBar, { width: currentProgress + '%' });
 
-        // Update counter position with smooth transform
         gsap.set(progressCounter, {
             left: currentProgress + '%',
             x: getTransform(currentProgress)

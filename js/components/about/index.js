@@ -4,6 +4,7 @@ import SplitType from "split-type";
 
 gsap.registerPlugin(ScrollTrigger);
 
+
 const creativeCards = document.querySelectorAll(".creative_cards");
 const valuesCards = document.querySelectorAll(".values_section");
 
