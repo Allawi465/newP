@@ -6,21 +6,22 @@ import closeInfoDiv from '../../components/close/index.js';
 import { onWindowResize } from '../index.js';
 
 export default function setupEventListeners(context) {
+    const sliderEl = document.getElementById('sliderContainer');
     window.addEventListener('resize', () => onWindowResize(context));
 
-    window.addEventListener('scroll', () => {
-        const scrollNorm = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-        const minY = 0;
-        const maxY = 18;
-        context.targetY = minY + (maxY - minY) * scrollNorm;
-    });
+    sliderEl.addEventListener('pointerdown', (e) => onPointerDown(e, context), { passive: true });
+    sliderEl.addEventListener('pointerup', (e) => onPointerUp(e, context), { passive: true });
+    sliderEl.addEventListener('pointermove', (e) => {
+        if (!context.isDragging) return;
+        onPointerMove(e, context);
+    }, { passive: false });
 
-    window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: false });
-    window.addEventListener('pointermove', (event) => onPointerMove(event, context), { passive: false });
-    window.addEventListener('pointerup', (event) => onPointerUp(event, context), { passive: false });
-    window.addEventListener('touchstart', (event) => onPointerDown(event, context), { passive: false });
-    window.addEventListener('touchmove', (event) => onPointerMove(event, context), { passive: false });
-    window.addEventListener('touchend', (event) => onPointerUp(event, context), { passive: false });
+    sliderEl.addEventListener('touchstart', (e) => onPointerDown(e, context), { passive: true });
+    sliderEl.addEventListener('touchend', (e) => onPointerUp(e, context), { passive: true });
+    sliderEl.addEventListener('touchmove', (e) => {
+        if (!context.isDragging) return;
+        onPointerMove(e, context);
+    }, { passive: false });
 
     window.addEventListener('pointermove', (event) => {
         if (event.pointerType !== 'mouse') return;
@@ -44,5 +45,4 @@ export default function setupEventListeners(context) {
             context.clock.start();
         }
     });
-
 }

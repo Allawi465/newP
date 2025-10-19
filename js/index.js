@@ -11,18 +11,26 @@ gsap.registerPlugin(ScrollTrigger);
 class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
-        this.images = images;
+
         this.VIEW_WIDTH = 4.5;
+
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
         this.bounceTween = null;
+
+
         this.isTouch =
             window.matchMedia('(pointer: coarse)').matches ||
             'ontouchstart' in window ||
             navigator.maxTouchPoints > 0;
-        this.targetY = 0;
+
+        this.scrollMinY = 0;
+        this.scrollMaxY = 18;
+        this.projectsSection = null;
         this.currentY = 0;
         this.scrollTargetY = 0;
+        this.projectsSection = document.querySelector('.projects');
+
 
         this.init().then(() => this.onInitComplete());
     }
@@ -34,8 +42,8 @@ class EffectShell {
     async init() {
         try {
             setupScene(this);
-            this.setupLenis();
-            this.textures = await this.loadTextures(images);
+            this.setupLenis(this);
+            this.textures = await this.loadTextures(images, this);
             createMeshes(this);
             createCSS2DObjects(this, images);
             setupPostProcessing(this);
@@ -146,6 +154,16 @@ class EffectShell {
         syncHtmlWithSlider(this);
     }
 
+    clamp(v, a = 0, b = 1) { return Math.max(a, Math.min(b, v)); }
+
+    sectionScrollProgress(el) {
+        const rect = el.getBoundingClientRect();
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        const total = vh + rect.height;
+        const completed = vh - rect.top;
+        return this.clamp(completed / total, 0, 1);
+    }
+
     getRenderTarget() {
         const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
             format: THREE.RGBAFormat,
@@ -174,6 +192,7 @@ class EffectShell {
 
         this.material.uniforms.time.value = this.time;
         this.fboMaterial.uniforms.time.value = this.time;
+        this.fboMaterial.uniforms.uDelta.value = this.time
         this.fboMaterial.uniforms.uDelta.value = Math.min(deltaTime, 0.1);
 
         this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random();
@@ -196,13 +215,22 @@ class EffectShell {
         this.fbo1 = temp;
     }
 
+
+
     animate() {
         requestAnimationFrame(this.animate.bind(this));
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        this.currentY += (this.targetY - this.currentY) * this.lerpFactor;
-        this.group.position.y = this.currentY;
+        if (this.projectsSection && this.group) {
+            const p = this.sectionScrollProgress(this.projectsSection);
+            this.scrollTargetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * p;
+
+            const lerp = 0.3;
+            this.currentY += (this.scrollTargetY - this.currentY) * lerp;
+
+            this.group.position.y = this.currentY;
+        }
 
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
@@ -212,8 +240,8 @@ class EffectShell {
                 this.velocity = 0;
                 this.isMoving = false;
             }
-        }
 
+        }
         this.currentPosition += (this.targetPosition - this.currentPosition) * this.lerpFactor;
 
         this.desiredOffset = this.velocity * this.offsetFactor;
@@ -247,6 +275,7 @@ class EffectShell {
     }
 
     onInitComplete() {
+        console.log("Initialization complete!");
         setupScrollAnimation(this);
     }
 }

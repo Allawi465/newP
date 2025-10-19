@@ -59,15 +59,15 @@ export default function setupScrollAnimation(context) {
     });
 
 
-    /*   ScrollTrigger.create({
-          trigger: '.hero',
-          start: 'bottom center',
-          scrub: true,
-          scroller: document.body,
-          onUpdate: (self) => {
-              context.scrollProgress = self.progress;
-          }
-      }); */
+    /*    ScrollTrigger.create({
+           trigger: '.hero',
+           start: 'bottom center',
+           scrub: true,
+           scroller: document.body,
+           onUpdate: (self) => {
+               context.scrollProgress = self.progress;
+           }
+       }); */
 
 
     const typeSplit = new SplitType(".projects__title", { types: 'char', tagName: 'span' });
