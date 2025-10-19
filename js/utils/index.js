@@ -55,9 +55,7 @@ export const images = [
 export const defaultConfig = {
     textures: [],
     cssObjects: [],
-    meshes: [],
     meshArray: [],
-    images: [],
     mouse: new THREE.Vector2(),
     targetPositionSphre: new THREE.Vector3(0, 0, 0),
     raycaster: new THREE.Raycaster(),
@@ -68,15 +66,11 @@ export const defaultConfig = {
 
     width: window.innerWidth,
     height: window.innerHeight,
-    isScrolling: false,
     PARTICLE_LAYER: 0,
     SPHERE_LAYER: 1,
     PLANE_LAYER: 3,
     slider_mesh: 4,
     size: 1024,
-    moon_LAYER: 5,
-
-    aspect: window.innerWidth / window.innerHeight,
 
     movementSensitivity: 150,
     smoothingFactor: 0.03,
@@ -96,8 +90,6 @@ export const defaultConfig = {
     slideWidth: 1.8,
     meshSpacing: 2.2,
     scaleFactor_cards: 1,
-    transitionPlaneSegments: 12,
-
 
     desiredOffset: 0,
     offsetFactor: 1,
@@ -113,9 +105,7 @@ export const defaultConfig = {
     largePlane: null,
     isLoading: true,
     isDivOpen: false,
-    isAnimating: false,
     largeShaderMaterial: null,
-    moonShaderMaterial: null,
     followMouse: true,
 
     isSmall: () => window.innerWidth <= 1000,

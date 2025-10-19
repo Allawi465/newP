@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
-
+        this.images = images;
         this.VIEW_WIDTH = 4.5;
         this.VIEW_HEIGHT = 6;
         this.hasMovedEnough = false;

@@ -15,12 +15,14 @@ export default function setupEventListeners(context) {
         context.targetY = minY + (maxY - minY) * scrollNorm;
     });
 
-    window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: false });
-    window.addEventListener('pointermove', (event) => onPointerMove(event, context), { passive: false });
-    window.addEventListener('pointerup', (event) => onPointerUp(event, context), { passive: false });
-    window.addEventListener('touchstart', (event) => onPointerDown(event, context), { passive: false });
-    window.addEventListener('touchmove', (event) => onPointerMove(event, context), { passive: false });
-    window.addEventListener('touchend', (event) => onPointerUp(event, context), { passive: false });
+    /*     window.addEventListener('touchstart', (event) => onPointerDown(event, context), { passive: true });
+        window.addEventListener('touchmove', (event) => requestAnimationFrame(() => onPointerMove(event, context)), { passive: true });
+        window.addEventListener('touchend', (event) => onPointerUp(event, context), { passive: true });
+    
+        window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: true });
+        window.addEventListener('pointermove', (event) => requestAnimationFrame(() => onPointerMove(event, context)), { passive: true });
+        window.addEventListener('pointerup', (event) => onPointerUp(event, context), { passive: true }); */
+
 
     window.addEventListener('pointermove', (event) => {
         if (event.pointerType !== 'mouse') return;

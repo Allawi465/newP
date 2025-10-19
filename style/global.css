@@ -15,10 +15,11 @@
     }
 
     @font-face {
-        font-family: 'Space Grotesk';
-        font-style: normal;
+        font-family: "Space Grotesk";
+        src: url("/SpaceGrotesk-SemiBold.woff2") format("woff2");
         font-weight: 600;
-        src: url('/SpaceGrotesk-SemiBold.woff2') format('woff2');
+        font-style: normal;
+        font-display: swap;
     }
 
     .w1 {
