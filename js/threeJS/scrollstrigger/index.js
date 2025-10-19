@@ -44,7 +44,6 @@ export default function setupScrollAnimation(context) {
         }),
     });
 
-
     const scrollNameText = new SplitType('.name_scroll', { types: 'chars' });
     ScrollTrigger.create({
         trigger: ".hero",
@@ -58,15 +57,15 @@ export default function setupScrollAnimation(context) {
         }),
     });
 
-    gsap.to(context.group.position, {
-        y: 18,
-        ease: "none",
-        scrollTrigger: {
-            trigger: ".projects",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 0.5,
-            scroller: document.body,
+    const setY = gsap.quickSetter(context.group.position, "y");
+
+    ScrollTrigger.create({
+        trigger: ".projects",
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+        onUpdate: self => {
+            setY(gsap.utils.interpolate(0, 18, self.progress));
         }
     });
 

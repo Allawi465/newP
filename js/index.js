@@ -247,6 +247,7 @@ class EffectShell {
 
         this.updateUniforms(deltaTime);
 
+
         this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
         this.cubeCamera.position.copy(this.glassBall.position);
         this.cubeCamera.update(this.renderer, this.scene);
