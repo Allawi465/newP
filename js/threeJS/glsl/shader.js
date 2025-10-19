@@ -1,7 +1,6 @@
 export const vertexShader = `
   uniform vec2 uOffset;
   uniform float uRotation;
-  uniform float uDistanceScale; 
   varying vec2 vUv;
   const float PI = 3.141592653589793;
 

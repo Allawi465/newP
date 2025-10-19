@@ -18,12 +18,13 @@ class EffectShell {
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
         this.bounceTween = null;
-        this.scrollTargetY = 0;
         this.isTouch =
             window.matchMedia('(pointer: coarse)').matches ||
             'ontouchstart' in window ||
             navigator.maxTouchPoints > 0;
-
+        this.targetY = 0;
+        this.currentY = 0;
+        this.scrollTargetY = 0;
 
         this.init().then(() => this.onInitComplete());
     }
@@ -206,6 +207,9 @@ class EffectShell {
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
+        this.currentY += (this.targetY - this.currentY) * this.lerpFactor;
+        this.group.position.y = this.currentY
+
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
             this.velocity *= Math.pow(this.friction, 60 * deltaTime);
@@ -214,7 +218,6 @@ class EffectShell {
                 this.velocity = 0;
                 this.isMoving = false;
             }
-
         }
 
         this.currentPosition += (this.targetPosition - this.currentPosition) * this.lerpFactor;
@@ -250,7 +253,6 @@ class EffectShell {
     }
 
     onInitComplete() {
-        console.log("Initialization complete!");
         setupScrollAnimation(this);
     }
 }

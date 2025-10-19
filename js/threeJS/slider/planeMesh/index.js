@@ -3,13 +3,12 @@ import { gsap } from 'gsap';
 import { vertexShader, fragmentShader } from '../../glsl/shader';
 
 export default function createPlaneMesh(content, texture, index) {
-    const segments = content.isTouch ? 8 : 32;
 
     const planeGeometry = new THREE.PlaneGeometry(
         content.slideWidth * content.scaleFactor,
         content.slideHeight * content.scaleFactor,
-        segments,
-        segments
+        32,
+        32
     );
 
     const textureAspect = texture.image.width / texture.image.height;
@@ -29,7 +28,6 @@ export default function createPlaneMesh(content, texture, index) {
             uAspectRatio: { value: aspectRatio },
             uMaxDist: { value: content.maxDist },
             uRotation: { value: 0.0 },
-            uDistanceScale: { value: 1. },
         },
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,

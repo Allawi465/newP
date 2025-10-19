@@ -91,10 +91,13 @@ export const defaultConfig = {
     scaleFactor: 1,
     dragSpeed: 0,
     velocity: 0,
+
     slideHeight: 3.,
     slideWidth: 1.8,
     meshSpacing: 2.2,
     scaleFactor_cards: 1,
+    transitionPlaneSegments: 12,
+
 
     desiredOffset: 0,
     offsetFactor: 1,

@@ -8,6 +8,13 @@ import { onWindowResize } from '../index.js';
 export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
 
+    window.addEventListener('scroll', () => {
+        const scrollNorm = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+        const minY = 0;
+        const maxY = 18;
+        context.targetY = minY + (maxY - minY) * scrollNorm;
+    });
+
     window.addEventListener('pointerdown', (event) => onPointerDown(event, context), { passive: false });
     window.addEventListener('pointermove', (event) => onPointerMove(event, context), { passive: false });
     window.addEventListener('pointerup', (event) => onPointerUp(event, context), { passive: false });

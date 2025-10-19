@@ -58,26 +58,16 @@ export default function setupScrollAnimation(context) {
         }),
     });
 
-    gsap.to(context.group.position, {
-        y: 18,
-        ease: "none",
-        scrollTrigger: {
-            trigger: ".projects",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 0.5,
-        }
-    });
 
-    ScrollTrigger.create({
-        trigger: '.hero',
-        start: 'bottom center',
-        scrub: true,
-        scroller: document.body,
-        onUpdate: (self) => {
-            context.scrollProgress = self.progress;
-        }
-    });
+    /*   ScrollTrigger.create({
+          trigger: '.hero',
+          start: 'bottom center',
+          scrub: true,
+          scroller: document.body,
+          onUpdate: (self) => {
+              context.scrollProgress = self.progress;
+          }
+      }); */
 
 
     const typeSplit = new SplitType(".projects__title", { types: 'char', tagName: 'span' });

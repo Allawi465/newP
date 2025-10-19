@@ -20,7 +20,8 @@ export default function createLargePlane(context) {
         depthTest: true
     });
 
-    const largeGeometry = new THREE.PlaneGeometry(1, 1, 24, 24);
+    const segments = Math.max(1, Math.floor(context.transitionPlaneSegments || 12));
+    const largeGeometry = new THREE.PlaneGeometry(1, 1, segments, segments);
     context.largePlane = new THREE.Mesh(largeGeometry, largeShaderMaterial);
     context.largeShaderMaterial = largeShaderMaterial;
 

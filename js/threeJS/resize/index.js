@@ -12,13 +12,10 @@ export default function onWindowResize(context) {
     const MIN_SCALE = 2.5;
     const MAX_SCALE = 3.8;
 
-    // Width-based t (original)
     const tWidth = Math.min(1, Math.max(0, (w - MIN_WIDTH) / (2000 - MIN_WIDTH)));
 
-    // Height-based t (new: clamps between CLAMP_HEIGHT and MIN_HEIGHT)
     const tHeight = Math.min(1, Math.max(0, (h - CLAMP_HEIGHT) / (MIN_HEIGHT - CLAMP_HEIGHT)));
 
-    // Combined t: min of both to scale down when either dimension shrinks
     const t = Math.min(tWidth, tHeight);
 
     const pow = 2.5;
@@ -26,7 +23,7 @@ export default function onWindowResize(context) {
 
     let effectiveMin = MIN_SCALE;
     if (w > h && h < MIN_HEIGHT) {
-        const lowerBound = 1.3; // Adjust this value to control how much extra down-scaling (lower = smaller scale)
+        const lowerBound = 1.3;
         effectiveMin = lowerBound + (MIN_SCALE - lowerBound) * (h / MIN_HEIGHT);
     }
 
@@ -74,8 +71,14 @@ export default function onWindowResize(context) {
 
     const planeHeight = context.camera.top - context.camera.bottom;
     const planeWidth = context.camera.right - context.camera.left;
+    const transitionSegments = Math.max(1, Math.floor(context.transitionPlaneSegments || 12));
     context.largePlane.geometry.dispose();
-    context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
+    context.largePlane.geometry = new THREE.PlaneGeometry(
+        planeWidth,
+        planeHeight,
+        transitionSegments,
+        transitionSegments
+    );
 
     context.smoothingFactor = w <= 1024 ? 0.2 : 0.03;
     context.lerpFactor = w <= 1024 ? 0.25 : 0.12;
