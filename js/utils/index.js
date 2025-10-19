@@ -64,8 +64,6 @@ export const defaultConfig = {
     clock: new THREE.Clock(),
     time: 0,
 
-    width: window.innerWidth,
-    height: window.innerHeight,
     PARTICLE_LAYER: 0,
     SPHERE_LAYER: 1,
     PLANE_LAYER: 3,

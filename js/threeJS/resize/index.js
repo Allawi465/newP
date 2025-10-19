@@ -45,7 +45,7 @@ export default function onWindowResize(context) {
     }
 
     const viewHeight = viewWidth / aspect;
-    const objectScale = typeof factor !== 'undefined' ? factor : 1;
+    const objectScale = 1;
 
     if (context.points) {
         const base = context.points.userData?.baseScale ?? new THREE.Vector3(1, 1, 1);

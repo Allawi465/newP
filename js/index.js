@@ -13,8 +13,6 @@ class EffectShell {
         Object.assign(this, defaultConfig);
         this.images = images;
         this.VIEW_WIDTH = 4.5;
-        this.VIEW_HEIGHT = 6;
-        this.hasMovedEnough = false;
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
         this.bounceTween = null;
@@ -36,8 +34,8 @@ class EffectShell {
     async init() {
         try {
             setupScene(this);
-            this.setupLenis(this);
-            this.textures = await this.loadTextures(images, this);
+            this.setupLenis();
+            this.textures = await this.loadTextures(images);
             createMeshes(this);
             createCSS2DObjects(this, images);
             setupPostProcessing(this);
@@ -176,7 +174,6 @@ class EffectShell {
 
         this.material.uniforms.time.value = this.time;
         this.fboMaterial.uniforms.time.value = this.time;
-        this.fboMaterial.uniforms.uDelta.value = this.time
         this.fboMaterial.uniforms.uDelta.value = Math.min(deltaTime, 0.1);
 
         this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random();
@@ -199,16 +196,13 @@ class EffectShell {
         this.fbo1 = temp;
     }
 
-    lerp = (start, end, t) => start + (end - start) * t;
-
-
     animate() {
         requestAnimationFrame(this.animate.bind(this));
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
         this.currentY += (this.targetY - this.currentY) * this.lerpFactor;
-        this.group.position.y = this.currentY
+        this.group.position.y = this.currentY;
 
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;

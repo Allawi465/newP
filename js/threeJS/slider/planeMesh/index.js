@@ -26,7 +26,6 @@ export default function createPlaneMesh(content, texture, index) {
             uGrayscale: { value: 1. },
             opacity: { value: 1. },
             uAspectRatio: { value: aspectRatio },
-            uMaxDist: { value: content.maxDist },
             uRotation: { value: 0.0 },
         },
         vertexShader: vertexShader,
