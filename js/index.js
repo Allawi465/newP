@@ -2,10 +2,12 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { setupScene, onWindowResize, createCSS2DObjects, syncHtmlWithSlider, createMeshes, setupFBO, addObjects, setupPostProcessing, setupEventListeners } from './threeJS/index.js';
+import { setupScene, onWindowResize, createCSS2DObjects, createLargePlane, syncHtmlWithSlider, createMeshes, setupFBO, addObjects, setupPostProcessing, setupEventListeners } from './threeJS/index.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
 import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
+
+
 gsap.registerPlugin(ScrollTrigger);
 
 class EffectShell {
@@ -13,20 +15,13 @@ class EffectShell {
         Object.assign(this, defaultConfig);
 
         this.VIEW_WIDTH = 4.5;
-
         this.bounceDirection = 'y';
         this.baseMeshSpacing = 2.2;
         this.bounceTween = null;
-
-
-        this.isTouch =
-            window.matchMedia('(pointer: coarse)').matches ||
-            'ontouchstart' in window ||
-            navigator.maxTouchPoints > 0;
-
+        this.scrollSmoothness = 0.08;
+        this.isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         this.scrollMinY = 0;
         this.scrollMaxY = 18;
-        this.projectsSection = null;
         this.currentY = 0;
         this.scrollTargetY = 0;
         this.projectsSection = document.querySelector('.projects');
@@ -52,9 +47,7 @@ class EffectShell {
             setupEventListeners(this);
             this.animate();
             onWindowResize(this);
-            initLoadingSequence(this)
-
-
+            initLoadingSequence(this);
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
@@ -68,8 +61,7 @@ class EffectShell {
                 smoothWheel: true,
                 smoothTouch: false,
                 autoRaf: false,
-                duration: 1.1,
-                easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                duration: 1.5,
             });
             this.bodyLenis = lenis;
 
@@ -142,11 +134,9 @@ class EffectShell {
     }
 
     updatePositions() {
-
         this.group.children.forEach((child, index) => {
             child.position.x = this.calculatePositionX(index, this.currentPosition, this.meshSpacing);
         });
-
         this.syncHtmlWithSlider();
     }
 
@@ -165,13 +155,12 @@ class EffectShell {
     }
 
     getRenderTarget() {
-        const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+        return new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
             format: THREE.RGBAFormat,
             type: THREE.FloatType,
             minFilter: THREE.NearestFilter,
             magFilter: THREE.NearestFilter,
         });
-        return renderTarget;
     }
 
     yN(e, t, n, i) {
@@ -182,7 +171,6 @@ class EffectShell {
         var l = e + i * Math.sin(o) * Math.cos(s);
         var c = t + i * Math.sin(o) * Math.sin(s);
         var u = n + i * Math.cos(o);
-
         return [l, c, u];
     }
 
@@ -192,7 +180,6 @@ class EffectShell {
 
         this.material.uniforms.time.value = this.time;
         this.fboMaterial.uniforms.time.value = this.time;
-        this.fboMaterial.uniforms.uDelta.value = this.time
         this.fboMaterial.uniforms.uDelta.value = Math.min(deltaTime, 0.1);
 
         this.fboMaterial.uniforms.uRandom.value = 0.5 + Math.random();
@@ -215,42 +202,50 @@ class EffectShell {
         this.fbo1 = temp;
     }
 
-
-
     animate() {
         requestAnimationFrame(this.animate.bind(this));
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        if (this.projectsSection && this.group) {
-            const p = this.sectionScrollProgress(this.projectsSection);
-            this.scrollTargetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * p;
+        // --- SMOOTH SCROLL ON MESH GROUP ---
+        if (this.group) {
 
-            const lerp = 0.3;
-            this.currentY += (this.scrollTargetY - this.currentY) * lerp;
+            const scrollTop = this.bodyLenis
+                ? this.bodyLenis.scroll
+                : window.scrollY || document.documentElement.scrollTop;
 
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const normalized = maxScroll > 0 ? scrollTop / maxScroll : 0;
+
+            // Target Y position
+            const targetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * normalized;
+
+            // Smooth interpolation (0.08–0.1 feels nice)
+            this.currentY += (targetY - this.currentY);
+
+            // Apply to group
             this.group.position.y = this.currentY;
         }
 
+        // --- SLIDER MOTION / INERTIA LOGIC ---
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
             this.velocity *= Math.pow(this.friction, 60 * deltaTime);
-
             if (Math.abs(this.velocity) < 0.01) {
                 this.velocity = 0;
                 this.isMoving = false;
             }
-
         }
+
         this.currentPosition += (this.targetPosition - this.currentPosition) * this.lerpFactor;
 
         this.desiredOffset = this.velocity * this.offsetFactor;
         this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
 
         this.group.children.forEach(child => {
-            child.material.uniforms.uOffset.value.x += (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
+            child.material.uniforms.uOffset.value.x +=
+                (this.desiredOffset - child.material.uniforms.uOffset.value.x) * this.offsetLerpSpeed;
         });
-
 
         if (this.meshArray?.[0] && this.titleLabel) {
             const mesh = this.meshArray[0];
@@ -260,7 +255,6 @@ class EffectShell {
 
         this.updatePositions();
         this.syncHtmlWithSlider();
-
         this.updateUniforms(deltaTime);
 
         this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
@@ -275,9 +269,22 @@ class EffectShell {
     }
 
     onInitComplete() {
-        console.log("Initialization complete!");
         setupScrollAnimation(this);
+
+        if (this.bodyLenis) {
+            this.bodyLenis.on('scroll', ({ scroll }) => {
+                const normalized = scroll / (document.body.scrollHeight - window.innerHeight);
+                this.scrollTargetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * normalized;
+            });
+        } else {
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                const maxScroll = document.body.scrollHeight - window.innerHeight;
+                const normalized = scrollTop / maxScroll;
+                this.scrollTargetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * normalized;
+            });
+        }
     }
 }
 
-new EffectShell();
+new EffectShell();                                                                                                                                      

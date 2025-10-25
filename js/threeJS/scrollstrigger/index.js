@@ -3,7 +3,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CustomEase } from "gsap/CustomEase";
 import SplitType from "split-type";
 
-export default function setupScrollAnimation(context) {
+export default function setupScrollAnimation() {
     gsap.registerPlugin(CustomEase)
     CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
 
@@ -57,17 +57,6 @@ export default function setupScrollAnimation(context) {
             ease: "customBezier",
         }),
     });
-
-
-    /*    ScrollTrigger.create({
-           trigger: '.hero',
-           start: 'bottom center',
-           scrub: true,
-           scroller: document.body,
-           onUpdate: (self) => {
-               context.scrollProgress = self.progress;
-           }
-       }); */
 
 
     const typeSplit = new SplitType(".projects__title", { types: 'char', tagName: 'span' });

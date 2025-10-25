@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import gsap from "gsap";
 
+
 export default function onWindowResize(context) {
     const w = document.documentElement.clientWidth || window.innerWidth;
     const h = document.documentElement.clientHeight || window.innerHeight;
@@ -75,9 +76,9 @@ export default function onWindowResize(context) {
     context.largePlane.geometry.dispose();
     context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
 
-    context.smoothingFactor = w <= 1024 ? 0.2 : 0.03;
-    context.lerpFactor = w <= 1024 ? 0.25 : 0.12;
-    context.friction = w <= 1024 ? 0.95 : 0.96;
+    context.smoothingFactor = w <= 1024 ? 0.1 : 0.03;
+    context.lerpFactor = w <= 1024 ? 0.2 : 0.1;
+    context.friction = w <= 1024 ? 0.95 : 0.97;
     context.lastTime = performance.now();
 
     context.updatePositions();
@@ -94,4 +95,3 @@ export default function onWindowResize(context) {
         gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
     }
 }
-

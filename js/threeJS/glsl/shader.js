@@ -4,7 +4,6 @@ export const vertexShader = `
   varying vec2 vUv;
   const float PI = 3.141592653589793;
 
-
   vec3 deformation(vec3 position, vec2 uv, vec2 offset) {
       float PI = 3.141592653589793238;
       float amplitudeX = 0.0035; // Reduced amplitude

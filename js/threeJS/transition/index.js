@@ -4,7 +4,6 @@ import transitionVertex from '../glsl/transition/transition_vertex.js';
 import onWindowResize from '../resize/index.js';
 
 export default function createLargePlane(context) {
-
     const largeShaderMaterial = new THREE.ShaderMaterial({
         uniforms: {
             width: { value: 5 },
@@ -21,11 +20,17 @@ export default function createLargePlane(context) {
     });
 
     const largeGeometry = new THREE.PlaneGeometry(1, 1, 24, 24);
-    context.largePlane = new THREE.Mesh(largeGeometry, largeShaderMaterial);
+
+    const largePlane = new THREE.Mesh(largeGeometry, largeShaderMaterial);
+
+    context.largePlane = largePlane;
     context.largeShaderMaterial = largeShaderMaterial;
 
+    context.scene.add(largePlane);
+    largePlane.layers.set(context.PLANE_LAYER);
+    largePlane.renderOrder = 0;
 
     onWindowResize(context);
 
-    return context.largePlane;
+    return largePlane;
 }

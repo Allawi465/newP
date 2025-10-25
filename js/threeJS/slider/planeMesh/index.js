@@ -51,9 +51,6 @@ export default function createPlaneMesh(content, texture, index) {
         .to(shaderMaterial.uniforms.uRotation, { value: -0.09, ease: "power2.inOut", duration: 0.5 })
         .to(shaderMaterial.uniforms.uzom, { value: .9, duration: 0.5, ease: "power2.inOut" }, 0);
 
-    planeMesh.layers.set(content.slider_mesh);
-    planeMesh.renderOrder = 999;
-
     content.meshArray = content.meshArray || [];
     content.meshArray.push(planeMesh);
 
