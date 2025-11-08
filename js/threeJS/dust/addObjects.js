@@ -142,7 +142,7 @@ export default function addObjects(context) {
                 Math.max(0.3, self.progress - 0.5)
             );
 
-            if (!context.isSmall() || !context.bounceTween) return;
+            if (!context.isTouchDevice() || !context.bounceTween) return;
 
             const dir = self.progress > 0 ? 'x' : 'y';
             if (context.bounceDirection !== dir) {

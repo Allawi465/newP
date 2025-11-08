@@ -1,12 +1,15 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { vertexShader, fragmentShader } from '../../glsl/shader';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function createPlaneMesh(content, texture, index) {
 
     const planeGeometry = new THREE.PlaneGeometry(
-        content.slideWidth * content.scaleFactor,
-        content.slideHeight * content.scaleFactor,
+        content.slideWidth * content.scaleFactor_cards,
+        content.slideHeight * content.scaleFactor_cards,
         32,
         32
     );
@@ -50,6 +53,27 @@ export default function createPlaneMesh(content, texture, index) {
     planeMesh.userData.tl
         .to(shaderMaterial.uniforms.uRotation, { value: -0.09, ease: "power2.inOut", duration: 0.5 })
         .to(shaderMaterial.uniforms.uzom, { value: .9, duration: 0.5, ease: "power2.inOut" }, 0);
+
+    const tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: ".projects",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: .5,
+            scroller: document.documentElement,
+        }
+    });
+
+    ScrollTrigger.create({
+        trigger: '.hero',
+        start: 'bottom center',
+        scrub: true,
+        scroller: document.documentElement,
+        onUpdate: (self) => {
+            planeMesh.material.uniforms.uGrayscale.value = self.progress;
+            planeMesh.material.uniforms.opacity.value = self.progress;
+        }
+    });
 
     content.meshArray = content.meshArray || [];
     content.meshArray.push(planeMesh);

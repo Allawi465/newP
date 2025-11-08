@@ -1,150 +1,129 @@
 import gsap from "gsap";
-import SplitType from 'split-type';
+import { SplitText } from "gsap/SplitText";
 import { loadingContainer } from "./loading";
 
 export default function initLoadingSequence(context) {
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-
-    let typeSplit = new SplitType('.hero_title', {
-        types: 'words, chars',
-        tagName: 'span',
-    });
-
-    let typeSplit_2 = new SplitType('.hero_title_2', {
-        types: 'words, chars',
-        tagName: 'span',
-    });
-
-    let typeSplit_3 = new SplitType('.hero_text', {
-        types: 'words',
-        tagName: 'span',
-    });
+    gsap.registerPlugin(SplitText);
 
     const aboutElement = document.querySelector(".about");
     if (aboutElement) {
         aboutElement.style.pointerEvents = 'none';
     }
 
-    const timeline = gsap.timeline({
-        duration: 1,
-        ease: "power2.inOut",
-    });
+    const timeline = gsap.timeline({});
 
-    timeline.to(context.largeShaderMaterial.uniforms.progress, {
-        value: 1,
-        duration: 1,
-        delay: 1.8,
-        ease: "sine.out",
-        onUpdate: () => {
-            const progress = context.largeShaderMaterial.uniforms.progress.value;
-            gsap.to(loadingContainer, {
-                opacity: -progress,
+    document.fonts.ready.then(() => {
+
+        const title = new SplitText(".hero_title", { type: ",words, chars" });
+        const title_2 = new SplitText(".hero_title_2", { type: "words, chars" });
+        context.splits.heroText = SplitText.create(".hero_text", { type: "chars, words, lines" });
+
+        timeline
+            .to(context.largeShaderMaterial.uniforms.progress, {
+                value: 1,
+                duration: 1,
+                ease: "sine.out",
+                onUpdate: () => {
+                    const progress = context.largeShaderMaterial.uniforms.progress.value;
+                    gsap.to(loadingContainer, {
+                        opacity: -progress,
+                        duration: 0.5,
+                        display: "none"
+                    });
+                },
+                onComplete: () => {
+                    context.startBodyScrolling();
+                    context.isLoading = false;
+                    document.documentElement.style.overflow = '';
+                    document.body.style.overflow = '';
+                }
+            }, 0)
+            .to(".header", {
+                opacity: 1,
+                duration: 1,
+            }, 0.5)
+            .to(".hero", {
+                opacity: 1,
+                duration: 1,
+            }, 0.5)
+            .to(".about", {
+                opacity: 1,
+                duration: 1,
+            }, 0.5)
+            .to(context.glassMaterial, {
+                opacity: 1.0,
                 duration: 0.5,
-                display: "none"
-            });
-        },
-        onComplete: () => {
-            context.isLoading = false;
-            document.documentElement.style.overflow = '';
-            document.body.style.overflow = '';
-            if (aboutElement) {
-                aboutElement.style.pointerEvents = 'auto';
-            }
-        }
-    }, 0).to(context.glassMaterial, {
-        opacity: 1.0,
-        duration: 0.5,
-        ease: "power2.out",
-        onUpdate: () => {
-            context.glassMaterial.needsUpdate = true;
-        }
-    }, 1.8,).to(context.material.uniforms.uOpacity, {
-        value: 1.0,
-        duration: 1.0,
-        ease: "power2.out",
-        onUpdate: () => {
-            context.material.needsUpdate = true;
-        },
-    }, 1.8,).to(".header", {
-        opacity: 1,
-        duration: 1,
-    }, 2.2,).to(".hero", {
-        opacity: 1,
-        duration: 1,
-    }, 2.2,).to(".about", {
-        opacity: 1,
-    }, 2.2,).from(
-        '.hero_title .char',
-        {
-            x: "-1em",
-            duration: 1.0,
-            ease: "power2.out",
-            stagger: { amount: 0.2 },
-            opacity: 0,
-        }, 2.2,
-    ).from(
-        '.hero_title_2 .char',
-        {
-            opacity: 0,
-            x: "1em",
-            duration: 1.0,
-            ease: "power2.out",
-            stagger: { amount: 0.2 }
-        }, 2.2,
-    ).from(
-        '.line-dot-container .line-top, .line-dot-container .line-bottom',
-        {
-            height: 0,
-            duration: 1.0,
-            ease: "power2.out",
-            stagger: 0.2
-        }, 2,
-    ).from(
-        '.line-dot-container .dot',
-        {
-            scale: 0,
-            opacity: 0,
-            duration: 0.4,
-            ease: "power2.out"
-        }, 2,
-    ).from(
-        '.divider_line',
-        {
-            width: 0,
-            duration: 1.0,
-            ease: "power2.out"
-        }, 2,
-    ).from(
-        '.divider_short',
-        {
-            width: 0,
-            duration: 1.0,
-            ease: "power2.out"
-        }, 2.2
-    ).from(
-        '.hero_text .word',
-        {
-            opacity: 0,
-            duration: 1.0,
-            ease: "power2.out",
-            stagger: { amount: 0.5 },
-        }, 2.2
-    ).from(
-        '.badges-container .badge-design, .badges-container .badge-code, .badges-container .badge-deploy',
-        {
-            opacity: 0,
-            duration: 1.0,
-            ease: "power2.out",
-            stagger: { amount: 0.3 },
-        }, 2.5
-    ).to(".scroll", {
-        opacity: 1,
-        duration: 1.0,
-        ease: "power2.out"
-    }, 2.5).to(".scroll-line", {
-        opacity: 1,
-        duration: 1.0,
-        ease: "power2.out",
-    }, 2.5)
+                ease: "power2.out",
+                onUpdate: () => {
+                    context.glassMaterial.needsUpdate = true;
+                }
+            }, 0.5).to(context.material.uniforms.uOpacity, {
+                value: 1.0,
+                duration: 1.0,
+                ease: "power2.out",
+                onUpdate: () => {
+                    context.material.needsUpdate = true;
+                },
+            }, 0.5)
+            .from(title.chars, {
+                x: "-1em",
+                duration: 1.0,
+                ease: "power2.out",
+                stagger: { amount: 0.2 },
+                opacity: 0,
+            }, 0.5)
+            .from(".line-top", {
+                height: 0,
+                duration: 1.0,
+                ease: "power2.out",
+                stagger: 0.2,
+            }, 0.5)
+            .from(title_2.chars, {
+                opacity: 0,
+                x: "1em",
+                duration: 1.0,
+                ease: "power2.out",
+                stagger: { amount: 0.2 },
+            }, 0.5)
+            .from(".divider_line", {
+                width: 0,
+                duration: 1.0,
+                ease: "power2.out",
+            }, 0.8)
+            .from(".divider_short", {
+                width: 0,
+                duration: 1.0,
+                ease: "power2.out",
+            }, 0.8)
+            .from(context.splits.heroText.lines, {
+                duration: 0.6,
+                yPercent: 100,
+                opacity: 0,
+                stagger: 0.1,
+                ease: "expo.out",
+            }, 0.8)
+            .from(".badges-container .badge-design, .badges-container .badge-code, .badges-container .badge-deploy", {
+                y: 100,
+                opacity: 0,
+                rotation: "random(-80, 80)",
+                stagger: 0.1,
+                duration: 1,
+                ease: "back",
+            }, 1)
+            .to(".scroll", {
+                opacity: 1,
+                duration: 1.0,
+                ease: "power2.out",
+            }, 1)
+            .to(".scroll-line", {
+                opacity: 1,
+                duration: 1.0,
+                ease: "power2.out",
+                onComplete: () => {
+                    if (aboutElement) {
+                        aboutElement.style.pointerEvents = 'auto';
+                    }
+                }
+            }, ">");
+    });
 }

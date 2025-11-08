@@ -8,12 +8,10 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 export default function setupPostProcessing(context) {
 
     context.composer = new EffectComposer(context.renderer);
-
     const clearPass = new ClearPass();
     clearPass.clearColor = new THREE.Color(0xffffff);
     clearPass.clearAlpha = 1.0;
     context.composer.addPass(clearPass);
-
 
     const renderPass = new RenderPass(context.scene, context.camera);
     renderPass.clear = false;

@@ -1,7 +1,7 @@
 import gsap from "gsap";
-export const progressBar = document.getElementById('progressBar');
-export const counterNumber = document.getElementById('counterNumber');
-export const progressCounter = document.getElementById('progressCounter');
+const progressBar = document.getElementById('progressBar');
+const counterNumber = document.getElementById('counterNumber');
+const progressCounter = document.getElementById('progressCounter');
 export const loadingContainer = document.getElementById('loadingContainer');
 export const loadingProgress = { value: 0 };
 
@@ -17,57 +17,14 @@ export default function getTransform(progress) {
     }
 }
 
-gsap.to(loadingProgress, {
-    value: 30,
-    duration: 0.5,
-    ease: 'power1.in',
-    onUpdate: function () {
-        const currentProgress = loadingProgress.value;
-        const displayProgress = Math.floor(currentProgress);
+export function updateProgressUI() {
+    const currentProgress = loadingProgress.value;
+    const displayProgress = Math.floor(currentProgress);
 
-        counterNumber.textContent = displayProgress;
-
-        gsap.set(progressBar, { width: currentProgress + '%' });
-
-        gsap.set(progressCounter, {
-            left: currentProgress + '%',
-            x: getTransform(currentProgress)
-        });
-    }
-});
-
-gsap.to(loadingProgress, {
-    value: 70,
-    duration: 0.8,
-    delay: 0.5,
-    ease: 'linear',
-    onUpdate: function () {
-        const currentProgress = loadingProgress.value;
-        const displayProgress = Math.floor(currentProgress);
-
-        counterNumber.textContent = displayProgress;
-        gsap.set(progressBar, { width: currentProgress + '%' });
-        gsap.set(progressCounter, {
-            left: currentProgress + '%',
-            x: getTransform(currentProgress)
-        });
-    }
-});
-
-gsap.to(loadingProgress, {
-    value: 100,
-    duration: 0.7,
-    delay: 1.3,
-    ease: 'power2.out',
-    onUpdate: function () {
-        const currentProgress = loadingProgress.value;
-        const displayProgress = Math.floor(currentProgress);
-
-        counterNumber.textContent = displayProgress;
-        gsap.set(progressBar, { width: currentProgress + '%' });
-        gsap.set(progressCounter, {
-            left: currentProgress + '%',
-            x: getTransform(currentProgress)
-        });
-    },
-});
+    counterNumber.textContent = displayProgress;
+    gsap.set(progressBar, { width: currentProgress + '%' });
+    gsap.set(progressCounter, {
+        left: currentProgress + '%',
+        x: getTransform(currentProgress)
+    });
+}

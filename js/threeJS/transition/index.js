@@ -20,15 +20,16 @@ export default function createLargePlane(context) {
     });
 
     const largeGeometry = new THREE.PlaneGeometry(1, 1, 24, 24);
-
     const largePlane = new THREE.Mesh(largeGeometry, largeShaderMaterial);
 
     context.largePlane = largePlane;
     context.largeShaderMaterial = largeShaderMaterial;
 
-    context.scene.add(largePlane);
     largePlane.layers.set(context.PLANE_LAYER);
     largePlane.renderOrder = 0;
+
+    context.scene.add(largePlane);
+
 
     onWindowResize(context);
 

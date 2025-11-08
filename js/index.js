@@ -2,7 +2,19 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { setupScene, onWindowResize, createCSS2DObjects, createLargePlane, syncHtmlWithSlider, createMeshes, setupFBO, addObjects, setupPostProcessing, setupEventListeners } from './threeJS/index.js';
+import {
+    setupScene,
+    onWindowResize,
+    createCSS2DObjects,
+    createLargePlane,
+    syncHtmlWithSlider,
+    createMeshes,
+    setupFBO,
+    addObjects,
+    setupPostProcessing,
+    setupEventListeners
+} from './threeJS/index.js';
+import { loadingProgress, updateProgressUI } from './components/loader/loading.js';
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
 import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
@@ -14,18 +26,7 @@ class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
 
-        this.VIEW_WIDTH = 4.5;
-        this.bounceDirection = 'y';
-        this.baseMeshSpacing = 2.2;
-        this.bounceTween = null;
-        this.scrollSmoothness = 0.08;
-        this.isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        this.scrollMinY = 0;
-        this.scrollMaxY = 18;
-        this.currentY = 0;
-        this.scrollTargetY = 0;
-        this.projectsSection = document.querySelector('.projects');
-
+        this.assetsLoaded = false;
 
         this.init().then(() => this.onInitComplete());
     }
@@ -36,9 +37,11 @@ class EffectShell {
 
     async init() {
         try {
-            setupScene(this);
             this.setupLenis(this);
+            this.stopBodyScrolling();
+            setupScene(this);
             this.textures = await this.loadTextures(images, this);
+            createLargePlane(this);
             createMeshes(this);
             createCSS2DObjects(this, images);
             setupPostProcessing(this);
@@ -48,13 +51,14 @@ class EffectShell {
             this.animate();
             onWindowResize(this);
             initLoadingSequence(this);
+            setupScrollAnimation();
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
     }
 
     setupLenis() {
-        if (!this.isTouch) {
+        if (!this.isTouchDevice()) {
             const lenis = new Lenis({
                 wrapper: document.documentElement,
                 content: document.body,
@@ -63,6 +67,7 @@ class EffectShell {
                 autoRaf: false,
                 duration: 1.5,
             });
+
             this.bodyLenis = lenis;
 
             lenis.on('scroll', ScrollTrigger.update);
@@ -71,11 +76,22 @@ class EffectShell {
             gsap.ticker.lagSmoothing(0);
 
             ScrollTrigger.scrollerProxy(document.documentElement, {
-                scrollTop: (v) => v != null ? lenis.scrollTo(v, { immediate: true }) : lenis.scroll,
-                getBoundingClientRect: () => ({ top: 0, left: 0, width: innerWidth, height: innerHeight }),
-                pinType: "transform"
+                scrollTop(value) {
+                    if (arguments.length) {
+                        lenis.scrollTo(value, { immediate: true });
+                    }
+                    return lenis.scroll;
+                },
+                getBoundingClientRect() {
+                    return { top: 0, left: 0, width: innerWidth, height: innerHeight };
+                },
+                pinType: document.documentElement.style.transform ? 'transform' : 'fixed',
             });
+
             ScrollTrigger.defaults({ scroller: document.documentElement });
+
+            this.startBodyScrolling = () => lenis.start();
+            this.stopBodyScrolling = () => lenis.stop();
         } else {
             this.bodyLenis = null;
             document.documentElement.style.overflow = '';
@@ -84,26 +100,83 @@ class EffectShell {
         }
     }
 
+    isTouchDevice() {
+        return (
+            window.matchMedia('(pointer: coarse)').matches ||
+            'ontouchstart' in window ||
+            navigator.maxTouchPoints > 0
+        );
+    }
+
+    enableTouchMode(context) {
+        context.followMouse = false;
+        if (!context.bounceTween) {
+            gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+            context.startBounce(context, "y");
+        }
+    }
+
+    enableMouseMode(context) {
+        context.followMouse = true;
+        context.stopBounce(context);
+        gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+    }
+
     stopBodyScrolling() {
-        if (this.bodyLenis) this.bodyLenis.stop();
+        if (this.bodyLenis) {
+            this.bodyLenis.stop();
+        }
         document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
     }
 
     startBodyScrolling() {
-        if (this.bodyLenis) this.bodyLenis.start();
+        if (this.bodyLenis) {
+            this.bodyLenis.start();
+        }
         document.documentElement.style.overflow = "";
+        document.body.style.overflow = "";
     }
 
-    loadTextures(images) {
+    async loadTextures(images) {
+        const total = images.length;
+        let loadedCount = 0;
+
         const loader = new THREE.TextureLoader();
-        return Promise.all(images.map(img =>
-            new Promise(res => loader.load(img.src, tex => {
-                tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-                tex.minFilter = THREE.LinearFilter;
-                tex.magFilter = THREE.LinearFilter;
-                res(tex);
-            }))
-        ));
+
+        const texturePromises = images.map(img =>
+            new Promise(resolve => {
+                loader.load(img.src, tex => {
+                    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+                    tex.minFilter = tex.magFilter = THREE.LinearFilter;
+
+                    loadedCount++;
+
+                    gsap.to(loadingProgress, {
+                        value: (loadedCount / total) * 100,
+                        duration: 1,
+                        ease: "power2.out",
+                        onUpdate: updateProgressUI
+                    });
+
+                    resolve(tex);
+                });
+            })
+        );
+
+        const textures = await Promise.all(texturePromises);
+
+        await new Promise(resolve => {
+            gsap.to(loadingProgress, {
+                value: 100,
+                duration: 1,
+                ease: "power2.out",
+                onUpdate: updateProgressUI,
+                onComplete: resolve
+            });
+        });
+
+        return textures;
     }
 
     smootherstep(x) {
@@ -207,9 +280,7 @@ class EffectShell {
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        // --- SMOOTH SCROLL ON MESH GROUP ---
         if (this.group) {
-
             const scrollTop = this.bodyLenis
                 ? this.bodyLenis.scroll
                 : window.scrollY || document.documentElement.scrollTop;
@@ -217,17 +288,11 @@ class EffectShell {
             const maxScroll = document.body.scrollHeight - window.innerHeight;
             const normalized = maxScroll > 0 ? scrollTop / maxScroll : 0;
 
-            // Target Y position
             const targetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * normalized;
 
-            // Smooth interpolation (0.08–0.1 feels nice)
-            this.currentY += (targetY - this.currentY);
-
-            // Apply to group
-            this.group.position.y = this.currentY;
+            this.group.position.y = targetY;
         }
 
-        // --- SLIDER MOTION / INERTIA LOGIC ---
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;
             this.velocity *= Math.pow(this.friction, 60 * deltaTime);
@@ -257,7 +322,7 @@ class EffectShell {
         this.syncHtmlWithSlider();
         this.updateUniforms(deltaTime);
 
-        this.glassBall.position.lerp(this.targetPositionSphre, 0.05);
+        this.glassBall.position.lerp(this.targetPositionSphre, 0.08);
         this.cubeCamera.position.copy(this.glassBall.position);
         this.cubeCamera.update(this.renderer, this.scene);
 
@@ -269,8 +334,6 @@ class EffectShell {
     }
 
     onInitComplete() {
-        setupScrollAnimation(this);
-
         if (this.bodyLenis) {
             this.bodyLenis.on('scroll', ({ scroll }) => {
                 const normalized = scroll / (document.body.scrollHeight - window.innerHeight);
@@ -287,4 +350,4 @@ class EffectShell {
     }
 }
 
-new EffectShell();                                                                                                                                      
+new EffectShell();                                                

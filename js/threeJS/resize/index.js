@@ -1,11 +1,10 @@
 import * as THREE from 'three';
-import gsap from "gsap";
-
 
 export default function onWindowResize(context) {
     const w = document.documentElement.clientWidth || window.innerWidth;
     const h = document.documentElement.clientHeight || window.innerHeight;
     const aspect = w / h;
+
     const BREAKPOINT = 1000;
     const MIN_WIDTH = 300;
     const MIN_HEIGHT = 1000;
@@ -13,11 +12,8 @@ export default function onWindowResize(context) {
     const MIN_SCALE = 2.5;
     const MAX_SCALE = 3.8;
 
-    const tWidth = Math.min(1, Math.max(0, (w - MIN_WIDTH) / (2000 - MIN_WIDTH)));
-
-
-    const tHeight = Math.min(1, Math.max(0, (h - CLAMP_HEIGHT) / (MIN_HEIGHT - CLAMP_HEIGHT)));
-
+    const tWidth = THREE.MathUtils.clamp((w - MIN_WIDTH) / (2000 - MIN_WIDTH), 0, 1);
+    const tHeight = THREE.MathUtils.clamp((h - CLAMP_HEIGHT) / (MIN_HEIGHT - CLAMP_HEIGHT), 0, 1);
     const t = Math.min(tWidth, tHeight);
 
     const pow = 2.5;
@@ -35,8 +31,8 @@ export default function onWindowResize(context) {
         context.fboMaterial.uniforms.uLetterScale.value = scale;
     }
 
+    // --- view width logic ---
     let viewWidth;
-
     if (w > BREAKPOINT) {
         viewWidth = 4.5 * (w / BREAKPOINT);
     } else if (w <= MIN_WIDTH) {
@@ -48,6 +44,7 @@ export default function onWindowResize(context) {
     const viewHeight = viewWidth / aspect;
     const objectScale = 1;
 
+    // --- resize points and glassBall ---
     if (context.points) {
         const base = context.points.userData?.baseScale ?? new THREE.Vector3(1, 1, 1);
         context.points.scale.set(base.x * objectScale, base.y * objectScale, base.z * objectScale);
@@ -61,6 +58,44 @@ export default function onWindowResize(context) {
         }
     }
 
+    /*    let sliderFactor = 1;
+       if (w <= 1050 && h <= 1050) {
+           const effective_h = Math.max(h, CLAMP_HEIGHT);
+           let tempFactor = 1000 / effective_h;
+           tempFactor = Math.min(tempFactor, 2.0);
+           if (w <= 500) tempFactor = 1.1;
+           sliderFactor = 1 / tempFactor;
+       }
+   
+       context.sliderFactor = sliderFactor;
+       if (context.meshArray?.length) {
+           context.meshArray.forEach((mesh) => {
+               const base = mesh.userData.baseScale ?? new THREE.Vector3(1, 1, 1);
+               if (!mesh.userData.baseScale) mesh.userData.baseScale = base;
+   
+               gsap.to(mesh.scale, {
+                   x: base.x * sliderFactor,
+                   y: base.y * sliderFactor,
+                   z: base.z * sliderFactor,
+                   duration: 0.6,
+                   ease: "power2.out",
+               });
+           });
+   
+           // smooth spacing transition
+           const newSpacing = context.baseMeshSpacing * sliderFactor;
+           gsap.to(context, {
+               meshSpacing: newSpacing,
+               duration: 0.6,
+               ease: "power2.out",
+               onUpdate: () => {
+                   context.updatePositions();
+                   context.syncHtmlWithSlider();
+               },
+           });
+       } */
+
+    // --- update renderer & camera ---
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
     context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -73,25 +108,31 @@ export default function onWindowResize(context) {
 
     const planeHeight = context.camera.top - context.camera.bottom;
     const planeWidth = context.camera.right - context.camera.left;
-    context.largePlane.geometry.dispose();
-    context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
 
-    context.smoothingFactor = w <= 1024 ? 0.1 : 0.03;
-    context.lerpFactor = w <= 1024 ? 0.2 : 0.1;
-    context.friction = w <= 1024 ? 0.95 : 0.97;
+    if (context.largePlane) {
+        context.largePlane.geometry.dispose();
+        context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
+    }
+
+    const isMobile = w <= 1024;
+    context.smoothingFactor = isMobile ? 0.1 : 0.03;
+    context.lerpFactor = isMobile ? 0.2 : 0.1;
+    context.friction = isMobile ? 0.95 : 0.97;
     context.lastTime = performance.now();
 
     context.updatePositions();
 
-    if (context.isSmall()) {
-        context.followMouse = false;
-        if (!context.bounceTween) {
-            gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
-            context.startBounce(context, 'y');
-        }
+    if (context.isTouchDevice()) {
+        context.enableTouchMode(context);
     } else {
-        context.followMouse = true;
-        context.stopBounce(context);
-        gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+        context.enableMouseMode(context);
+    }
+
+    if (context.splits?.heroText) {
+        context.splits.heroText.revert();
+    }
+
+    if (context.splits?.aboutText) {
+        context.splits.aboutText.revert();
     }
 }

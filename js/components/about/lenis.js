@@ -5,45 +5,46 @@ import gsap from 'gsap';
 gsap.registerPlugin(ScrollTrigger);
 
 
-export function setupAboutLenis(context) {
+export default function setupAboutLenis(context) {
     const wrapper = document.querySelector('#about');
-    const contentElement = wrapper.querySelector('.about_wrapper');
+    const content = wrapper.querySelector('.about_wrapper');
 
-    const lenis = new Lenis({
-        wrapper,
-        content: contentElement,
-        lerp: 0.1,
-        syncTouch: false,
-        touchMultiplier: 2,
-    });
+    let lenis = null;
 
-    context.aboutLenis = lenis;
+    if (!context.isTouchDevice()) {
+        lenis = new Lenis({
+            wrapper,
+            content,
+            smoothWheel: true,
+            smoothTouch: false,
+            autoRaf: false,
+            duration: 1.5,
+        });
 
-    lenis.on('scroll', () => {
-        ScrollTrigger.update();
-    });
+        context.aboutLenis = lenis;
 
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
+        lenis.on('scroll', ScrollTrigger.update);
 
-    ScrollTrigger.scrollerProxy(wrapper, {
-        scrollTop(value) {
-            if (arguments.length) lenis.scrollTo(value, { immediate: true });
-            return lenis.scroll;
-        },
-        getBoundingClientRect() {
-            return {
-                top: 0,
-                left: 0,
-                width: window.innerWidth,
-                height: window.innerHeight,
-            };
-        },
-        pinType: "transform",
-    });
-
-    lenis.scrollTo(0, { immediate: true });
-    ScrollTrigger.refresh();
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+        ScrollTrigger.scrollerProxy(wrapper, {
+            scrollTop(value) {
+                if (arguments.length) {
+                    lenis.scrollTo(value, { immediate: true });
+                }
+                return lenis.scroll;
+            },
+            getBoundingClientRect() {
+                return { top: 0, left: 0, width: wrapper.clientWidth, height: wrapper.clientHeight };
+            },
+            pinType: 'transform'
+        });
+        lenis.scrollTo(0, { immediate: true });
+        ScrollTrigger.refresh();
+    }
+    else {
+        wrapper.style.overflowY = 'auto';
+    }
 
     return lenis;
 }

@@ -65,11 +65,9 @@ export default async function setupFBO(context) {
     context.fboMesh = new THREE.Mesh(geometry, context.fboMaterial);
     context.fboScene.add(context.fboMesh);
 
-    // Generate texture after font is loaded
     const targetsTex = makeTextTargetsSimple("CONNECT", context.size);
     context.fboMaterial.uniforms.uTargets.value = targetsTex;
 
-    // Render to FBOs
     context.renderer.setRenderTarget(context.fbo);
     context.renderer.render(context.fboScene, context.fboCamera);
     context.renderer.setRenderTarget(context.fbo1);

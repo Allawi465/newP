@@ -4,6 +4,7 @@ export function onMouseMoveHover(event, context) {
         -(event.clientY / window.innerHeight) * 2 + 1
     );
 
+    // Raycast only against slider layer
     context.raycaster.layers.set(context.slider_mesh);
     context.raycaster.setFromCamera(context.mouse, context.camera);
 
