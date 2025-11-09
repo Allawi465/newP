@@ -199,7 +199,7 @@ function scrollAnimations(context) {
         end: 'top 30%',
         scrub: 1,
         animation: gsap.from(context.journey_title.words, {
-            y: -100,
+            y: 100,
             opacity: 0,
             rotation: () => gsap.utils.random(-80, 80),
             stagger: 0.1,
@@ -215,11 +215,9 @@ function scrollAnimations(context) {
         end: 'top 30%',
         scrub: 1,
         animation: gsap.from(context.journey_text.words, {
-            y: 100,
+            y: 50,
             opacity: 0,
-            rotation: () => gsap.utils.random(-80, 80),
             stagger: 0.1,
-            duration: 1,
             ease: "back"
         })
     });

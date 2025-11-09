@@ -37,18 +37,14 @@ uniform float uGrayscale;
 varying vec2 vUv;
 
 void main() {
-    // Adjust UVs
     vec2 textureUv = (vUv - 0.5) * uzom * uAspectRatio + 0.5;
 
-    // Sample the texture
     vec4 texColor = texture2D(uTexture, textureUv);
 
-    // Apply grayscale effect
     vec3 preColor = texColor.rgb * texColor.a;
     float gray = dot(preColor, vec3(0.299, 0.587, 0.114));
     vec3 finalColor = mix(vec3(gray), preColor, uGrayscale);
 
-    // Rounded corners alpha mask
     vec2 diff = abs(vUv - 0.5);
     vec2 limit = vec2(0.5 - uBorderRadius);
     float dist = max(diff.x - limit.x, 0.0) * max(diff.x - limit.x, 0.0) +
@@ -56,7 +52,6 @@ void main() {
     float edge = uBorderRadius * uBorderRadius;
     float edgeAlpha = 1.0 - smoothstep(edge - 0.0001, edge + 0.0001, dist);
 
-    // Final fragment color
     gl_FragColor = vec4(finalColor, texColor.a * opacity * edgeAlpha);
 }
 `;

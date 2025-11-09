@@ -1,4 +1,3 @@
-
 const AW = `
 //	Simplex 3D Noise 
 //	by Ian McEwan, Ashima Arts
@@ -86,9 +85,7 @@ uniform float uRandom2;
 uniform vec3 uSpherePos;
 uniform float uDelta;
 uniform float uFooter;
-
 uniform float uLetterScale;
-
 uniform sampler2D uTargets;
 varying vec2 vUv;
 varying vec4 vPosition;
@@ -127,7 +124,6 @@ void main(){
   float age = data.a;
   float blend = smoothstep(0.2, 0.2, uFooter);  
 
-  // ===== PAGE 1 =====
   vec3 pos1 = pos;
   float age1 = age;
   bool respawn = false;
@@ -161,28 +157,27 @@ void main(){
     age1 = clamp(age1 + uDelta * 0.1, 0.0, 1.0);
   }
 
-// ===== PAGE 2: print "word" using uTargets =====
-vec3 pos2 = pos;
-float age2 = age;
-{
-  vec3 tgt = texture2D(uTargets, uv).xyz;
-  vec2 targetXY = tgt.xy * uLetterScale;
+  vec3 pos2 = pos;
+  float age2 = age;
+  {
+    vec3 tgt = texture2D(uTargets, uv).xyz;
+    vec2 targetXY = tgt.xy * uLetterScale;
 
-  float stagger = (tgt.x + 1.0) * 0.5; 
-  float delay = stagger * .5;  
-  
-  // Use smoothstep for easing (replace step for gradual transition)
-  float staggeredBlend = smoothstep(0.15 + delay, 0.25 + delay, uFooter); 
+    float stagger = (tgt.x + 1.0) * 0.5; 
+    float delay = stagger * .5;  
+    
+    // Use smoothstep for easing (replace step for gradual transition)
+    float staggeredBlend = smoothstep(0.15 + delay, 0.25 + delay, uFooter); 
 
-  float converge = staggeredBlend * 0.05;
-  pos2.xy += (targetXY - pos2.xy) * converge;
+    float converge = staggeredBlend * 0.05;
+    pos2.xy += (targetXY - pos2.xy) * converge;
 
-  float dist2 = length(pos2.xy - uSpherePos.xy);
-  vec2 dir2 = normalize(pos2.xy - uSpherePos.xy);
-  pos2.xy += dir2 * 0.2 * smoothstep(0.59, 0.0, dist2);
-}
+    float dist2 = length(pos2.xy - uSpherePos.xy);
+    vec2 dir2 = normalize(pos2.xy - uSpherePos.xy);
+    pos2.xy += dir2 * 0.2 * smoothstep(0.59, 0.0, dist2);
+  }
 
-  // Final mix using the global (non-staggered) blend
+
   vec3 blendedPos = mix(pos1, pos2, blend);
   float blendedAge = mix(age1, age2, blend);
   gl_FragColor = vec4(blendedPos, blendedAge);

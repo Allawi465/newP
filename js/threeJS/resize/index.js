@@ -31,7 +31,6 @@ export default function onWindowResize(context) {
         context.fboMaterial.uniforms.uLetterScale.value = scale;
     }
 
-    // --- view width logic ---
     let viewWidth;
     if (w > BREAKPOINT) {
         viewWidth = 4.5 * (w / BREAKPOINT);
@@ -44,7 +43,6 @@ export default function onWindowResize(context) {
     const viewHeight = viewWidth / aspect;
     const objectScale = 1;
 
-    // --- resize points and glassBall ---
     if (context.points) {
         const base = context.points.userData?.baseScale ?? new THREE.Vector3(1, 1, 1);
         context.points.scale.set(base.x * objectScale, base.y * objectScale, base.z * objectScale);
@@ -95,7 +93,6 @@ export default function onWindowResize(context) {
            });
        } */
 
-    // --- update renderer & camera ---
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
     context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -135,4 +132,5 @@ export default function onWindowResize(context) {
     if (context.splits?.aboutText) {
         context.splits.aboutText.revert();
     }
+
 }

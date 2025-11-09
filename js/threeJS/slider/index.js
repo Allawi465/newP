@@ -14,15 +14,13 @@ export function onPointerMove(event, context) {
     const { x } = getClientPosition(event);
     const delta = x - context.startX;
 
-    // width normalization for consistent feel
     const containerWidth = context.container?.clientWidth || window.innerWidth;
     const widthFactor = Math.min(1920 / containerWidth, 4);
     const normalizedDelta = delta * widthFactor;
 
-    // update target position (core slider movement)
     context.targetPosition += normalizedDelta / context.movementSensitivity;
 
-    // velocity calculation
+
     const now = performance.now();
     const deltaTime = (now - context.lastTime) / 1000;
     context.lastTime = now;
@@ -34,7 +32,6 @@ export function onPointerMove(event, context) {
         context.velocity = Math.max(-maxVel, Math.min(maxVel, context.velocity));
     }
 
-    // smoother drag feeling
     const smooth = context.smoothingFactor;
     const dx = (x - context.lastX) * widthFactor;
     context.dragSpeed += (dx - context.dragSpeed) * smooth;
@@ -49,7 +46,6 @@ export function onPointerDown(event, context) {
     const rect = context.projectsElement?.getBoundingClientRect();
     if (!rect) return;
 
-    // only start dragging inside the projects section
     const inside =
         x >= rect.left && x <= rect.right &&
         y >= rect.top && y <= rect.bottom;
@@ -71,7 +67,6 @@ export function onPointerUp(event, context) {
     context.isDragging = false;
     context.smoothingFactor = context.smoothingFactorDefault;
 
-    // determine if this was a click or a drag
     const clickThreshold = 5;
     const initial = context.initialClick;
     if (!initial) return;
