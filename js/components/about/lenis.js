@@ -44,6 +44,8 @@ export default function setupAboutLenis(context) {
     }
     else {
         wrapper.style.overflowY = 'auto';
+        ScrollTrigger.defaults({});
+        context.aboutLenis = null;
     }
 
     return lenis;

@@ -5,93 +5,74 @@ export default function onWindowResize(context) {
     const h = document.documentElement.clientHeight || window.innerHeight;
     const aspect = w / h;
 
-    const BREAKPOINT = 1000;
-    const MIN_WIDTH = 300;
-    const MIN_HEIGHT = 1000;
-    const CLAMP_HEIGHT = 300;
+    const BREAKPOINT = 1050;
+    const mPixel = 300;
     const MIN_SCALE = 2.5;
-    const MAX_SCALE = 3.8;
 
-    const tWidth = THREE.MathUtils.clamp((w - MIN_WIDTH) / (2000 - MIN_WIDTH), 0, 1);
-    const tHeight = THREE.MathUtils.clamp((h - CLAMP_HEIGHT) / (MIN_HEIGHT - CLAMP_HEIGHT), 0, 1);
+    const tWidth = THREE.MathUtils.clamp((w - mPixel) / (2000 - mPixel), 0, 1);
+    const tHeight = THREE.MathUtils.clamp((h - mPixel) / (BREAKPOINT - mPixel), 0, 1);
     const t = Math.min(tWidth, tHeight);
 
-    const pow = 2.5;
-    const eased = context.smootherstep(Math.pow(t, pow));
+    const eased = context.smootherstep(Math.pow(t, MIN_SCALE));
 
     let effectiveMin = MIN_SCALE;
-    if (w > h && h < MIN_HEIGHT) {
+    if (w > h && h < BREAKPOINT) {
         const lowerBound = 1.3;
-        effectiveMin = lowerBound + (MIN_SCALE - lowerBound) * (h / MIN_HEIGHT);
+        effectiveMin = lowerBound + (MIN_SCALE - lowerBound) * (h / BREAKPOINT);
     }
 
-    const scale = effectiveMin + (MAX_SCALE - effectiveMin) * eased;
+    const scale = effectiveMin + (3.8 - effectiveMin) * eased;
 
     if (context.fboMaterial?.uniforms?.uLetterScale) {
         context.fboMaterial.uniforms.uLetterScale.value = scale;
     }
 
-    let viewWidth;
-    if (w > BREAKPOINT) {
-        viewWidth = 4.5 * (w / BREAKPOINT);
-    } else if (w <= MIN_WIDTH) {
-        viewWidth = context.VIEW_WIDTH * (w / MIN_WIDTH);
-    } else {
-        viewWidth = context.VIEW_WIDTH;
-    }
-
-    const viewHeight = viewWidth / aspect;
-    const objectScale = 1;
-
     if (context.points) {
         const base = context.points.userData?.baseScale ?? new THREE.Vector3(1, 1, 1);
-        context.points.scale.set(base.x * objectScale, base.y * objectScale, base.z * objectScale);
+        context.points.scale.set(base.x * 1, base.y * 1, base.z * 1);
     }
 
     if (context.glassBall) {
         const base = context.glassBall.userData?.baseScale ?? new THREE.Vector3(1, 1, 1);
-        context.glassBall.scale.set(base.x * objectScale, base.y * objectScale, base.z * objectScale);
+        context.glassBall.scale.set(base.x * 1, base.y * 1, base.z * 1);
         if (context.cubeCamera) {
             context.cubeCamera.position.copy(context.glassBall.position);
         }
     }
 
-    /*    let sliderFactor = 1;
-       if (w <= 1050 && h <= 1050) {
-           const effective_h = Math.max(h, CLAMP_HEIGHT);
-           let tempFactor = 1000 / effective_h;
-           tempFactor = Math.min(tempFactor, 2.0);
-           if (w <= 500) tempFactor = 1.1;
-           sliderFactor = 1 / tempFactor;
-       }
-   
-       context.sliderFactor = sliderFactor;
-       if (context.meshArray?.length) {
-           context.meshArray.forEach((mesh) => {
-               const base = mesh.userData.baseScale ?? new THREE.Vector3(1, 1, 1);
-               if (!mesh.userData.baseScale) mesh.userData.baseScale = base;
-   
-               gsap.to(mesh.scale, {
-                   x: base.x * sliderFactor,
-                   y: base.y * sliderFactor,
-                   z: base.z * sliderFactor,
-                   duration: 0.6,
-                   ease: "power2.out",
-               });
-           });
-   
-           // smooth spacing transition
-           const newSpacing = context.baseMeshSpacing * sliderFactor;
-           gsap.to(context, {
-               meshSpacing: newSpacing,
-               duration: 0.6,
-               ease: "power2.out",
-               onUpdate: () => {
-                   context.updatePositions();
-                   context.syncHtmlWithSlider();
-               },
-           });
-       } */
+    let viewWidth;
+    if (w > BREAKPOINT) {
+        viewWidth = 4.5 * (w / BREAKPOINT);
+    } else if (w <= mPixel) {
+        viewWidth = context.VIEW_WIDTH * (w / mPixel);
+    } else {
+        viewWidth = context.VIEW_WIDTH;
+    }
+
+    const viewHeight = viewWidth / aspect;
+
+    let sliderFactor = 1;
+    if (w <= BREAKPOINT && h <= BREAKPOINT) {
+        const effective_h = Math.max(h, mPixel);
+        let tempFactor = BREAKPOINT / effective_h;
+        tempFactor = Math.min(tempFactor, 2.0);
+        if (w <= 650) tempFactor = 1.;
+        sliderFactor = 1 / tempFactor;
+    }
+
+    context.sliderFactor = sliderFactor;
+
+    if (context.meshArray?.length) {
+        const newSpacing = context.baseMeshSpacing * sliderFactor;
+
+        context.meshArray.forEach(mesh => {
+            const base = mesh.userData.baseScale ?? new THREE.Vector3(1, 1, 1);
+            if (!mesh.userData.baseScale) mesh.userData.baseScale = base;
+            mesh.scale.set(base.x * sliderFactor, base.y * sliderFactor, base.z * sliderFactor);
+        });
+
+        context.meshSpacing = newSpacing;
+    }
 
     context.renderer.setSize(w, h);
     context.labelRenderer.setSize(w, h);
@@ -117,20 +98,13 @@ export default function onWindowResize(context) {
     context.friction = isMobile ? 0.95 : 0.97;
     context.lastTime = performance.now();
 
-    context.updatePositions();
+    context.updatePositions?.();
+    context.syncHtmlWithSlider?.();
 
-    if (context.isTouchDevice()) {
-        context.enableTouchMode(context);
-    } else {
-        context.enableMouseMode(context);
-    }
+    context.isTouchDevice()
+        ? context.enableTouchMode(context)
+        : context.enableMouseMode(context);
 
-    if (context.splits?.heroText) {
-        context.splits.heroText.revert();
-    }
-
-    if (context.splits?.aboutText) {
-        context.splits.aboutText.revert();
-    }
-
+    context.splits?.heroText?.revert?.();
+    context.splits?.aboutText?.revert?.();
 }

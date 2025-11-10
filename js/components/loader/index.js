@@ -72,7 +72,7 @@ export default function initLoadingSequence(context) {
                 stagger: { amount: 0.2 },
                 opacity: 0,
             }, 0.5)
-            .from(".line-top", {
+            .from(".line", {
                 height: 0,
                 duration: 1.0,
                 ease: "power2.out",
@@ -124,6 +124,6 @@ export default function initLoadingSequence(context) {
                         aboutElement.style.pointerEvents = 'auto';
                     }
                 }
-            }, ">");
+            }, 1);
     });
 }

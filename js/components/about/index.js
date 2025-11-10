@@ -70,7 +70,8 @@ function reset(context) {
         "#about",
         ".about-title",
         ".about-text",
-        ".about-line-top",
+        ".about-line",
+        ".about-dot",
         ".about-divider-line",
         ".about-divider-short",
         ".about-badge-link",
@@ -109,7 +110,11 @@ function reset(context) {
     }
 
     gsap.set([
+        ".about-line",
         ".about-badge-link",
+        ".about-divider-line",
+        ".about-divider-short",
+        ".about-dot"
     ], { clearProps: "all" });
 
     gsap.killTweensOf("*");
@@ -125,18 +130,23 @@ function setupTimeline(context) {
 
     timeline
         .from(context.title.chars, {
-            y: -100,
+            x: "1em",
+            duration: 1.0,
+            ease: "power2.out",
+            stagger: { amount: 0.2 },
             opacity: 0,
-            rotation: "random(-80, 80)",
-            stagger: 0.1,
-            duration: 1,
-            ease: "back"
         }, 0.5)
-        .from(".about-line-top", {
+        .from(".about-line", {
             height: 0,
             duration: 1.0,
             ease: "power2.out",
             stagger: 0.2,
+            opacity: 0,
+        }, 0.5)
+        .from(".about-dot", {
+            duration: 1.0,
+            ease: "power2.out",
+            opacity: 0
         }, 0.5)
         .from(".about-divider-line", {
             width: 0,
@@ -195,16 +205,14 @@ function scrollAnimations(context) {
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
-        start: 'top 80%',
-        end: 'top 30%',
-        scrub: 1,
+        start: 'top 85%',
+        end: 'top 60%',
+        scrub: true,
         animation: gsap.from(context.journey_title.words, {
-            y: 100,
             opacity: 0,
-            rotation: () => gsap.utils.random(-80, 80),
+            duration: 2,
+            ease: "sine.out",
             stagger: 0.1,
-            duration: 1,
-            ease: "back"
         })
     });
 
@@ -212,13 +220,13 @@ function scrollAnimations(context) {
         trigger: '.journey_section',
         scroller: wrapper,
         start: 'top 80%',
-        end: 'top 30%',
-        scrub: 1,
+        end: 'top 50%',
+        scrub: true,
         animation: gsap.from(context.journey_text.words, {
-            y: 50,
             opacity: 0,
+            duration: 2,
+            ease: "sine.out",
             stagger: 0.1,
-            ease: "back"
         })
     });
 
@@ -228,7 +236,7 @@ function scrollAnimations(context) {
         scroller: wrapper,
         start: 'top 70%',
         end: 'bottom bottom',
-        scrub: 1,
+        scrub: true,
         markers: false,
         animation: gsap.fromTo(
             '.journey_item',
@@ -251,7 +259,7 @@ function scrollAnimations(context) {
         scroller: wrapper,
         start: 'top 70%',
         end: 'bottom bottom',
-        scrub: 1,
+        scrub: true,
         animation: gsap.fromTo(
             '.journey_dot',
             { scale: 0, opacity: 0 },
@@ -271,7 +279,7 @@ function scrollAnimations(context) {
         scroller: wrapper,
         start: 'top 70%',
         end: 'bottom bottom',
-        scrub: 1,
+        scrub: true,
         animation: gsap.fromTo(
             '.journey_content',
             { opacity: 0, x: 30, scale: 0.95 },

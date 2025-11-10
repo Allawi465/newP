@@ -4,7 +4,6 @@ import setupScrollAnimation from "../../threeJS/scrollstrigger/index.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
-
 function closeInfoDiv(context) {
     const aboutDiv = document.getElementById('about');
     const isAboutDivOpen = aboutDiv;
