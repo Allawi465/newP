@@ -1,8 +1,15 @@
 import * as THREE from 'three';
 
 export default function onWindowResize(context) {
-    const w = document.documentElement.clientWidth || window.innerWidth;
-    const h = document.documentElement.clientHeight || window.innerHeight;
+    const h =
+        window.visualViewport?.height ||
+        window.innerHeight ||
+        document.documentElement.clientHeight;
+
+    const w =
+        window.visualViewport?.width ||
+        window.innerWidth ||
+        document.documentElement.clientWidth;
     const aspect = w / h;
 
     const BREAKPOINT = 1050;
@@ -84,12 +91,9 @@ export default function onWindowResize(context) {
     context.camera.bottom = -viewHeight / 2;
     context.camera.updateProjectionMatrix();
 
-    const planeHeight = context.camera.top - context.camera.bottom;
-    const planeWidth = context.camera.right - context.camera.left;
 
     if (context.largePlane) {
-        context.largePlane.geometry.dispose();
-        context.largePlane.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 24, 24);
+        context.largePlane.scale.set(viewWidth, viewHeight, 1);
     }
 
     const isMobile = w <= 1024;

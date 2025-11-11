@@ -100,6 +100,14 @@ class EffectShell {
         }
     }
 
+    getScrollY() {
+        if (this.bodyLenis) {
+            return this.bodyLenis.scroll;
+        } else {
+            return window.scrollY || document.documentElement.scrollTop || 0;
+        }
+    }
+
     isTouchDevice() {
         return (
             window.matchMedia('(pointer: coarse)').matches ||
@@ -281,15 +289,17 @@ class EffectShell {
         this.time += deltaTime;
 
         if (this.group) {
-            const scrollTop = this.bodyLenis
-                ? this.bodyLenis.scroll
-                : window.scrollY || document.documentElement.scrollTop;
+            const scrollTop = this.getScrollY();
 
-            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const viewportHeight =
+                window.visualViewport?.height ||
+                window.innerHeight ||
+                document.documentElement.clientHeight;
+
+            const maxScroll = document.body.scrollHeight - viewportHeight;
             const normalized = maxScroll > 0 ? scrollTop / maxScroll : 0;
 
             const targetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * normalized;
-
             this.group.position.y = targetY;
         }
 
@@ -334,19 +344,7 @@ class EffectShell {
     }
 
     onInitComplete() {
-        if (this.bodyLenis) {
-            this.bodyLenis.on('scroll', ({ scroll }) => {
-                const normalized = scroll / (document.body.scrollHeight - window.innerHeight);
-                this.scrollTargetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * normalized;
-            });
-        } else {
-            window.addEventListener('scroll', () => {
-                const scrollTop = window.scrollY || document.documentElement.scrollTop;
-                const maxScroll = document.body.scrollHeight - window.innerHeight;
-                const normalized = scrollTop / maxScroll;
-                this.scrollTargetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * normalized;
-            });
-        }
+
     }
 }
 

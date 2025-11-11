@@ -96,7 +96,7 @@ export default function initLoadingSequence(context) {
                 ease: "power2.out",
             }, 0.8)
             .from(context.splits.heroText.lines, {
-                duration: 0.6,
+                duration: 1,
                 yPercent: 100,
                 opacity: 0,
                 stagger: 0.1,

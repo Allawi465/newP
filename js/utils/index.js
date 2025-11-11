@@ -24,7 +24,6 @@ export const defaultConfig = {
     bounceTween: null,
     scrollMinY: 0,
     scrollMaxY: 18,
-    scrollTargetY: 0,
     splits: {
         heroText: null,
         aboutText: null,

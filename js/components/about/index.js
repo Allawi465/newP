@@ -75,7 +75,6 @@ function reset(context) {
         ".about-divider-line",
         ".about-divider-short",
         ".about-badge-link",
-        ".scroll_about",
         ".journey_h2",
         ".journey_p",
         ".journey_item",
@@ -93,12 +92,6 @@ function reset(context) {
         context.splits.aboutText = null;
     }
 
-    if (context.scroll && context.scroll.chars) {
-        gsap.set(context.scroll.chars, { color: "rgba(0, 0, 0, 1)" });
-        context.scroll.revert();
-        context.scroll = null;
-    }
-
     if (context.journey_title) {
         context.journey_title.revert();
         context.journey_title = null;
@@ -114,7 +107,8 @@ function reset(context) {
         ".about-badge-link",
         ".about-divider-line",
         ".about-divider-short",
-        ".about-dot"
+        ".about-dot",
+        context.title,
     ], { clearProps: "all" });
 
     gsap.killTweensOf("*");
@@ -159,7 +153,7 @@ function setupTimeline(context) {
             ease: "power2.out",
         }, 0.8)
         .from(context.splits.aboutText.lines, {
-            duration: 0.6,
+            duration: 1,
             yPercent: 100,
             opacity: 0,
             stagger: 0.1,
@@ -173,25 +167,6 @@ function setupTimeline(context) {
             duration: 1,
             ease: "back",
         }, 1)
-        .fromTo(".scroll_about",
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
-            1
-        )
-        .to(context.scroll.chars, {
-            color: "rgba(0, 0, 0, 0.1)",
-            repeat: -1,
-            yoyo: true,
-            duration: 1.2,
-            ease: "customBezier",
-            stagger: {
-                each: 0.1,
-                repeat: -1,
-                yoyo: true
-            },
-            delay: 2.0
-        }, 1);
-
 
     return timeline;
 }
@@ -205,12 +180,12 @@ function scrollAnimations(context) {
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
-        start: 'top 85%',
-        end: 'top 60%',
+        start: 'top 80%',
+        end: 'top 50%',
         scrub: true,
         animation: gsap.from(context.journey_title.words, {
             opacity: 0,
-            duration: 2,
+            duration: 1,
             ease: "sine.out",
             stagger: 0.1,
         })
