@@ -76,6 +76,7 @@ function reset(context) {
         ".about-divider-short",
         ".about-badge-link",
         ".journey_h2",
+        ".scroll_about",
         ".journey_p",
         ".journey_item",
         ".journey_dot",
@@ -120,7 +121,6 @@ function setupTimeline(context) {
 
     context.title = new SplitText(".about-title", { type: ",words, chars" });
     context.splits.aboutText = SplitText.create(".about-text", { type: "chars, words, lines" });
-    context.scroll = new SplitText(".scroll_about", { type: "words, chars, lines" });
 
     timeline
         .from(context.title.chars, {
@@ -167,6 +167,11 @@ function setupTimeline(context) {
             duration: 1,
             ease: "back",
         }, 1)
+        .fromTo(".scroll_about",
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+            1
+        )
 
     return timeline;
 }
@@ -176,6 +181,7 @@ function scrollAnimations(context) {
 
     context.journey_title = new SplitText(".journey_h2", { type: "words" });
     context.journey_text = new SplitText(".journey_p", { type: "words" });
+    context.scroll = new SplitText(".scroll_about", { type: "words, chars" });
 
     ScrollTrigger.create({
         trigger: '.journey_section',
@@ -268,6 +274,19 @@ function scrollAnimations(context) {
                 delay: 0.4
             }
         )
+    });
+
+    ScrollTrigger.create({
+        trigger: ".about_wrapper",
+        scroller: wrapper,
+        start: "top top",
+        end: "top+=120 top",
+        scrub: 1,
+        animation: gsap.to(context.scroll.chars, {
+            color: "rgba(255,255,255,0)",
+            stagger: 0.05,
+            ease: "customBezier",
+        }),
     });
 
 }

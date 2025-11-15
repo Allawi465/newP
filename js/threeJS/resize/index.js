@@ -1,15 +1,9 @@
 import * as THREE from 'three';
 
 export default function onWindowResize(context) {
-    const h =
-        window.visualViewport?.height ||
-        window.innerHeight ||
-        document.documentElement.clientHeight;
+    const w = document.documentElement.clientWidth || window.innerWidth;
+    const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
 
-    const w =
-        window.visualViewport?.width ||
-        window.innerWidth ||
-        document.documentElement.clientWidth;
     const aspect = w / h;
 
     const BREAKPOINT = 1050;
@@ -111,4 +105,5 @@ export default function onWindowResize(context) {
 
     context.splits?.heroText?.revert?.();
     context.splits?.aboutText?.revert?.();
+
 }

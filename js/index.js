@@ -26,7 +26,7 @@ class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
 
-        this.assetsLoaded = false;
+        this.lastHeight = window.innerHeight;
 
         this.init().then(() => this.onInitComplete());
     }
@@ -49,9 +49,9 @@ class EffectShell {
             addObjects(this);
             setupEventListeners(this);
             this.animate();
-            onWindowResize(this);
             initLoadingSequence(this);
             setupScrollAnimation();
+            onWindowResize(this);
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
@@ -227,12 +227,12 @@ class EffectShell {
 
     clamp(v, a = 0, b = 1) { return Math.max(a, Math.min(b, v)); }
 
-    sectionScrollProgress(el) {
-        const rect = el.getBoundingClientRect();
-        const vh = window.innerHeight || document.documentElement.clientHeight;
-        const total = vh + rect.height;
-        const completed = vh - rect.top;
-        return this.clamp(completed / total, 0, 1);
+    checkHeightChange() {
+        const currentHeight = window.innerHeight;
+        if (currentHeight !== this.lastHeight) {
+            this.lastHeight = currentHeight;
+            onWindowResize(this);
+        }
     }
 
     getRenderTarget() {
@@ -291,10 +291,7 @@ class EffectShell {
         if (this.group) {
             const scrollTop = this.getScrollY();
 
-            const viewportHeight =
-                window.visualViewport?.height ||
-                window.innerHeight ||
-                document.documentElement.clientHeight;
+            const viewportHeight = window.visualViewport?.height || window.innerHeight;
 
             const maxScroll = document.body.scrollHeight - viewportHeight;
             const normalized = maxScroll > 0 ? scrollTop / maxScroll : 0;
@@ -341,11 +338,10 @@ class EffectShell {
         this.camera.layers.enableAll();
         this.labelRenderer.render(this.scene, this.camera);
         this.composer.render();
-    }
-
-    onInitComplete() {
 
     }
+
+    onInitComplete() { }
 }
 
 new EffectShell();                                                

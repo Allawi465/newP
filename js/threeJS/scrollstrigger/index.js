@@ -53,7 +53,7 @@ export default function setupScrollAnimation() {
                     animation: gsap.to(self.chars, {
                         color: "rgba(255, 255, 255, 0)",
                         stagger: 0.05,
-                        ease: "none",
+                        ease: "customBezier",
                     }),
                 });
             },

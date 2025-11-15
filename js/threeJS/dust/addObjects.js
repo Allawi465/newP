@@ -14,7 +14,7 @@ export default function addObjects(context) {
         extensions: { derivatives: "#extension GL_OES_standard_derivatives : enable" },
         uniforms: {
             time: { value: 0 },
-            uPositions: { value: context.fboTexture },
+            uPositions: { value: context.fbo.texture },
             uMouse: { value: new THREE.Vector2() },
             uMousePrev: { value: new THREE.Vector2() },
             iResolution: { value: new THREE.Vector2(context.width, context.height) },

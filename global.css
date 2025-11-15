@@ -51,7 +51,6 @@
         left: 0;
         z-index: -1;
         outline: none;
-        height: 100vh;
     }
 
     ::-webkit-scrollbar {
@@ -152,17 +151,26 @@
     }
 
     .scroll {
+        writing-mode: vertical-rl;
+        color: rgb(255, 255, 255);
         position: absolute;
-        bottom: 35px;
+    }
+
+    .scroll,
+    .scroll_about {
         right: 45px;
         z-index: 10;
+        bottom: 35px;
         text-transform: uppercase;
         font-size: 0.875rem;
         letter-spacing: 0.15em;
         font-weight: bold;
         opacity: 0;
-        writing-mode: vertical-rl;
-        color: rgb(255, 255, 255);
+    }
+
+    .scroll_about {
+        color: rgba(0, 0, 0, 1);
+        position: fixed;
     }
 
     .scroll-line {
@@ -658,14 +666,13 @@
         border: 1px solid rgba(0, 0, 0, 0.3);
         border-radius: 9999px;
         text-decoration: none;
-        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        transition: background-color 0.3s ease, color 0.3s ease;
         display: inline-block;
     }
 
     .about-badge-link:hover {
         background-color: rgba(0, 0, 0, 0.05);
         color: rgba(0, 0, 0, 0.9);
-        border-color: rgba(0, 0, 0, 0.5);
     }
 
     .journey_section {

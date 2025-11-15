@@ -7,9 +7,11 @@ import { onWindowResize } from '../index.js';
 
 export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
-    window.visualViewport?.addEventListener('resize', () => {
-        onWindowResize(context);
-    });
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => context.checkHeightChange());
+    }
+
     document.getElementById('openAbout').addEventListener('click', () => showAbout(context));
     document.getElementById('close').addEventListener('click', () => closeInfoDiv(context));
     document.addEventListener('pointerdown', (e) => onPointerDown(e, context), { passive: true });
