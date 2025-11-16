@@ -160,19 +160,16 @@ function setupTimeline(context) {
             ease: "expo.out",
         }, 0.8)
         .from(".about-badge-link", {
-            y: 100,
             opacity: 0,
-            rotation: "random(-80, 80)",
             stagger: 0.1,
             duration: 1,
-            ease: "back",
+            ease: "power2.out",
         }, 1)
         .fromTo(".scroll_about",
             { opacity: 0, y: 20 },
             { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
             1
         )
-
     return timeline;
 }
 

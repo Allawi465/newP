@@ -1,9 +1,11 @@
 import * as THREE from 'three';
+import gsap from "gsap";
 import { onPointerDown, onPointerMove, onPointerUp } from '../slider/index.js';
 import { onMouseMoveHover } from '../slider/mouseHover/index.js';
 import showAbout from '../../components/about/index.js';
 import closeInfoDiv from '../../components/close/index.js';
 import { onWindowResize } from '../index.js';
+
 
 export default function setupEventListeners(context) {
     window.addEventListener('resize', () => onWindowResize(context));
@@ -46,4 +48,22 @@ export default function setupEventListeners(context) {
 
         context.targetPositionSphre.lerp(targetPos, 0.2);
     }, { passive: false });
+
+    window.addEventListener('touchstart', () => {
+        if (context.currentInputMode !== 'touch') {
+            context.currentInputMode = 'touch';
+            context.followMouse = false;
+            gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+            context.startBounce(context, "y");
+        }
+    }, { passive: true });
+
+    window.addEventListener('mousemove', () => {
+        if (context.currentInputMode !== 'mouse') {
+            context.currentInputMode = 'mouse';
+            context.followMouse = true;
+            gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+            context.stopBounce(context);
+        }
+    }, { passive: true });
 }

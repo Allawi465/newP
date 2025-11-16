@@ -7,6 +7,8 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 
 export default function setupPostProcessing(context) {
 
+    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+
     context.composer = new EffectComposer(context.renderer);
     const clearPass = new ClearPass();
     clearPass.clearColor = new THREE.Color(0xffffff);
@@ -87,8 +89,8 @@ export default function setupPostProcessing(context) {
 
     const fxaaPass = new ShaderPass(FXAAShader);
     fxaaPass.material.uniforms['resolution'].value.set(
-        1 / (context.isTouch ? window.innerWidth * 0.75 : window.innerWidth),
-        1 / (context.isTouch ? window.innerHeight * 0.75 : window.innerHeight)
+        1 / (window.innerWidth * pixelRatio),
+        1 / (window.innerHeight * pixelRatio)
     );
     context.composer.addPass(fxaaPass);
 }

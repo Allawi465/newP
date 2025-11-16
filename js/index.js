@@ -3,16 +3,8 @@ import gsap from 'gsap';
 import Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
-    setupScene,
-    onWindowResize,
-    createCSS2DObjects,
-    createLargePlane,
-    syncHtmlWithSlider,
-    createMeshes,
-    setupFBO,
-    addObjects,
-    setupPostProcessing,
-    setupEventListeners
+    setupScene, onWindowResize, createCSS2DObjects, createLargePlane, syncHtmlWithSlider,
+    createMeshes, setupFBO, addObjects, setupPostProcessing, setupEventListeners
 } from './threeJS/index.js';
 import { loadingProgress, updateProgressUI } from './components/loader/loading.js';
 import initLoadingSequence from './components/loader/index.js';
@@ -26,7 +18,10 @@ class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
 
-        this.lastHeight = window.innerHeight;
+        this.lastVisualHeight = window.visualViewport
+            ? window.visualViewport.height
+            : window.innerHeight;
+
 
         this.init().then(() => this.onInitComplete());
     }
@@ -110,24 +105,10 @@ class EffectShell {
 
     isTouchDevice() {
         return (
-            window.matchMedia('(pointer: coarse)').matches ||
-            'ontouchstart' in window ||
-            navigator.maxTouchPoints > 0
+            navigator.maxTouchPoints > 0 ||
+            navigator.msMaxTouchPoints > 0 ||
+            'ontouchstart' in window
         );
-    }
-
-    enableTouchMode(context) {
-        context.followMouse = false;
-        if (!context.bounceTween) {
-            gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
-            context.startBounce(context, "y");
-        }
-    }
-
-    enableMouseMode(context) {
-        context.followMouse = true;
-        context.stopBounce(context);
-        gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
     }
 
     stopBodyScrolling() {
@@ -228,20 +209,27 @@ class EffectShell {
     clamp(v, a = 0, b = 1) { return Math.max(a, Math.min(b, v)); }
 
     checkHeightChange() {
-        const currentHeight = window.innerHeight;
-        if (currentHeight !== this.lastHeight) {
-            this.lastHeight = currentHeight;
+        const currentHeight = window.visualViewport
+            ? window.visualViewport.height
+            : window.innerHeight;
+
+        if (currentHeight !== this.lastVisualHeight) {
+            this.lastVisualHeight = currentHeight;
             onWindowResize(this);
         }
     }
 
     getRenderTarget() {
-        return new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-            format: THREE.RGBAFormat,
-            type: THREE.FloatType,
-            minFilter: THREE.NearestFilter,
-            magFilter: THREE.NearestFilter,
-        });
+        return new THREE.WebGLRenderTarget(
+            this.size,
+            this.size,
+            {
+                format: THREE.RGBAFormat,
+                type: THREE.FloatType,
+                minFilter: THREE.NearestFilter,
+                magFilter: THREE.NearestFilter,
+            }
+        );
     }
 
     yN(e, t, n, i) {
@@ -281,6 +269,14 @@ class EffectShell {
         let temp = this.fbo;
         this.fbo = this.fbo1;
         this.fbo1 = temp;
+    }
+
+    async resetParticles() {
+        if (!this.material || !this.fboMaterial) return;
+
+        if (this.material?.uniforms?.uPositions) {
+            this.material.uniforms.uPositions.value = this.fbo.texture;
+        }
     }
 
     animate() {
@@ -338,7 +334,6 @@ class EffectShell {
         this.camera.layers.enableAll();
         this.labelRenderer.render(this.scene, this.camera);
         this.composer.render();
-
     }
 
     onInitComplete() { }

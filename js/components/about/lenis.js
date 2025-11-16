@@ -4,7 +4,6 @@ import gsap from 'gsap';
 
 gsap.registerPlugin(ScrollTrigger);
 
-
 export default function setupAboutLenis(context) {
     const wrapper = document.querySelector('#about');
     const content = wrapper.querySelector('.about_wrapper');

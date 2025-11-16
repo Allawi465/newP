@@ -17,7 +17,6 @@ export const defaultConfig = {
     SPHERE_LAYER: 1,
     PLANE_LAYER: 3,
     slider_mesh: 4,
-    lastHeight: window.innerHeight,
 
     VIEW_WIDTH: 4.5,
     bounceDirection: 'y',

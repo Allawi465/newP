@@ -7,9 +7,6 @@ import vertex from '../glsl/dust/vertex.js';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function addObjects(context) {
-    const colorParams = { particleColor: '#d0e2eb' };
-    const fogColorParams = { uFogColor: '#ffffff' };
-
     context.material = new THREE.ShaderMaterial({
         extensions: { derivatives: "#extension GL_OES_standard_derivatives : enable" },
         uniforms: {
@@ -21,8 +18,8 @@ export default function addObjects(context) {
             uScrollProgress: { value: 0.0 },
             uOpacity: { value: 0.0 },
             uCameraPos: { value: new THREE.Vector3() },
-            uColor: { value: new THREE.Color(colorParams.particleColor) },
-            uFogColor: { value: new THREE.Color(fogColorParams.uFogColor) },
+            uColor: { value: new THREE.Color('#d0e2eb') },
+            uFogColor: { value: new THREE.Color('#ffffff') },
             uFooter: { value: 0.0 },
         },
         vertexShader: vertex,

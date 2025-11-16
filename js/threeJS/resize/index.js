@@ -1,11 +1,13 @@
 import * as THREE from 'three';
+import gsap from "gsap";
 
 export default function onWindowResize(context) {
     const w = document.documentElement.clientWidth || window.innerWidth;
     const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+    context.width = w;
+    context.height = h;
 
     const aspect = w / h;
-
     const BREAKPOINT = 1050;
     const mPixel = 300;
     const MIN_SCALE = 2.5;
@@ -75,16 +77,22 @@ export default function onWindowResize(context) {
         context.meshSpacing = newSpacing;
     }
 
+    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+
+    context.renderer.setPixelRatio(pixelRatio);
     context.renderer.setSize(w, h);
+
     context.labelRenderer.setSize(w, h);
-    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    if (context.composer) {
+        context.composer.setSize(w, h);
+    }
 
     context.camera.left = -viewWidth / 2;
     context.camera.right = viewWidth / 2;
     context.camera.top = viewHeight / 2;
     context.camera.bottom = -viewHeight / 2;
     context.camera.updateProjectionMatrix();
-
 
     if (context.largePlane) {
         context.largePlane.scale.set(viewWidth, viewHeight, 1);
@@ -99,11 +107,40 @@ export default function onWindowResize(context) {
     context.updatePositions?.();
     context.syncHtmlWithSlider?.();
 
-    context.isTouchDevice()
-        ? context.enableTouchMode(context)
-        : context.enableMouseMode(context);
-
     context.splits?.heroText?.revert?.();
     context.splits?.aboutText?.revert?.();
 
+    if (context.material && context.fboMaterial) {
+        context.resetParticles?.();
+    }
+
+    if (context.fxaaPass) {
+        const pr = Math.min(window.devicePixelRatio, 2);
+        context.fxaaPass.material.uniforms["resolution"].value.set(
+            1 / (w * pr),
+            1 / (h * pr)
+        );
+    }
+
+    if (context.material?.uniforms?.uResolution) {
+        context.material.uniforms.uResolution.value.set(w, h);
+    }
+
+    if (context.fboMaterial?.uniforms?.resolution) {
+        context.fboMaterial.uniforms.resolution.value.set(w, h);
+    }
+
+    const prefersTouch = context.isTouchDevice() || (w < 1024);
+    context.currentInputMode = prefersTouch ? 'touch' : 'mouse';
+
+    if (prefersTouch) {
+        context.followMouse = false;
+        gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+        context.stopBounce(context);
+        context.startBounce(context, 'y');
+    } else {
+        context.followMouse = true;
+        gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+        context.stopBounce(context);
+    }
 }

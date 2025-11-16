@@ -25,7 +25,7 @@ export default function setupScene(context) {
         alpha: true,
     });
 
-    context.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    context.renderer.setPixelRatio(window.devicePixelRatio);
     context.renderer.setSize(window.innerWidth, window.innerHeight);
 
     context.labelRenderer = new CSS2DRenderer();

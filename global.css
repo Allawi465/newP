@@ -418,9 +418,7 @@
         gap: 0.375rem;
     }
 
-    .badge-design,
-    .badge-code,
-    .badge-deploy {
+    .badge {
         font-family: var(--font-grotesk) !important;
         font-size: 9px;
         letter-spacing: 0.1em;
@@ -801,9 +799,7 @@
             gap: 0.5rem;
         }
 
-        .badge-design,
-        .badge-code,
-        .badge-deploy {
+        .badge {
             font-size: 10px;
             padding: 0.25rem 0.75rem;
         }
@@ -841,9 +837,7 @@
             gap: 1.5rem;
         }
 
-        .badge-design,
-        .badge-code,
-        .badge-deploy {
+        .badge {
             font-size: 0.75rem;
         }
 

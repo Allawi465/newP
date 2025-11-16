@@ -102,13 +102,11 @@ export default function initLoadingSequence(context) {
                 stagger: 0.1,
                 ease: "expo.out",
             }, 0.8)
-            .from(".badges-container .badge-design, .badges-container .badge-code, .badges-container .badge-deploy", {
-                y: 100,
+            .from(" .badge", {
                 opacity: 0,
-                rotation: "random(-80, 80)",
                 stagger: 0.1,
                 duration: 1,
-                ease: "back",
+                ease: "power2.out",
             }, 1)
             .to(".scroll", {
                 opacity: 1,
