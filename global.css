@@ -546,9 +546,9 @@
     }
 
     .slider-project__title {
-        font-family: var(--font-inter);
-        font-size: 0.875rem;
-        line-height: 1.25rem;
+        font-family: var(--font-grotesk);
+        font-size: 1rem;
+        line-height: 1.5rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -557,8 +557,8 @@
 
     .slider-project__description {
         font-family: var(--font-inter);
-        font-size: 0.75rem;
-        line-height: 1rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
         font-weight: 400;
         letter-spacing: 0.025em;
         margin-top: 5px;
@@ -675,7 +675,7 @@
 
     .journey_section {
         padding: 26px;
-        background-color: rgba(236, 236, 240, 0.3);
+        background: var(--background);
         min-height: 100vh;
     }
 

@@ -88,6 +88,11 @@ function reset(context) {
         context.title = null;
     }
 
+    if (context.scroll && context.scroll.chars) {
+        context.scroll.revert();
+        context.scroll = null;
+    }
+
     if (context.splits.aboutText) {
         context.splits.aboutText.revert();
         context.splits.aboutText = null;

@@ -9,7 +9,7 @@ export default function onWindowResize(context) {
 
     const aspect = w / h;
     const BREAKPOINT = 1050;
-    const mPixel = 300;
+    const mPixel = 380;
     const MIN_SCALE = 2.5;
 
     const tWidth = THREE.MathUtils.clamp((w - mPixel) / (2000 - mPixel), 0, 1);
