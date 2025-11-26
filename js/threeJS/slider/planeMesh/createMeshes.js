@@ -14,6 +14,7 @@ export default function createMeshes(context) {
     });
 
     context.scene.add(context.group);
+
     context.titleElement = document.querySelector(".projects__title");
 
     context.titleLabel = new CSS2DObject(context.titleElement);

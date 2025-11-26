@@ -1,3 +1,5 @@
+import showDivWithContent from "../../../components/projects";
+
 export function handleClick(event, context) {
     if (context.isLoading || context.isProjectsOpen || context.isDivOpen) return;
     if (event.target.closest('#openAbout') || event.target.closest('#close')) return;
@@ -18,14 +20,9 @@ export function handleClick(event, context) {
         const imageIndex = parseInt(meshId.split('_')[1]) - 1;
 
         if (context.images && imageIndex >= 0 && imageIndex < context.images.length) {
-            const link = context.images[imageIndex].link;
-            if (link) {
-                window.open(link, "_blank");
-            } else {
-                console.error(`No link found for image index: ${imageIndex}`);
-            }
+            showDivWithContent(imageIndex, context);
         } else {
-            console.error(`Invalid mesh index: ${imageIndex} or images array not initialized`);
+            console.error(`Invalid mesh index: ${imageIndex} or images array is not initialized`);
         }
     }
 }

@@ -3,7 +3,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { CustomEase } from "gsap/CustomEase";
 
-export default function setupScrollAnimation() {
+export default function setupScrollAnimation(context) {
     gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
     CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
 
@@ -18,6 +18,8 @@ export default function setupScrollAnimation() {
     resetText(".scroll");
     resetText(".name_scroll");
     resetText(".projects__title");
+    resetText(".footer-heading-muted");
+    resetText(".footer-heading-bright");
 
     document.fonts.ready.then(() => {
         gsap.fromTo(".scroll_line",
@@ -35,7 +37,7 @@ export default function setupScrollAnimation() {
         ScrollTrigger.create({
             start: "top top",
             end: "top+=100px top",
-            scrub: 1,
+            scrub: true,
             animation: gsap.to(".scroll_line", {
                 opacity: 0,
                 duration: 2,
@@ -49,7 +51,7 @@ export default function setupScrollAnimation() {
                 ScrollTrigger.create({
                     start: "top top",
                     end: "top+=100px top",
-                    scrub: 1,
+                    scrub: true,
                     animation: gsap.to(self.chars, {
                         color: "rgba(255, 255, 255, 0)",
                         stagger: 0.05,
@@ -82,7 +84,7 @@ export default function setupScrollAnimation() {
                 ScrollTrigger.create({
                     trigger: ".hero",
                     start: "bottom 50%",
-                    scrub: 1,
+                    scrub: true,
                     animation: gsap.fromTo(
                         self.chars,
                         { color: "rgba(255, 255, 255, 0)", yPercent: 100, opacity: 0 },
@@ -97,5 +99,70 @@ export default function setupScrollAnimation() {
                 });
             },
         });
+
+
+        SplitText.create(".footer-heading-muted", {
+            type: "chars",
+            onSplit: (self) => {
+                ScrollTrigger.create({
+                    trigger: ".footer",
+                    start: "top 55%",
+                    end: "bottom bottom",
+                    scrub: true,
+                    animation: gsap.fromTo(
+                        self.chars,
+                        { color: "rgba(255, 255, 255, 0)", opacity: 0 },
+                        {
+                            color: "rgba(255, 255, 255, 1)",
+                            opacity: 1,
+                            stagger: 0.05,
+                            ease: "customBezier",
+                        }
+                    ),
+                });
+            },
+        });
+
+        SplitText.create(".footer-heading-bright", {
+            type: "chars",
+            onSplit: (self) => {
+                ScrollTrigger.create({
+                    trigger: ".footer",
+                    start: "top 20%",
+                    end: "bottom bottom",
+                    scrub: true,
+                    animation: gsap.fromTo(
+                        self.chars,
+                        { color: "rgba(255, 255, 255, 0)", opacity: 0, },
+                        {
+                            color: "rgba(255, 255, 255, 0.6)",
+                            opacity: 1,
+                            stagger: 0.05,
+                            ease: "customBezier",
+                        }
+                    ),
+                });
+            },
+        });
+
+        ScrollTrigger.create({
+            trigger: ".footer",
+            start: "center 60%",
+            end: "bottom bottom",
+            scrub: true,
+            animation: gsap.fromTo(
+                [".footer-link", ".footer-social-link"],
+                {
+                    opacity: 0,
+                    y: 20,
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    stagger: 0.1,
+                    ease: "power2.out",
+                }
+            ),
+        });
     });
-}
+};

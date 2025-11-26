@@ -26,8 +26,8 @@ export default function createPlaneMesh(content, texture, index) {
             uOffset: { value: new THREE.Vector2(0.0, 0.0) },
             uzom: { value: 1.0 },
             uBorderRadius: { value: 0.02 },
-            uGrayscale: { value: 1. },
-            opacity: { value: 1. },
+            uGrayscale: { value: 0. },
+            opacity: { value: 0. },
             uAspectRatio: { value: aspectRatio },
             uRotation: { value: 0.0 },
         },
@@ -35,7 +35,7 @@ export default function createPlaneMesh(content, texture, index) {
         fragmentShader: fragmentShader,
         transparent: true,
         depthWrite: false,
-        depthTest: true,
+        depthTest: false
     });
 
     const planeMesh = new THREE.Mesh(planeGeometry, shaderMaterial);
@@ -60,7 +60,7 @@ export default function createPlaneMesh(content, texture, index) {
             start: "top bottom",
             end: "bottom top",
             scrub: .5,
-            scroller: document.documentElement,
+            scroller: content.wrapper,
         }
     });
 
@@ -68,7 +68,7 @@ export default function createPlaneMesh(content, texture, index) {
         trigger: '.hero',
         start: 'bottom center',
         scrub: true,
-        scroller: document.documentElement,
+        scroller: content.wrapper,
         onUpdate: (self) => {
             planeMesh.material.uniforms.uGrayscale.value = self.progress;
             planeMesh.material.uniforms.opacity.value = self.progress;

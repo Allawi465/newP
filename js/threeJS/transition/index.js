@@ -15,8 +15,8 @@ export default function createLargePlane(context) {
         vertexShader: transitionVertex,
         fragmentShader: transitionFragment,
         transparent: true,
-        depthWrite: true,
-        depthTest: true
+        depthWrite: false,
+        depthTest: false
     });
 
     const largeGeometry = new THREE.PlaneGeometry(1, 1, 24, 24);
@@ -29,7 +29,6 @@ export default function createLargePlane(context) {
     largePlane.renderOrder = 0;
 
     context.scene.add(largePlane);
-
 
     onWindowResize(context);
 

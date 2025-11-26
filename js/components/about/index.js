@@ -54,13 +54,17 @@ function showAbout(context) {
 }
 
 export function animateProgress(context) {
+    const uniform = context.largeShaderMaterial.uniforms.progress;
 
-    gsap.killTweensOf(context.largeShaderMaterial.uniforms.progress);
+    gsap.killTweensOf(uniform);
 
-    gsap.to(context.largeShaderMaterial.uniforms.progress, {
+    gsap.to(uniform, {
         value: 0,
         duration: 1,
         ease: "sine.in",
+        onStart: () => {
+            context.largePlane.renderOrder = 999;
+        }
     });
 }
 

@@ -17,21 +17,28 @@ void main() {
   float border = 1.0;
   vec2 newUV = (vUv - vec2(0.05)) * resolution.zw + vec2(0.05);
 
+  float realnoise = 0.7 * (cnoise(vec4(
+    newUV.x * scaleX + 0. * time / 3.,
+    newUV.y * scaleY,
+    0. * time / 3.,
+    0.
+  )) + 1.0);
 
-  float realnoise = 0.7 * (cnoise(vec4(newUV.x * scaleX + 0. * time / 3., newUV.y * scaleY, 0. * time / 3., 0.)) + 1.);
-  vec3 colorFromProgress = vec3(0.0392, 0.0392, 0.0392);
-  
+  // original mask logic
   float w = width * dt;
-  float maskvalue = smoothstep(1.0 - w, 1.0, vUv.y + mix(-w / 2.0, 1.0 - w / 2.0, progress));
+  float maskvalue = smoothstep(
+    1.0 - w,
+    1.0,
+    vUv.y + mix(-w / 2.0, 1.0 - w / 2.0, progress)
+  );
   float mask = maskvalue + maskvalue * realnoise;
 
   float final = smoothstep(border, border + 0.01, mask);
 
-  gl_FragColor = vec4(colorFromProgress, 1.0) * final;
-    
-  float zFade = mix(-1.0, 1.0, final); 
-  
-  gl_FragDepth = zFade; 
+  float alpha = 1.0 - final;
+  vec3 white = vec3(1.0);
+
+  gl_FragColor = vec4(white, alpha);
 }
 `;
 

@@ -8,6 +8,9 @@ function closeInfoDiv(context) {
     const aboutDiv = document.getElementById('about');
     const isAboutDivOpen = aboutDiv;
 
+    const projectsDiv = document.getElementById('projects');
+    const isProjectsDivOpen = projectsDiv;
+
     gsap.killTweensOf([
         context.largeShaderMaterial.uniforms.progress,
     ]);
@@ -32,12 +35,37 @@ function closeInfoDiv(context) {
         });
     }
 
+    if (isProjectsDivOpen) {
+        gsap.to(projectsDiv, {
+            opacity: 0,
+            duration: 0.3,
+            onComplete: () => {
+                if (context.projectsLenis) {
+                    context.projectsLenis.scrollTo(0, { immediate: true });
+                    requestAnimationFrame(() => {
+                        context.projectsLenis.stop();
+                    });
+                } else {
+                    if (projectsDiv) projectsDiv.scrollTo({ top: 0, behavior: 'instant' });
+                }
+                projectsDiv.classList.remove('show');
+            }
+        });
+    }
+
     gsap.to(context.largeShaderMaterial.uniforms.progress, {
         value: 1,
         duration: 1.2,
         ease: "sine.out",
         overwrite: "auto",
+        onStart: () => {
+            context.largePlane.renderOrder = 999;
+        },
+        onComplete: () => {
+            context.largePlane.renderOrder = 0;
+        }
     });
+
 
     document.getElementById('openAbout').style.opacity = '1';
     document.getElementById('openAbout').style.pointerEvents = 'auto';

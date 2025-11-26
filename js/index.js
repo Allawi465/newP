@@ -10,18 +10,23 @@ import { loadingProgress, updateProgressUI } from './components/loader/loading.j
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
 import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
+import Stats from 'stats.js'
 
 
 gsap.registerPlugin(ScrollTrigger);
+
 
 class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
 
-        this.lastVisualHeight = window.visualViewport
-            ? window.visualViewport.height
-            : window.innerHeight;
+        this.maxScroll = 1;
+        this.scrollLerpFactor = 0.25;
 
+        this.stats = new Stats();
+        this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb
+        document.body.appendChild(this.stats.dom);
+        this.particlesActive = true;
 
         this.init().then(() => this.onInitComplete());
     }
@@ -32,20 +37,30 @@ class EffectShell {
 
     async init() {
         try {
-            this.setupLenis(this);
+            this.wrapper = document.querySelector('#smooth-wrapper');
+            this.content = document.querySelector('#smooth-content');
+
+            this.setupLenis();
             this.stopBodyScrolling();
+
             setupScene(this);
             this.textures = await this.loadTextures(images, this);
             createLargePlane(this);
             createMeshes(this);
+
+
+            this.targetGroupY = this.group.position.y;
+
             createCSS2DObjects(this, images);
             setupPostProcessing(this);
             await setupFBO(this);
             addObjects(this);
             setupEventListeners(this);
+
+            this.updateScrollMetrics();
             this.animate();
             initLoadingSequence(this);
-            setupScrollAnimation();
+            setupScrollAnimation(this);
             onWindowResize(this);
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
@@ -55,11 +70,11 @@ class EffectShell {
     setupLenis() {
         if (!this.isTouchDevice()) {
             const lenis = new Lenis({
-                wrapper: document.documentElement,
-                content: document.body,
+                wrapper: this.wrapper,
+                content: this.content,
                 smoothWheel: true,
                 smoothTouch: false,
-                autoRaf: false,
+                autoRaf: true,
                 duration: 1.5,
             });
 
@@ -67,10 +82,13 @@ class EffectShell {
 
             lenis.on('scroll', ScrollTrigger.update);
 
-            gsap.ticker.add(t => lenis.raf(t * 1000));
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+
             gsap.ticker.lagSmoothing(0);
 
-            ScrollTrigger.scrollerProxy(document.documentElement, {
+            ScrollTrigger.scrollerProxy(this.wrapper, {
                 scrollTop(value) {
                     if (arguments.length) {
                         lenis.scrollTo(value, { immediate: true });
@@ -80,10 +98,10 @@ class EffectShell {
                 getBoundingClientRect() {
                     return { top: 0, left: 0, width: innerWidth, height: innerHeight };
                 },
-                pinType: document.documentElement.style.transform ? 'transform' : 'fixed',
+                pinType: this.wrapper.style.transform ? 'transform' : 'fixed',
             });
 
-            ScrollTrigger.defaults({ scroller: document.documentElement });
+            ScrollTrigger.defaults({ scroller: this.wrapper });
 
             this.startBodyScrolling = () => lenis.start();
             this.stopBodyScrolling = () => lenis.stop();
@@ -91,15 +109,7 @@ class EffectShell {
             this.bodyLenis = null;
             document.documentElement.style.overflow = '';
             document.body.style.overflow = '';
-            ScrollTrigger.defaults({});
-        }
-    }
-
-    getScrollY() {
-        if (this.bodyLenis) {
-            return this.bodyLenis.scroll;
-        } else {
-            return window.scrollY || document.documentElement.scrollTop || 0;
+            ScrollTrigger.defaults({ scroller: this.wrapper });
         }
     }
 
@@ -111,20 +121,20 @@ class EffectShell {
         );
     }
 
-    stopBodyScrolling() {
-        if (this.bodyLenis) {
-            this.bodyLenis.stop();
-        }
-        document.documentElement.style.overflow = "hidden";
-        document.body.style.overflow = "hidden";
-    }
-
     startBodyScrolling() {
         if (this.bodyLenis) {
             this.bodyLenis.start();
         }
-        document.documentElement.style.overflow = "";
+        this.wrapper.style.overflow = "";
         document.body.style.overflow = "";
+    }
+
+    stopBodyScrolling() {
+        if (this.bodyLenis) {
+            this.bodyLenis.stop();
+        }
+        this.wrapper.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
     }
 
     async loadTextures(images) {
@@ -208,17 +218,6 @@ class EffectShell {
 
     clamp(v, a = 0, b = 1) { return Math.max(a, Math.min(b, v)); }
 
-    checkHeightChange() {
-        const currentHeight = window.visualViewport
-            ? window.visualViewport.height
-            : window.innerHeight;
-
-        if (currentHeight !== this.lastVisualHeight) {
-            this.lastVisualHeight = currentHeight;
-            onWindowResize(this);
-        }
-    }
-
     getRenderTarget() {
         return new THREE.WebGLRenderTarget(
             this.size,
@@ -279,20 +278,42 @@ class EffectShell {
         }
     }
 
+    enableParticles(context) {
+        context.particlesActive = true;
+        if (context.points) context.points.visible = true;
+        if (context.glassBall) context.glassBall.visible = true;
+    }
+
+    disableParticles(context) {
+        context.particlesActive = false;
+        if (context.points) context.points.visible = false;
+        if (context.glassBall) context.glassBall.visible = false;
+    }
+
+    updateScrollMetrics() {
+        if (!this.wrapper || !this.content) return;
+        const contentHeight = this.content.scrollHeight;
+        const wrapperHeight = this.wrapper.clientHeight;
+        this.maxScroll = Math.max(contentHeight - wrapperHeight, 1);
+    }
+
     animate() {
         requestAnimationFrame(this.animate.bind(this));
+
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        if (this.group) {
-            const scrollTop = this.getScrollY();
+        if (this.stats) this.stats.begin();
 
-            const viewportHeight = window.visualViewport?.height || window.innerHeight;
+        if (this.group && this.wrapper) {
+            const scrollY = this.bodyLenis
+                ? this.bodyLenis.scroll
+                : this.wrapper.scrollTop;
 
-            const maxScroll = document.body.scrollHeight - viewportHeight;
-            const normalized = maxScroll > 0 ? scrollTop / maxScroll : 0;
+            let t = this.maxScroll > 0 ? scrollY / this.maxScroll : 0;
+            t = Math.max(0, Math.min(1, t));
 
-            const targetY = this.scrollMinY + (this.scrollMaxY - this.scrollMinY) * normalized;
+            const targetY = THREE.MathUtils.lerp(this.scrollMinY, this.scrollMaxY, t);
             this.group.position.y = targetY;
         }
 
@@ -308,7 +329,7 @@ class EffectShell {
         this.currentPosition += (this.targetPosition - this.currentPosition) * this.lerpFactor;
 
         this.desiredOffset = this.velocity * this.offsetFactor;
-        this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax);
+        this.desiredOffset = Math.max(Math.min(this.desiredOffset, this.offsetMax), -this.offsetMax)
 
         this.group.children.forEach(child => {
             child.material.uniforms.uOffset.value.x +=
@@ -322,21 +343,27 @@ class EffectShell {
         }
 
         this.updatePositions();
-        this.syncHtmlWithSlider();
-        this.updateUniforms(deltaTime);
 
-        this.glassBall.position.lerp(this.targetPositionSphre, 0.08);
-        this.cubeCamera.position.copy(this.glassBall.position);
-        this.cubeCamera.update(this.renderer, this.scene);
+        if (this.particlesActive && this.material && this.fboMaterial) {
+            this.updateUniforms(deltaTime);
 
-        this.renderToFBO();
+            this.glassBall.position.lerp(this.targetPositionSphre, 0.08);
+            this.cubeCamera.position.copy(this.glassBall.position);
+            this.cubeCamera.update(this.renderer, this.scene);
+            this.renderToFBO();
+        }
+
         this.renderer.autoClear = true;
         this.camera.layers.enableAll();
         this.labelRenderer.render(this.scene, this.camera);
         this.composer.render();
+
+        if (this.stats) this.stats.end();
     }
 
-    onInitComplete() { }
+    onInitComplete() {
+
+    }
 }
 
-new EffectShell();                                                
+new EffectShell();

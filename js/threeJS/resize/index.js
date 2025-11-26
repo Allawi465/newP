@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import gsap from "gsap";
 
 export default function onWindowResize(context) {
-    const w = document.documentElement.clientWidth || window.innerWidth;
-    const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+    const w = window.innerWidth;
+    const h = window.innerHeight;
     context.width = w;
     context.height = h;
 
@@ -143,4 +143,6 @@ export default function onWindowResize(context) {
         gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
         context.stopBounce(context);
     }
+
+    context.updateScrollMetrics?.();
 }

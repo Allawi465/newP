@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Allawi Mohammed</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,270 +28,287 @@
 <body>
     <canvas id="canvas"></canvas>
 
-    <div id="loadingContainer">
-        <div class="loading-wrapper">
-            <div class="loading-inner">
-                <div class="progress-track">
-                    <div id="progressBar"></div>
-                    <div id="progressCounter">
-                        <span id="counterNumber">0</span>
-                        <span class="counter-percent">%</span>
+    <div id="smooth-wrapper">
+        <div id="smooth-content">
+            <div id="loadingContainer">
+                <div class="loading-wrapper">
+                    <div class="loading-inner">
+                        <div class="progress-track">
+                            <div id="progressBar"></div>
+                            <div id="progressCounter">
+                                <span id="counterNumber">0</span>
+                                <span class="counter-percent">%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="header">
-        <span>
-            Web developer
-        </span>
-    </div>
+            <div class="header">
+                <span>
+                    Web developer
+                </span>
+            </div>
 
-    <div class="btn about" id="openAbout">
-        <span>
-            About
-        </span>
-    </div>
+            <div class="btn about" id="openAbout">
+                <span>
+                    About
+                </span>
+            </div>
 
-    <div class="btn close" id="close">
-        <span>
-            close
-        </span>
-    </div>
+            <div class="btn close" id="close">
+                <span>
+                    close
+                </span>
+            </div>
 
-    <div class="hero">
-        <div class="hero-content-wrapper">
-            <div class="hero-content-inner">
-                <div class="hero_container c2">
-                    <div class="line-dot-container">
-                        <div class="line-dot-inner">
-                            <div class="line"
-                                style="background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.4), transparent);">
+            <div class="hero">
+                <div class="hero-content-wrapper">
+                    <div class="hero-content-inner">
+                        <div class="hero_container c2">
+                            <div class="line-dot-container">
+                                <div class="line-dot-inner">
+                                    <div class="line"
+                                        style="background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.4), transparent);">
+                                    </div>
+                                    <div class="dot" style="background-color: rgba(255, 255, 255, 0.6);"></div>
+                                    <div class="line"
+                                        style="background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.4), transparent);">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="dot" style="background-color: rgba(255, 255, 255, 0.6);"></div>
-                            <div class="line"
-                                style="background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.4), transparent);">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="hero-content">
-                        <div class="hero-titles">
-                            <h1 class="hero_title">CREATIVE</h1>
-                            <h2 class="hero_title_2">WAYS</h2>
-                        </div>
-                        <div class="divider_line"
-                            style="background: linear-gradient(to right, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4), transparent);">
-                        </div>
-                        <div class="hero-description">
-                            <div class="divider_short">
-                                <div
+                            <div class="hero-content">
+                                <div class="hero-titles">
+                                    <h1 class="hero_title">CREATIVE</h1>
+                                    <h2 class="hero_title_2">WAYS</h2>
+                                </div>
+                                <div class="divider_line"
                                     style="background: linear-gradient(to right, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4), transparent);">
                                 </div>
-                            </div>
-                            <p class="hero_text text">
-                                A creative developer who enjoys bringing ideas to life with design and technology. I
-                                like building interactive experiences that feel smooth, look great, and are fun to
-                                explore.
-                            </p>
-                        </div>
-                        <div class="badges-container">
-                            <div class="badges-inner">
-                                <span class="badge">Design</span>
-                                <span class="badge">Code</span>
-                                <span class="badge">Deploy</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="name-badge">
-        <span class="name_scroll">
-            Allawi Mohammed
-        </span>
-    </div>
-
-    <div class="scroll">
-        Scroll Down
-    </div>
-
-    <div class="scroll-line">
-        <div class="scroll_line">
-
-        </div>
-    </div>
-
-    <div class="projects" id="sliderContainer">
-        <div class="projects_container c2">
-            <h3 class="projects__title">
-                Works
-            </h3>
-        </div>
-    </div>
-
-    <div class="footer">
-        <div class="footer-content-wrapper">
-            <div class="footer-content-inner">
-                <div class="footer_container">
-                    <div class="footer-left">
-                        <h3 class="footer-heading">
-                            <span class="footer-heading-muted">Have an idea?</span>
-                            <span class="footer-heading-bright"> say Hi!</span>
-                        </h3>
-                        <a href="mailto:allawi465@gmail.com" class="footer-link">
-                            <span class="footer-link-text">allawi465@gmail.com</span>
-                        </a>
-                    </div>
-                    <div class="footer-social-links">
-                        <a href="https://github.com/Allawi465" target="_blank" rel="noopener noreferrer"
-                            class="footer-social-link">
-                            <span class="footer-social-link-text">Github</span>
-                        </a>
-
-                        <a href="https://www.linkedin.com/in/mohammed-allawi-89830621a" target="_blank"
-                            rel="noopener noreferrer" class="footer-social-link">
-                            <span class="footer-social-link-text">Linkedin</span>
-                        </a>
-
-                        <a href="https://discord.com/users/allawi" target="_blank" rel="noopener noreferrer"
-                            class="footer-social-link">
-                            <span class="footer-social-link-text">Discord</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="about">
-        <div class="about_wrapper">
-            <div class="about-page">
-                <div class="about-content-wrapper c2">
-                    <div class="about-content-inner">
-                        <div class="about-container">
-                            <div class="about-line-dot-container">
-                                <div class="about-line-dot-inner">
-                                    <div class="about-line">
-                                    </div>
-                                    <div class="about-dot"></div>
-                                    <div class="about-line">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="about-content">
-                                <div class="about-titles">
-                                    <h4 class="about-title">ABOUT</h4>
-                                </div>
-
-                                <div class="about-divider-line">
-                                </div>
-                                <div class="about-description">
-                                    <div class="about-divider-short">
-                                        <div>
+                                <div class="hero-description">
+                                    <div class="divider_short">
+                                        <div
+                                            style="background: linear-gradient(to right, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4), transparent);">
                                         </div>
                                     </div>
-                                    <p class="about-text text" style="color: rgba(0, 0, 0, 0.5);">
-                                        I’m a front-end developer from Norway who loves coding and design. Passionate
-                                        about learning more and continuing to grow in technology and the way I build
-                                        applications. I love exploring new tools and ideas to improve my skills and the
-                                        experiences I build.
+                                    <p class="hero_text text">
+                                        A creative developer who enjoys bringing ideas to life with design and
+                                        technology. I
+                                        like building interactive experiences that feel smooth, look great, and are fun
+                                        to
+                                        explore.
                                     </p>
                                 </div>
-                                <div class="about-badges-container">
-                                    <div class="about-badges-inner">
-                                        <a href="mailto:allawi465@gmail.com" class="about-badge-link" target="_blank"
-                                            rel="noopener noreferrer">
-                                            Email
-                                        </a>
-                                        <a href="https://github.com/Allawi465" class="about-badge-link" target="_blank"
-                                            rel="noopener noreferrer">
-                                            GitHub
-                                        </a>
-                                        <a href="https://linkedin.com/in/ahmed-allawi-465" class="about-badge-link"
-                                            target="_blank" rel="noopener noreferrer">
-                                            LinkedIn
-                                        </a>
+                                <div class="badges-container">
+                                    <div class="badges-inner">
+                                        <span class="badge">Design</span>
+                                        <span class="badge">Code</span>
+                                        <span class="badge">Deploy</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="name-badge">
+                <span class="name_scroll">
+                    Allawi Mohammed
+                </span>
+            </div>
+
+            <div class="scroll">
+                Scroll Down
+            </div>
+
+            <div class="scroll-line">
+                <div class="scroll_line">
+
+                </div>
+            </div>
+
+            <div class="projects" id="sliderContainer">
+                <div class="projects_container c2">
+                    <h3 class="projects__title">
+                        Works
+                    </h3>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="footer-content-wrapper">
+                    <div class="footer-content-inner">
+                        <div class="footer_container">
+                            <div class="footer-left">
+                                <h4 class="footer-heading">
+                                    <span class="footer-heading-muted">Have an idea?</span>
+                                    <span class="footer-heading-bright"> say Hi!</span>
+                                </h4>
+                                <a href="mailto:allawi465@gmail.com" class="footer-link">
+                                    <span class="footer-link-text">allawi465@gmail.com</span>
+                                </a>
+                            </div>
+                            <div class="footer-social-links">
+                                <a href="https://github.com/Allawi465" target="_blank" rel="noopener noreferrer"
+                                    class="footer-social-link">
+                                    <span class="footer-social-link-text">Github</span>
+                                </a>
+
+                                <a href="https://www.linkedin.com/in/mohammed-allawi-89830621a" target="_blank"
+                                    rel="noopener noreferrer" class="footer-social-link">
+                                    <span class="footer-social-link-text">Linkedin</span>
+                                </a>
+
+                                <a href="https://discord.com/users/allawi" target="_blank" rel="noopener noreferrer"
+                                    class="footer-social-link">
+                                    <span class="footer-social-link-text">Discord</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="projects">
+                <div class="projects_wrapper">
+
+                </div>
+            </div>
+            <div id="about">
+                <div class="about_wrapper">
+                    <div class="about-page">
+                        <div class="about-content-wrapper c2">
+                            <div class="about-content-inner">
+                                <div class="about-container">
+                                    <div class="about-line-dot-container">
+                                        <div class="about-line-dot-inner">
+                                            <div class="about-line">
+                                            </div>
+                                            <div class="about-dot"></div>
+                                            <div class="about-line">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="about-content">
+                                        <div class="about-titles">
+                                            <h5 class="about-title">ABOUT</h5>
+                                        </div>
+
+                                        <div class="about-divider-line">
+                                        </div>
+                                        <div class="about-description">
+                                            <div class="about-divider-short">
+                                                <div>
+                                                </div>
+                                            </div>
+                                            <p class="about-text text" style="color: rgba(0, 0, 0, 0.5);">
+                                                I’m a front-end developer from Norway who loves coding and design.
+                                                Passionate
+                                                about learning more and continuing to grow in technology and the way I
+                                                build
+                                                applications. I love exploring new tools to improve my skills and the
+                                                experiences I build.
+                                            </p>
+                                        </div>
+                                        <div class="about-badges-container">
+                                            <div class="about-badges-inner">
+                                                <a href="mailto:allawi465@gmail.com" class="about-badge-link"
+                                                    target="_blank" rel="noopener noreferrer">
+                                                    Email
+                                                </a>
+                                                <a href="https://github.com/Allawi465" class="about-badge-link"
+                                                    target="_blank" rel="noopener noreferrer">
+                                                    GitHub
+                                                </a>
+                                                <a href="https://linkedin.com/in/ahmed-allawi-465"
+                                                    class="about-badge-link" target="_blank" rel="noopener noreferrer">
+                                                    LinkedIn
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="scroll_about">
+                            Scroll Down
+                        </div>
                     </div>
-                </div>
-                <div class="scroll_about">
-                    Scroll Down
+                    <section class="journey_section">
+                        <div class="about_journey_container">
+                            <div class="skills_header">
+                                <h5 class="journey_h2">Education & Experience</h5>
+                                <p class="journey_p">
+                                    My journey from a beginner to a passionate web developer.
+                                </p>
+                            </div>
+                            <div class="journey-timeline">
+                                <div class="journey_item">
+                                    <div class="journey_dot"></div>
+                                    <div class="journey_content">
+                                        <div class="journey-date">2023 - Present</div>
+                                        <h6 class="journey-role">Freelance Front-End Developer</h6>
+                                        <div class="journey-company">Self-Employed</div>
+                                        <p class="journey-description">
+                                            Building responsive web applications and creating digital experiences for
+                                            clients.
+                                            Applying skills learned at Noroff to real-world projects, focusing on React,
+                                            JavaScript, and modern CSS frameworks.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="journey_item">
+                                    <div class="journey_dot"></div>
+                                    <div class="journey_content">
+                                        <div class="journey-date">2022 - 2023</div>
+                                        <h6 class="journey-role">Front-End Development Program</h6>
+                                        <div class="journey-company">Noroff School of Technology and Digital Media</div>
+                                        <p class="journey-description">
+                                            Completed comprehensive front-end development education covering HTML, CSS,
+                                            JavaScript, React,
+                                            design systems, accessibility, and responsive web design. Built 30+ projects
+                                            including e-commerce sites,
+                                            social platforms, and interactive web applications.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="journey_item">
+                                    <div class="journey_dot"></div>
+                                    <div class="journey_content">
+                                        <div class="journey-date">2021 - 2022</div>
+                                        <h6 class="journey-role">UI/UX Design Foundations</h6>
+                                        <div class="journey-company">Self-Study</div>
+                                        <p class="journey-description">
+                                            Explored design principles, Figma, and user experience fundamentals through
+                                            online
+                                            resources
+                                            and design communities. Created mockups and prototypes to understand the
+                                            design
+                                            process before pursuing formal education.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="journey_item">
+                                    <div class="journey_dot"></div>
+                                    <div class="journey_content">
+                                        <div class="journey-date">2020 - 2021</div>
+                                        <h6 class="journey-role">Started Coding Journey</h6>
+                                        <div class="journey-company">Self-Taught</div>
+                                        <p class="journey-description">
+                                            Began learning programming fundamentals with HTML, CSS, and JavaScript.
+                                            Built first personal website and discovered a passion for web development,
+                                            leading
+                                            to enrollment at Noroff.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
-            <section class="journey_section">
-                <div class="about_journey_container">
-                    <div class="skills_header">
-                        <h5 class="journey_h2">Education & Experience</h5>
-                        <p class="journey_p">
-                            My journey from a beginner to a front-end developer after studying at Noroff.
-                        </p>
-                    </div>
-                    <div class="journey-timeline">
-                        <div class="journey_item">
-                            <div class="journey_dot"></div>
-                            <div class="journey_content">
-                                <div class="journey-date">2023 - Present</div>
-                                <h6 class="journey-role">Freelance Front-End Developer</h6>
-                                <div class="journey-company">Self-Employed</div>
-                                <p class="journey-description">
-                                    Building responsive web applications and creating digital experiences for clients.
-                                    Applying skills learned at Noroff to real-world projects, focusing on React,
-                                    JavaScript, and modern CSS frameworks.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="journey_item">
-                            <div class="journey_dot"></div>
-                            <div class="journey_content">
-                                <div class="journey-date">2022 - 2023</div>
-                                <h6 class="journey-role">Front-End Development Program</h6>
-                                <div class="journey-company">Noroff School of Technology and Digital Media</div>
-                                <p class="journey-description">
-                                    Completed comprehensive front-end development education covering HTML, CSS,
-                                    JavaScript, React,
-                                    design systems, accessibility, and responsive web design. Built 30+ projects
-                                    including e-commerce sites,
-                                    social platforms, and interactive web applications.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="journey_item">
-                            <div class="journey_dot"></div>
-                            <div class="journey_content">
-                                <div class="journey-date">2021 - 2022</div>
-                                <h6 class="journey-role">UI/UX Design Foundations</h6>
-                                <div class="journey-company">Self-Study</div>
-                                <p class="journey-description">
-                                    Explored design principles, Figma, and user experience fundamentals through online
-                                    resources
-                                    and design communities. Created mockups and prototypes to understand the design
-                                    process before pursuing formal education.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="journey_item">
-                            <div class="journey_dot"></div>
-                            <div class="journey_content">
-                                <div class="journey-date">2020 - 2021</div>
-                                <h6 class="journey-role">Started Coding Journey</h6>
-                                <div class="journey-company">Self-Taught</div>
-                                <p class="journey-description">
-                                    Began learning programming fundamentals with HTML, CSS, and JavaScript.
-                                    Built first personal website and discovered a passion for web development, leading
-                                    to enrollment at Noroff.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+
         </div>
     </div>
 

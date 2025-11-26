@@ -58,7 +58,7 @@ export function onPointerDown(event, context) {
     context.velocity = 0;
     context.lastTime = performance.now();
     context.desiredOffset = 0;
-    context.initialClick = { x: context.startX, y: context.startY };
+    context.initialClick = { x, y };
 }
 
 export function onPointerUp(event, context) {

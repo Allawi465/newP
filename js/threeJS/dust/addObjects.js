@@ -70,7 +70,6 @@ export default function addObjects(context) {
         transparent: true,
         color: new THREE.Color(0xF0F2F2),
         emissive: new THREE.Color(0x616161),
-        transparent: true,
         depthWrite: false,
         depthTest: true
     });
@@ -93,41 +92,52 @@ export default function addObjects(context) {
     context.fboMaterial.uniforms.uSpherePos.value = context.glassBall.position;
 
 
+    context.enableParticles(context);
+
     ScrollTrigger.create({
         trigger: ".hero",
         start: "top top",
-        end: "60% top",
+        end: "55% top",
+        scroller: context.wrapper,
         scrub: true,
         onEnterBack: () => {
+            context.enableParticles(context);
             context.chromaticBendPass.uniforms.offset.value.set(0.001, 0.001);
         },
         onUpdate: self => {
+            if (!context.particlesActive) return;
+
             context.glassMaterial.opacity = 1 - self.progress;
             context.glassMaterial.needsUpdate = true;
             context.material.uniforms.uScrollProgress.value = self.progress;
         },
         onLeave: () => {
             context.chromaticBendPass.uniforms.offset.value.set(0.000, 0.000);
-            context.glassMaterial.opacity = 0
+            context.glassMaterial.opacity = 0;
+            context.glassMaterial.needsUpdate = true;
+
+            context.disableParticles(context);
         },
     });
 
     ScrollTrigger.create({
         trigger: ".footer",
-        start: "center 90%",
+        start: "top 55%",
         end: "bottom bottom",
         scrub: true,
-        scroller: document.body,
+        scroller: context.wrapper,
+        onEnter: () => {
+            context.enableParticles(context);
+        },
         onUpdate: (self) => {
+            if (!context.particlesActive) return;
+
             context.glassMaterial.opacity = self.progress;
             context.glassMaterial.needsUpdate = true;
 
             context.material.uniforms.uScrollProgress.value = 1 - self.progress;
             context.material.uniforms.uFooter.value = self.progress;
-
-
             context.fboMaterial.uniforms.uFooter.value = self.progress;
-
 
             context.glassMaterial.roughness = Math.min(
                 0.4,
@@ -149,6 +159,7 @@ export default function addObjects(context) {
         },
         onLeaveBack: () => {
             context.fboMaterial.uniforms.uFooter.value = 0;
+            context.disableParticles(context);
         }
     });
 }

@@ -18,26 +18,28 @@ export default function initLoadingSequence(context) {
         const title_2 = new SplitText(".hero_title_2", { type: "words, chars" });
         context.splits.heroText = SplitText.create(".hero_text", { type: "chars, words, lines" });
 
-        timeline
-            .to(context.largeShaderMaterial.uniforms.progress, {
-                value: 1,
-                duration: 1,
-                ease: "sine.out",
-                onUpdate: () => {
-                    const progress = context.largeShaderMaterial.uniforms.progress.value;
-                    gsap.to(loadingContainer, {
-                        opacity: -progress,
-                        duration: 0.5,
-                        display: "none"
-                    });
-                },
-                onComplete: () => {
-                    context.startBodyScrolling();
-                    context.isLoading = false;
-                    document.documentElement.style.overflow = '';
-                    document.body.style.overflow = '';
-                }
-            }, 0)
+        timeline.to(context.largeShaderMaterial.uniforms.progress, {
+            value: 1,
+            duration: 1,
+            ease: "sine.out",
+            onStart: () => {
+                context.largePlane.renderOrder = 999;
+            },
+            onUpdate: () => {
+                const progress = context.largeShaderMaterial.uniforms.progress.value;
+                gsap.to(loadingContainer, {
+                    opacity: -progress,
+                    duration: 0.5,
+                    display: "none"
+                });
+            },
+            onComplete: () => {
+                context.startBodyScrolling();
+                context.isLoading = false;
+                document.documentElement.style.overflow = '';
+                document.body.style.overflow = '';
+            }
+        }, 0)
             .to(".header", {
                 opacity: 1,
                 duration: 1,
