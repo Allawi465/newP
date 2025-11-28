@@ -121,7 +121,6 @@ function reset(context) {
         context.title,
     ], { clearProps: "all" });
 
-    gsap.killTweensOf("*");
     if (context.tm) context.tm.kill();
 }
 
@@ -224,7 +223,6 @@ function scrollAnimations(context) {
         start: 'top 70%',
         end: 'bottom bottom',
         scrub: true,
-        markers: false,
         animation: gsap.fromTo(
             '.journey_item',
             {

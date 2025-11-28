@@ -30,6 +30,8 @@ export default function setupEventListeners(context) {
     document.addEventListener('mousemove', (event) => onMouseMoveHover(event, context));
 
     window.addEventListener('pointermove', (event) => {
+        if (event.pointerType && event.pointerType !== 'mouse') return;
+
         if (!context.followMouse) return;
 
         context.pointerPrev.copy(context.pointer);
@@ -46,21 +48,27 @@ export default function setupEventListeners(context) {
         context.targetPositionSphre.lerp(targetPos, 0.2);
     }, { passive: false });
 
-    window.addEventListener('touchstart', () => {
-        if (context.currentInputMode !== 'touch') {
-            context.currentInputMode = 'touch';
-            context.followMouse = false;
-            gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
-            context.startBounce(context, "y");
-        }
-    }, { passive: true });
+    window.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'touch') {
+            if (context.currentInputMode !== 'touch') {
+                context.currentInputMode = 'touch';
+                context.followMouse = false;
 
-    window.addEventListener('mousemove', () => {
-        if (context.currentInputMode !== 'mouse') {
-            context.currentInputMode = 'mouse';
-            context.followMouse = true;
-            gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
-            context.stopBounce(context);
+                gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+                context.stopBounce(context);
+                context.startBounce(context, "y");
+            }
+            return;
+        }
+
+        if (event.pointerType === 'mouse' || !event.pointerType) {
+            if (context.currentInputMode !== 'mouse') {
+                context.currentInputMode = 'mouse';
+                context.followMouse = true;
+
+                gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
+                context.stopBounce(context);
+            }
         }
     }, { passive: true });
 }

@@ -10,9 +10,6 @@ import { loadingProgress, updateProgressUI } from './components/loader/loading.j
 import initLoadingSequence from './components/loader/index.js';
 import { defaultConfig, images } from './utils/index.js';
 import setupScrollAnimation from './threeJS/scrollstrigger/index.js';
-import Stats from 'stats.js'
-
-
 gsap.registerPlugin(ScrollTrigger);
 
 
@@ -22,10 +19,6 @@ class EffectShell {
 
         this.maxScroll = 1;
         this.scrollLerpFactor = 0.25;
-
-        this.stats = new Stats();
-        this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb
-        document.body.appendChild(this.stats.dom);
         this.particlesActive = true;
 
         this.init().then(() => this.onInitComplete());
@@ -47,8 +40,6 @@ class EffectShell {
             this.textures = await this.loadTextures(images, this);
             createLargePlane(this);
             createMeshes(this);
-
-
             this.targetGroupY = this.group.position.y;
 
             createCSS2DObjects(this, images);
@@ -74,7 +65,7 @@ class EffectShell {
                 content: this.content,
                 smoothWheel: true,
                 smoothTouch: false,
-                autoRaf: true,
+                autoRaf: false,
                 duration: 1.5,
             });
 
@@ -107,8 +98,8 @@ class EffectShell {
             this.stopBodyScrolling = () => lenis.stop();
         } else {
             this.bodyLenis = null;
-            document.documentElement.style.overflow = '';
-            document.body.style.overflow = '';
+            this.wrapper.style.overflow = '';
+            this.wrapper.style.overflow = '';
             ScrollTrigger.defaults({ scroller: this.wrapper });
         }
     }
@@ -299,11 +290,8 @@ class EffectShell {
 
     animate() {
         requestAnimationFrame(this.animate.bind(this));
-
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
-
-        if (this.stats) this.stats.begin();
 
         if (this.group && this.wrapper) {
             const scrollY = this.bodyLenis
@@ -357,8 +345,6 @@ class EffectShell {
         this.camera.layers.enableAll();
         this.labelRenderer.render(this.scene, this.camera);
         this.composer.render();
-
-        if (this.stats) this.stats.end();
     }
 
     onInitComplete() {

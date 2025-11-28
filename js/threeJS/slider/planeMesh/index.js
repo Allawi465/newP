@@ -54,27 +54,6 @@ export default function createPlaneMesh(content, texture, index) {
         .to(shaderMaterial.uniforms.uRotation, { value: -0.09, ease: "power2.inOut", duration: 0.5 })
         .to(shaderMaterial.uniforms.uzom, { value: .9, duration: 0.5, ease: "power2.inOut" }, 0);
 
-    const tl = gsap.timeline({
-        scrollTrigger: {
-            trigger: ".projects",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: .5,
-            scroller: content.wrapper,
-        }
-    });
-
-    ScrollTrigger.create({
-        trigger: '.hero',
-        start: 'bottom center',
-        scrub: true,
-        scroller: content.wrapper,
-        onUpdate: (self) => {
-            planeMesh.material.uniforms.uGrayscale.value = self.progress;
-            planeMesh.material.uniforms.opacity.value = self.progress;
-        }
-    });
-
     content.meshArray = content.meshArray || [];
     content.meshArray.push(planeMesh);
 
