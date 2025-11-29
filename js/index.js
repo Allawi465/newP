@@ -173,11 +173,22 @@ class EffectShell {
         return x * x * x * (x * (x * 6 - 15) + 10);
     }
 
-    startBounce(ctx, axis = 'y', amp = 2, duration = 5) {
+    startBounce(ctx, axis = 'y', amp = 2.3, duration = 10) {
         this.stopBounce(ctx);
-        ctx.bounceTween = gsap.timeline({ repeat: -1, yoyo: true })
-            .to(ctx.targetPositionSphre, { [axis]: amp, duration, ease: "power2.inOut" })
-            .to(ctx.targetPositionSphre, { [axis]: -amp, duration, ease: "power2.inOut" });
+
+        const base = ctx.targetPositionSphre[axis];
+        const state = { t: 0 };
+
+        ctx.bounceTween = gsap.to(state, {
+            t: Math.PI * 2,
+            duration,
+            ease: "none",
+            repeat: -1,
+            onUpdate: () => {
+                ctx.targetPositionSphre[axis] = base + Math.sin(state.t) * amp;
+            }
+        });
+
         ctx.bounceDirection = axis;
     }
 

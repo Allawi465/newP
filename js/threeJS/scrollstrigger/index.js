@@ -247,12 +247,13 @@ export default function setupScrollAnimation(content) {
                 Math.max(0.3, self.progress - 0.5)
             );
 
-            if (!content.isTouchDevice() || !content.bounceTween) return;
+            if (content.currentInputMode !== 'touch') return;
 
-            const dir = self.progress > 0 ? 'x' : 'y';
+            const dir = self.progress > 0.3 ? 'x' : 'y';
+
             if (content.bounceDirection !== dir) {
                 gsap.set(content.targetPositionSphre, dir === 'x' ? { y: 0 } : { x: 0 });
-                content.startBounce(content, dir, dir === 'x' ? 1.5 : 2, 5);
+                content.startBounce(content, dir, dir === 'x' ? 1.5 : 2, 15);
             }
         },
         onLeaveBack: () => {

@@ -47,10 +47,6 @@ function showAbout(context) {
         document.getElementById('close').style.pointerEvents = 'auto';
         document.getElementById('close').style.zIndex = '999';
     }, 600);
-
-    ScrollTrigger.refresh(true);
-    setupScrollAnimation(context);
-
 }
 
 export function animateProgress(context) {

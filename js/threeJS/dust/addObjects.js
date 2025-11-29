@@ -90,5 +90,4 @@ export default function addObjects(context) {
     context.glassMaterial.envMap = context.cubeRenderTarget.texture;
     context.glassMaterial.needsUpdate = true;
     context.fboMaterial.uniforms.uSpherePos.value = context.glassBall.position;
-    context.enableParticles(context);
 }
