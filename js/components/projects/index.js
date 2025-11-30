@@ -1,14 +1,17 @@
 import gsap from "gsap";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from "gsap/SplitText";
 import { animateProgress } from "../about";
 import setInfoDivContent from "./content";
 import setupProjectsLenis from "./lenis";
 import setupScrollAnimation from "../../threeJS/scrollstrigger";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 function showDivWithContent(index, context) {
     if (context.isLoading || context.isDivOpen || context.isProjectsOpen) return;
+
+    context.isProjectsOpen = true;
 
     context.stopBodyScrolling();
 
@@ -26,7 +29,7 @@ function showDivWithContent(index, context) {
             context.projectsLenis.start();
         }
 
-        /*     reset(context); */
+        reset(context);
 
         animateProgress(context);
 
@@ -34,7 +37,7 @@ function showDivWithContent(index, context) {
 
         setInfoDivContent(selectedImage)
 
-        /*      context.tm = setupTimeline(context); */
+        context.tm = setupTimeline(context);
 
         gsap.to(projectsDiv, {
             opacity: 1,
@@ -54,22 +57,48 @@ function showDivWithContent(index, context) {
     setupScrollAnimation(context);
 }
 
-function setupTimeline() {
+function setupTimeline(context) {
     const timeline = gsap.timeline();
 
-    const elements = [
-        ".projects_titles",
-        ".projects_title",
-        ".project_slogan",
-        ".projects_detils",
-        ".hidden_link",
-        ".projectsImg",
-        ".projects_description"
-    ];
+    context.splits.projectsText = SplitText.create(".projects_description", { type: "chars, words, lines" });
 
-    elements.forEach(selector => {
-        timeline.to(selector, { opacity: 1, ease: "power2.inOut", duration: 1.1 }, 0.5);
-    });
+    timeline
+        .from(".project_img", {
+            duration: 2,
+            ease: "power2.out",
+            opacity: 0,
+        }, 0.8)
+        .from(".project_title", {
+            duration: 1,
+            yPercent: 100,
+            opacity: 0,
+            ease: "power2.out",
+        }, 1.)
+        .from(context.splits.projectsText.lines, {
+            duration: 1,
+            yPercent: 100,
+            opacity: 0,
+            stagger: 0.1,
+            ease: "expo.out",
+        }, 1.2)
+        .from(".role_title", {
+            duration: 1,
+            yPercent: 100,
+            opacity: 0,
+            ease: "power2.out",
+        }, 1.4)
+        .from(".role_item", {
+            duration: 1,
+            opacity: 0,
+            yPercent: 100,
+            ease: "power2.out",
+        }, 1.6)
+        .from(".link_cta", {
+            duration: 1,
+            yPercent: 100,
+            opacity: 0,
+            ease: "power2.out",
+        }, 1.8)
 
     return timeline;
 }
@@ -77,18 +106,24 @@ function setupTimeline() {
 function reset(context) {
     gsap.killTweensOf([
         context.largeShaderMaterial.uniforms.progress,
-        context.material.uniforms.opacity,
-        ...context.meshArray.map(mesh => mesh.material.uniforms.opacity),
-        ".projects_titles",
-        ".projects_title",
-        ".project_slogan",
-        ".projects_detils",
-        ".hidden_link",
-        ".projectsImg",
-        ".projects_description"
+        ".project_img",
+        ".project_title",
+        ".projects_description",
+        ".role",
+        ".role_item",
+        ".link_cta"
     ]);
 
-    gsap.killTweensOf("*");
+    if (context.splits.projectsText) {
+        context.splits.projectsText.revert();
+        context.splits.projectsText = null;
+    }
+
+    gsap.set(
+        [".project_img", ".project_title", ".projects_description", ".role", ".role_item", ".link_cta"],
+        { clearProps: "all" }
+    );
+
 
     if (context.tm) context.tm.kill();
 }

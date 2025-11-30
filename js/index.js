@@ -203,6 +203,14 @@ class EffectShell {
         return ((((index * meshSpacing + currentPosition) % totalLength) + totalLength) % totalLength) - totalLength / 2;
     }
 
+    getClientPosition(e) {
+        const touch = e.touches?.[0] || e.changedTouches?.[0];
+        return {
+            x: e.clientX ?? touch?.clientX ?? 0,
+            y: e.clientY ?? touch?.clientY ?? 0,
+        };
+    }
+
     updateAdjustedMeshSpacing() {
         this.meshSpacing = this.baseMeshSpacing * this.scaleFactor_cards;
     }

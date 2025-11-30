@@ -20,7 +20,7 @@ function closeInfoDiv(context) {
     if (isAboutDivOpen) {
         gsap.to(aboutDiv, {
             opacity: 0,
-            duration: 0.3,
+            duration: 0.5,
             onComplete: () => {
                 if (context.aboutLenis) {
                     context.aboutLenis.scrollTo(0, { immediate: true });
@@ -38,7 +38,7 @@ function closeInfoDiv(context) {
     if (isProjectsDivOpen) {
         gsap.to(projectsDiv, {
             opacity: 0,
-            duration: 0.3,
+            duration: 0.5,
             onComplete: () => {
                 if (context.projectsLenis) {
                     context.projectsLenis.scrollTo(0, { immediate: true });
@@ -58,6 +58,7 @@ function closeInfoDiv(context) {
         duration: 1.2,
         ease: "sine.out",
         overwrite: "auto",
+        delay: 0.3,
         onStart: () => {
             context.largePlane.renderOrder = 999;
         },
@@ -79,6 +80,7 @@ function closeInfoDiv(context) {
     ScrollTrigger.refresh();
 
     context.isDivOpen = false;
+    context.isProjectsOpen = false;
 }
 
 export default closeInfoDiv;

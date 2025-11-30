@@ -1,7 +1,6 @@
 import gsap from "gsap";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from "gsap/SplitText";
-import setupScrollAnimation from "../../threeJS/scrollstrigger";
 import { CustomEase } from "gsap/CustomEase";
 import setupAboutLenis from "./lenis";
 
@@ -10,6 +9,8 @@ CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
 
 function showAbout(context) {
     if (context.isLoading || context.isDivOpen || context.isProjectsOpen) return;
+
+    context.isDivOpen = true;
 
     context.stopBodyScrolling();
 
@@ -64,61 +65,6 @@ export function animateProgress(context) {
     });
 }
 
-function reset(context) {
-    gsap.killTweensOf([
-        context.largeShaderMaterial.uniforms.progress,
-        "#about",
-        ".about-title",
-        ".about-text",
-        ".about-line",
-        ".about-dot",
-        ".about-divider-line",
-        ".about-divider-short",
-        ".about-badge-link",
-        ".journey_h2",
-        ".scroll_about",
-        ".journey_p",
-        ".journey_item",
-        ".journey_dot",
-        ".journey_content",
-    ]);
-
-    if (context.title) {
-        context.title.revert();
-        context.title = null;
-    }
-
-    if (context.scroll && context.scroll.chars) {
-        context.scroll.revert();
-        context.scroll = null;
-    }
-
-    if (context.splits.aboutText) {
-        context.splits.aboutText.revert();
-        context.splits.aboutText = null;
-    }
-
-    if (context.journey_title) {
-        context.journey_title.revert();
-        context.journey_title = null;
-    }
-
-    if (context.journey_text) {
-        context.journey_text.revert();
-        context.journey_text = null;
-    }
-
-    gsap.set([
-        ".about-line",
-        ".about-badge-link",
-        ".about-divider-line",
-        ".about-divider-short",
-        ".about-dot",
-        context.title,
-    ], { clearProps: "all" });
-
-    if (context.tm) context.tm.kill();
-}
 
 function setupTimeline(context) {
     const timeline = gsap.timeline({});
@@ -291,4 +237,61 @@ function scrollAnimations(context) {
 
 }
 
-export default showAbout; 
+function reset(context) {
+    gsap.killTweensOf([
+        context.largeShaderMaterial.uniforms.progress,
+        "#about",
+        ".about-title",
+        ".about-text",
+        ".about-line",
+        ".about-dot",
+        ".about-divider-line",
+        ".about-divider-short",
+        ".about-badge-link",
+        ".journey_h2",
+        ".scroll_about",
+        ".journey_p",
+        ".journey_item",
+        ".journey_dot",
+        ".journey_content",
+    ]);
+
+    if (context.title) {
+        context.title.revert();
+        context.title = null;
+    }
+
+    if (context.scroll && context.scroll.chars) {
+        context.scroll.revert();
+        context.scroll = null;
+    }
+
+    if (context.splits.aboutText) {
+        context.splits.aboutText.revert();
+        context.splits.aboutText = null;
+    }
+
+    if (context.journey_title) {
+        context.journey_title.revert();
+        context.journey_title = null;
+    }
+
+    if (context.journey_text) {
+        context.journey_text.revert();
+        context.journey_text = null;
+    }
+
+    gsap.set([
+        ".about-line",
+        ".about-badge-link",
+        ".about-divider-line",
+        ".about-divider-short",
+        ".about-dot",
+        context.title,
+    ], { clearProps: "all" });
+
+    if (context.tm) context.tm.kill();
+}
+
+export default showAbout;
+

@@ -1,17 +1,9 @@
 import { handleClick } from './handleClick/index.js';
 
-function getClientPosition(e) {
-    const touch = e.touches?.[0] || e.changedTouches?.[0];
-    return {
-        x: e.clientX ?? touch?.clientX ?? 0,
-        y: e.clientY ?? touch?.clientY ?? 0,
-    };
-}
-
 export function onPointerMove(event, context) {
     if (!context.isDragging) return;
 
-    const { x } = getClientPosition(event);
+    const { x } = context.getClientPosition(event);
     const delta = x - context.startX;
 
     const containerWidth = context.container?.clientWidth || window.innerWidth;
@@ -42,7 +34,7 @@ export function onPointerMove(event, context) {
 }
 
 export function onPointerDown(event, context) {
-    const { x, y } = getClientPosition(event);
+    const { x, y } = context.getClientPosition(event);
     const rect = context.projectsElement?.getBoundingClientRect();
     if (!rect) return;
 
@@ -62,7 +54,7 @@ export function onPointerDown(event, context) {
 }
 
 export function onPointerUp(event, context) {
-    const { x, y } = getClientPosition(event);
+    const { x, y } = context.getClientPosition(event);
 
     context.isDragging = false;
     context.smoothingFactor = context.smoothingFactorDefault;

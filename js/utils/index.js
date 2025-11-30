@@ -4,24 +4,24 @@ export const images = [
     {
         id: 'slider_1',
         src: '1.jpg',
-        title: 'Adventure',
-        slogan: 'Explore the Uncharted',
+        title: 'Buyers',
+        slogan: 'Explore Buyers',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
-        link: 'https://robelmahta.netlify.app/'
+        link: 'https://buyers.netlify.app/'
     },
     {
         id: 'slider_2',
         src: '2.jpg',
-        title: 'Holidaze',
-        slogan: 'Relax in Style',
+        title: 'Note',
+        slogan: 'Text editor',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
-        link: 'https://robelmahta.netlify.app/'
+        link: 'https://allawi465.github.io/notebook/index.html'
     },
     {
         id: 'slider_3',
-        src: '1.jpg',
-        title: 'NoxB',
-        slogan: 'Innovating Tomorrow',
+        src: '3.jpg',
+        title: 'Holidaze',
+        slogan: 'Plan your next trip',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
         link: 'https://robelmahta.netlify.app/'
     },
@@ -35,7 +35,7 @@ export const images = [
     },
     {
         id: 'slider_5',
-        src: '5.jpg',
+        src: '4.jpg',
         title: 'Portfolio 02',
         slogan: 'Digital Craftsmanship',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
@@ -86,6 +86,7 @@ export const defaultConfig = {
     splits: {
         heroText: null,
         aboutText: null,
+        projectsText: null
     },
     slideHeight: 3.0,
     slideWidth: 1.8,
@@ -118,6 +119,7 @@ export const defaultConfig = {
     largeShaderMaterial: null,
     isLoading: true,
     isDivOpen: false,
+    isProjectsOpen: false,
     followMouse: true,
 
     scrollMinY: 0,

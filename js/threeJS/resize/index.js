@@ -109,6 +109,7 @@ export default function onWindowResize(context) {
 
     context.splits?.heroText?.revert?.();
     context.splits?.aboutText?.revert?.();
+    context.splits?.projectsText?.revert?.();
 
     if (context.material && context.fboMaterial) {
         context.resetParticles?.();
