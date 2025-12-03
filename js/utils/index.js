@@ -11,7 +11,7 @@ export const images = [
     },
     {
         id: 'slider_2',
-        src: '2.jpg',
+        src: '7.jpg',
         title: 'Note',
         slogan: 'Text editor',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
@@ -19,7 +19,7 @@ export const images = [
     },
     {
         id: 'slider_3',
-        src: '3.jpg',
+        src: '4.jpg',
         title: 'Holidaze',
         slogan: 'Plan your next trip',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
@@ -27,7 +27,7 @@ export const images = [
     },
     {
         id: 'slider_4',
-        src: '4.jpg',
+        src: '1.jpg',
         title: 'Buyers',
         slogan: 'Shop Smart',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
@@ -35,7 +35,7 @@ export const images = [
     },
     {
         id: 'slider_5',
-        src: '4.jpg',
+        src: '2.jpg',
         title: 'Portfolio 02',
         slogan: 'Digital Craftsmanship',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
@@ -44,18 +44,18 @@ export const images = [
     {
         id: 'slider_6',
         src: '6.jpg',
-        title: 'Note',
+        title: 'Particles',
         slogan: 'Moments That Matter',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
         link: 'https://robelmahta.netlify.app/'
     },
     {
         id: 'slider_7',
-        src: '6.jpg',
-        title: 'Note',
-        slogan: 'Moments That Matter',
+        src: '3.jpg',
+        title: 'Storo Grill',
+        slogan: 'Restaurant i Oslo',
         description: 'Adventure calls! Venture into the wild, embrace the thrill of the unknown, and create memories that last a lifetime.',
-        link: 'https://robelmahta.netlify.app/'
+        link: 'https://storo-grill.vercel.app/'
     }
 ];
 

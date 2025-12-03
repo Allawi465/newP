@@ -122,7 +122,7 @@ void main(){
 
   vec3 pos = data.rgb;
   float age = data.a;
-  float blend = smoothstep(0.2, 0.2, uFooter);  
+  float blend = step(0.2, uFooter);;  
 
   vec3 pos1 = pos;
   float age1 = age;

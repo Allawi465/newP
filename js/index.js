@@ -134,23 +134,34 @@ class EffectShell {
 
         const loader = new THREE.TextureLoader();
 
+        const maxAnisotropy =
+            this.renderer?.capabilities?.getMaxAnisotropy?.() ?? 1;
+
         const texturePromises = images.map(img =>
             new Promise(resolve => {
-                loader.load(img.src, tex => {
-                    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-                    tex.minFilter = tex.magFilter = THREE.LinearFilter;
+                loader.load(
+                    img.src,
+                    tex => {
+                        tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+                        tex.minFilter = THREE.LinearFilter;
+                        tex.magFilter = THREE.LinearFilter;
 
-                    loadedCount++;
+                        tex.generateMipmaps = false;
+                        tex.anisotropy = maxAnisotropy;
+                        tex.needsUpdate = true;
 
-                    gsap.to(loadingProgress, {
-                        value: (loadedCount / total) * 100,
-                        duration: 1,
-                        ease: "power2.out",
-                        onUpdate: updateProgressUI
-                    });
+                        loadedCount++;
 
-                    resolve(tex);
-                });
+                        gsap.to(loadingProgress, {
+                            value: (loadedCount / total) * 100,
+                            duration: 1,
+                            ease: "power2.out",
+                            onUpdate: updateProgressUI
+                        });
+
+                        resolve(tex);
+                    }
+                );
             })
         );
 
