@@ -16,11 +16,6 @@ gsap.registerPlugin(ScrollTrigger);
 class EffectShell {
     constructor() {
         Object.assign(this, defaultConfig);
-
-        this.maxScroll = 1;
-        this.scrollLerpFactor = 0.25;
-        this.particlesActive = true;
-
         this.init().then(() => this.onInitComplete());
     }
 
@@ -35,27 +30,30 @@ class EffectShell {
 
             this.setupLenis();
             this.stopBodyScrolling();
-
             setupScene(this);
             this.textures = await this.loadTextures(images, this);
             createLargePlane(this);
             createMeshes(this);
-            this.targetGroupY = this.group.position.y;
-
             createCSS2DObjects(this, images);
             setupPostProcessing(this);
             await setupFBO(this);
             addObjects(this);
-            setupEventListeners(this);
-
-            this.updateScrollMetrics();
             this.animate();
             initLoadingSequence(this);
             setupScrollAnimation(this);
             onWindowResize(this);
+            setupEventListeners(this);
         } catch (error) {
             console.error('Error initializing EffectShell:', error);
         }
+    }
+
+    isTouchDevice() {
+        return (
+            navigator.maxTouchPoints > 0 ||
+            navigator.msMaxTouchPoints > 0 ||
+            'ontouchstart' in window
+        );
     }
 
     setupLenis() {
@@ -63,10 +61,9 @@ class EffectShell {
             const lenis = new Lenis({
                 wrapper: this.wrapper,
                 content: this.content,
-                smoothWheel: true,
                 smoothTouch: false,
+                smoothWheel: true,
                 autoRaf: false,
-                duration: 1.5,
             });
 
             this.bodyLenis = lenis;
@@ -104,14 +101,6 @@ class EffectShell {
         }
     }
 
-    isTouchDevice() {
-        return (
-            navigator.maxTouchPoints > 0 ||
-            navigator.msMaxTouchPoints > 0 ||
-            'ontouchstart' in window
-        );
-    }
-
     startBodyScrolling() {
         if (this.bodyLenis) {
             this.bodyLenis.start();
@@ -126,6 +115,14 @@ class EffectShell {
         }
         this.wrapper.style.overflow = "hidden";
         document.body.style.overflow = "hidden";
+    }
+
+    stopAboutScrolling() {
+        if (this.aboutLenis) {
+            this.aboutLenis.stop();
+        }
+        const wrapper = document.querySelector('#about');
+        if (wrapper) wrapper.style.overflow = "hidden";
     }
 
     async loadTextures(images) {
@@ -311,29 +308,16 @@ class EffectShell {
         if (context.glassBall) context.glassBall.visible = false;
     }
 
-    updateScrollMetrics() {
-        if (!this.wrapper || !this.content) return;
-        const contentHeight = this.content.scrollHeight;
-        const wrapperHeight = this.wrapper.clientHeight;
-        this.maxScroll = Math.max(contentHeight - wrapperHeight, 1);
-    }
 
     animate() {
         requestAnimationFrame(this.animate.bind(this));
         const deltaTime = this.clock.getDelta();
         this.time += deltaTime;
 
-        if (this.group && this.wrapper) {
-            const scrollY = this.bodyLenis
-                ? this.bodyLenis.scroll
-                : this.wrapper.scrollTop;
-
-            let t = this.maxScroll > 0 ? scrollY / this.maxScroll : 0;
-            t = Math.max(0, Math.min(1, t));
-
-            const targetY = THREE.MathUtils.lerp(this.scrollMinY, this.scrollMaxY, t);
-            this.group.position.y = targetY;
-        }
+        this.meshArray.forEach(mesh => {
+            mesh.position.y +=
+                (mesh.userData.targetY - mesh.position.y) * this.scroll_easing;
+        });
 
         if (!this.isDragging && this.isMoving) {
             this.targetPosition += this.velocity * deltaTime;

@@ -60,7 +60,7 @@ export default function addObjects(context) {
     context.points.renderOrder = 3;
     context.scene.add(context.points);
 
-    const glassGeometry = new THREE.IcosahedronGeometry(0.22, 22);
+    const glassGeometry = new THREE.IcosahedronGeometry(0.22, context.sphereMateriale);
     context.glassMaterial = new THREE.MeshPhysicalMaterial({
         thickness: 0.3,
         roughness: 0.1,

@@ -67,6 +67,7 @@ export const defaultConfig = {
     images: images,
     time: 0,
     size: 1024,
+    sphereMateriale: 22,
     mouse: new THREE.Vector2(),
     targetPositionSphre: new THREE.Vector3(0, 0, 0),
     raycaster: new THREE.Raycaster(),
@@ -82,6 +83,7 @@ export const defaultConfig = {
     VIEW_WIDTH: 4.5,
     bounceDirection: 'y',
     baseMeshSpacing: 2.2,
+    segments: 32,
     bounceTween: null,
     splits: {
         heroText: null,
@@ -98,6 +100,7 @@ export const defaultConfig = {
     smoothingFactor: 0.03,
     smoothingFactorDefault: 0.03,
     friction: 0.96,
+    scroll_easing: 0.08,
 
     currentPosition: 0,
     targetPosition: 0,
@@ -121,7 +124,5 @@ export const defaultConfig = {
     isDivOpen: false,
     isProjectsOpen: false,
     followMouse: true,
-
-    scrollMinY: 0,
-    scrollMaxY: 20,
+    particlesActive: true,
 };

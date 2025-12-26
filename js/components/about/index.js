@@ -108,17 +108,17 @@ function setupTimeline(context) {
             opacity: 0,
             stagger: 0.1,
             ease: "expo.out",
-        }, 0.8)
+        }, 1.2)
         .from(".about-badge-link", {
             opacity: 0,
             stagger: 0.1,
             duration: 1,
             ease: "power2.out",
-        }, 1)
+        }, 1.4)
         .fromTo(".scroll_about",
             { opacity: 0, y: 20 },
             { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
-            1
+            1.4
         )
     return timeline;
 }
@@ -209,10 +209,9 @@ function scrollAnimations(context) {
         scrub: true,
         animation: gsap.fromTo(
             '.journey_content',
-            { opacity: 0, x: 30, scale: 0.95 },
+            { opacity: 0, scale: 0.95 },
             {
                 opacity: 1,
-                x: 0,
                 scale: 1,
                 duration: 0.8,
                 ease: 'power3.out',

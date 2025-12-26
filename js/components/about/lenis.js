@@ -8,16 +8,13 @@ export default function setupAboutLenis(context) {
     const wrapper = document.querySelector('#about');
     const content = wrapper.querySelector('.about_wrapper');
 
-    let lenis = null;
-
     if (!context.isTouchDevice()) {
-        lenis = new Lenis({
+        const lenis = new Lenis({
             wrapper,
             content,
             smoothWheel: true,
             smoothTouch: false,
             autoRaf: false,
-            duration: 1.5,
         });
 
         context.aboutLenis = lenis;
@@ -26,6 +23,7 @@ export default function setupAboutLenis(context) {
 
         gsap.ticker.add((time) => lenis.raf(time * 1000));
         gsap.ticker.lagSmoothing(0);
+
         ScrollTrigger.scrollerProxy(wrapper, {
             scrollTop(value) {
                 if (arguments.length) {
@@ -38,14 +36,17 @@ export default function setupAboutLenis(context) {
             },
             pinType: 'transform'
         });
-        lenis.scrollTo(0, { immediate: true });
-        ScrollTrigger.refresh();
-    }
-    else {
-        wrapper.style.overflowY = 'auto';
-        ScrollTrigger.defaults({});
-        context.aboutLenis = null;
-    }
 
-    return lenis;
+        ScrollTrigger.defaults({ scroller: wrapper });
+
+        context.stopAboutScrolling = () => lenis.stop();
+
+        return lenis;
+    } else {
+        wrapper.style.overflowY = 'auto';
+        context.aboutLenis = null;
+        ScrollTrigger.defaults({ scroller: wrapper });;
+
+        return null;
+    }
 }

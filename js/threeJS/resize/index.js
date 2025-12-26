@@ -102,6 +102,9 @@ export default function onWindowResize(context) {
     context.smoothingFactor = isMobile ? 0.1 : 0.03;
     context.lerpFactor = isMobile ? 0.2 : 0.1;
     context.friction = isMobile ? 0.95 : 0.97;
+    context.segments = isMobile ? 16 : 32;
+    context.sphereMateriale = isMobile ? 8 : 22;
+    context.scroll_easing = isMobile ? 0.5 : 0.08;
     context.lastTime = performance.now();
 
     context.updatePositions?.();
@@ -144,6 +147,4 @@ export default function onWindowResize(context) {
         gsap.set(context.targetPositionSphre, { x: 0, y: 0 });
         context.stopBounce(context);
     }
-
-    context.updateScrollMetrics?.();
 }

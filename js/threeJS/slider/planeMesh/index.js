@@ -10,8 +10,8 @@ export default function createPlaneMesh(content, texture, index) {
     const planeGeometry = new THREE.PlaneGeometry(
         content.slideWidth * content.scaleFactor_cards,
         content.slideHeight * content.scaleFactor_cards,
-        32,
-        32
+        content.segments,
+        content.segments
     );
 
     const textureAspect = texture.image.width / texture.image.height;
@@ -47,7 +47,8 @@ export default function createPlaneMesh(content, texture, index) {
         index,
         hovered: false,
         tl: gsap.timeline({ paused: true }),
-        id: `slider_${index + 1}`
+        id: `slider_${index + 1}`,
+        targetY: -10
     };
 
     planeMesh.userData.tl
@@ -56,6 +57,16 @@ export default function createPlaneMesh(content, texture, index) {
 
     content.meshArray = content.meshArray || [];
     content.meshArray.push(planeMesh);
+
+    ScrollTrigger.create({
+        trigger: ".projects",
+        start: "top 50%",
+        end: "bottom top",
+        scrub: true,
+        onUpdate: self => {
+            planeMesh.userData.targetY = -10 + self.progress * 20;
+        }
+    });
 
     return planeMesh;
 }

@@ -76,8 +76,8 @@ function closeInfoDiv(context) {
     gsap.set(".scroll_line", { opacity: 1, "--scaleY": 1 });
 
     context.startBodyScrolling();
+    context.stopAboutScrolling();
     setupScrollAnimation(context);
-    ScrollTrigger.refresh();
 
     context.isDivOpen = false;
     context.isProjectsOpen = false;

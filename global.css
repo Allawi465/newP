@@ -584,6 +584,7 @@
         opacity: 0;
         z-index: 24;
         color: var(--primary);
+        overscroll-behavior: contain;
     }
 
     #about.show,

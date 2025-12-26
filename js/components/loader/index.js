@@ -103,18 +103,18 @@ export default function initLoadingSequence(context) {
                 opacity: 0,
                 stagger: 0.1,
                 ease: "expo.out",
-            }, 0.8)
+            }, 1.2)
             .from(" .badge", {
                 opacity: 0,
                 stagger: 0.1,
                 duration: 1,
                 ease: "power2.out",
-            }, 1)
+            }, 1.4)
             .to(".scroll", {
                 opacity: 1,
                 duration: 1.0,
                 ease: "power2.out",
-            }, 1)
+            }, 1.4)
             .to(".scroll-line", {
                 opacity: 1,
                 duration: 1.0,
@@ -124,6 +124,6 @@ export default function initLoadingSequence(context) {
                         aboutElement.style.pointerEvents = 'auto';
                     }
                 }
-            }, 1);
+            }, 1.4);
     });
 }

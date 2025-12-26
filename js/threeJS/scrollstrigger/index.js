@@ -83,35 +83,13 @@ export default function setupScrollAnimation(content) {
             },
         });
 
-        SplitText.create(".projects__title", {
-            type: "chars",
-            onSplit: (self) => {
-                ScrollTrigger.create({
-                    trigger: ".hero",
-                    start: "bottom 50%",
-                    scrub: true,
-                    scroller: content.wrapper,
-                    animation: gsap.fromTo(
-                        self.chars,
-                        { color: "rgba(255, 255, 255, 0)", yPercent: 100, opacity: 0 },
-                        {
-                            color: "rgba(255, 255, 255, 1)",
-                            yPercent: 0,
-                            opacity: 1,
-                            stagger: 0.05,
-                            ease: "customBezier",
-                        }
-                    ),
-                });
-            },
-        });
 
         SplitText.create(".footer-heading-muted", {
             type: "chars",
             onSplit: (self) => {
                 ScrollTrigger.create({
                     trigger: ".footer",
-                    start: "top 55%",
+                    start: "top 25%",
                     end: "bottom bottom",
                     scroller: content.wrapper,
                     scrub: true,
@@ -134,7 +112,7 @@ export default function setupScrollAnimation(content) {
             onSplit: (self) => {
                 ScrollTrigger.create({
                     trigger: ".footer",
-                    start: "top 20%",
+                    start: "top 8%",
                     end: "bottom bottom",
                     scroller: content.wrapper,
                     scrub: true,
@@ -154,7 +132,7 @@ export default function setupScrollAnimation(content) {
 
         ScrollTrigger.create({
             trigger: ".footer",
-            start: "center 60%",
+            start: "top 3%",
             end: "bottom bottom",
             scroller: content.wrapper,
             scrub: true,
@@ -167,16 +145,42 @@ export default function setupScrollAnimation(content) {
                 {
                     opacity: 1,
                     y: 0,
-                    stagger: 0.1,
+                    stagger: 0.2,
                     ease: "power2.out",
                 }
             ),
         });
+
+
+        SplitText.create(".projects__title", {
+            type: "chars",
+            onSplit: (self) => {
+                ScrollTrigger.create({
+                    trigger: ".projects",
+                    start: "top 10%",
+                    end: "bottom 80%",
+                    scrub: true,
+                    scroller: content.wrapper,
+                    animation: gsap.fromTo(
+                        self.chars,
+                        { color: "rgba(255, 255, 255, 0)", yPercent: 100, opacity: 0 },
+                        {
+                            color: "rgba(255, 255, 255, 1)",
+                            yPercent: 0,
+                            opacity: 1,
+                            stagger: 0.05,
+                            ease: "customBezier",
+                        }
+                    ),
+                });
+            },
+        });
     });
 
     ScrollTrigger.create({
-        trigger: '.hero',
-        start: 'bottom center',
+        trigger: ".projects",
+        start: "top 10%",
+        end: "bottom 80%",
         scrub: true,
         scroller: content.wrapper,
         onUpdate: (self) => {
@@ -195,7 +199,7 @@ export default function setupScrollAnimation(content) {
     ScrollTrigger.create({
         trigger: ".hero",
         start: "top top",
-        end: "55% top",
+        end: "90% top",
         scroller: content.wrapper,
         scrub: true,
         onEnterBack: () => {
@@ -220,7 +224,7 @@ export default function setupScrollAnimation(content) {
 
     ScrollTrigger.create({
         trigger: ".footer",
-        start: "top 55%",
+        start: "top 35%",
         end: "bottom bottom",
         scrub: true,
         scroller: content.wrapper,

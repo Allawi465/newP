@@ -114,7 +114,6 @@ vec3 randomSpherePoint(vec3 center, float radius, vec3 pos){
     return center + vec3(r * sin(phi) * cos(theta), r * sin(phi) * sin(theta), r * cos(phi));
 }
 
-
 void main(){
   vec2 uv = vUv;
 
@@ -158,18 +157,17 @@ void main(){
   }
 
   vec3 pos2 = pos;
-  float age2 = age;
+  float staggeredBlend = 0.0;
   {
     vec3 tgt = texture2D(uTargets, uv).xyz;
     vec2 targetXY = tgt.xy * uLetterScale;
 
     float stagger = (tgt.x + 1.0) * 0.5; 
-    float delay = stagger * .5;  
+    float delay = stagger * 0.5; 
     
-    // Use smoothstep for easing (replace step for gradual transition)
-    float staggeredBlend = smoothstep(0.15 + delay, 0.25 + delay, uFooter); 
+    staggeredBlend = smoothstep(0.0 + delay, 0.5 + delay, uFooter); 
 
-    float converge = staggeredBlend * 0.05;
+    float converge = staggeredBlend * 0.05; 
     pos2.xy += (targetXY - pos2.xy) * converge;
 
     float dist2 = length(pos2.xy - uSpherePos.xy);
@@ -177,9 +175,9 @@ void main(){
     pos2.xy += dir2 * 0.2 * smoothstep(0.59, 0.0, dist2);
   }
 
+  vec3 blendedPos = mix(pos1, pos2, staggeredBlend);
+  float blendedAge = age1;
 
-  vec3 blendedPos = mix(pos1, pos2, blend);
-  float blendedAge = mix(age1, age2, blend);
   gl_FragColor = vec4(blendedPos, blendedAge);
 }
 `;

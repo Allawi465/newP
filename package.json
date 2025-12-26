@@ -1,5 +1,5 @@
 {
-  "name": "allawi_portfolio",
+  "name": "portfolio",
   "version": "1.0.0",
   "type": "module",
   "description": "Interactive 3D portfolio by Allawi using Three.js, GSAP and lenis",

@@ -17,7 +17,6 @@ export default function setupProjectsLenis(context) {
             smoothWheel: true,
             smoothTouch: false,
             autoRaf: false,
-            duration: 1.5,
         });
 
         context.projectsLenis = lenis;
