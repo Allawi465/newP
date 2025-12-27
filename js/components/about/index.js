@@ -4,6 +4,8 @@ import { SplitText } from "gsap/SplitText";
 import { CustomEase } from "gsap/CustomEase";
 import setupAboutLenis from "./lenis";
 
+const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+
 gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
 CustomEase.create("customBezier", "0.455, 0.03, 0.515, 0.955");
 
@@ -23,9 +25,8 @@ function showAbout(context) {
 
     requestAnimationFrame(() => {
         if (context.aboutLenis) {
-            context.aboutLenis.resize();
             context.aboutLenis.scrollTo(0, { immediate: true });
-            context.aboutLenis.start();
+            context.startAboutScrolling();
         }
 
         reset(context);
@@ -69,57 +70,41 @@ export function animateProgress(context) {
 function setupTimeline(context) {
     const timeline = gsap.timeline({});
 
-    context.title = new SplitText(".about-title", { type: ",words, chars" });
-    context.splits.aboutText = SplitText.create(".about-text", { type: "chars, words, lines" });
-
     timeline
-        .from(context.title.chars, {
+        .from(".about-title", {
             x: "1em",
-            duration: 1.0,
+            duration: 1,
             ease: "power2.out",
-            stagger: { amount: 0.2 },
             opacity: 0,
-        }, 0.5)
-        .from(".about-line", {
-            height: 0,
-            duration: 1.0,
-            ease: "power2.out",
-            stagger: 0.2,
-            opacity: 0,
-        }, 0.5)
-        .from(".about-dot", {
-            duration: 1.0,
-            ease: "power2.out",
-            opacity: 0
         }, 0.5)
         .from(".about-divider-line", {
-            width: 0,
+            scaleX: 0,
             duration: 1.0,
             ease: "power2.out",
-        }, 0.8)
+        }, 0.5)
         .from(".about-divider-short", {
-            width: 0,
+            scaleX: 0,
             duration: 1.0,
             ease: "power2.out",
-        }, 0.8)
-        .from(context.splits.aboutText.lines, {
+        }, isMobile ? 0.8 : 1.)
+        .from(".about-text", {
             duration: 1,
-            yPercent: 100,
             opacity: 0,
-            stagger: 0.1,
-            ease: "expo.out",
-        }, 1.2)
+            x: -50,
+            ease: "power2.out",
+        }, isMobile ? 0.8 : 1.)
         .from(".about-badge-link", {
             opacity: 0,
+            x: -100,
             stagger: 0.1,
             duration: 1,
-            ease: "power2.out",
-        }, 1.4)
+            ease: "expo.out"
+        }, isMobile ? 1. : 1.2)
         .fromTo(".scroll_about",
             { opacity: 0, y: 20 },
             { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
-            1.4
-        )
+            isMobile ? 1.5 : 2.
+        );
     return timeline;
 }
 
@@ -133,7 +118,7 @@ function scrollAnimations(context) {
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
-        start: 'top 80%',
+        start: 'top 75%',
         end: 'top 50%',
         scrub: true,
         animation: gsap.from(context.journey_title.words, {
@@ -147,7 +132,7 @@ function scrollAnimations(context) {
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
-        start: 'top 80%',
+        start: 'top 60%',
         end: 'top 50%',
         scrub: true,
         animation: gsap.from(context.journey_text.words, {
@@ -162,7 +147,7 @@ function scrollAnimations(context) {
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
-        start: 'top 70%',
+        start: 'top 55%',
         end: 'bottom bottom',
         scrub: true,
         animation: gsap.fromTo(
@@ -184,7 +169,7 @@ function scrollAnimations(context) {
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
-        start: 'top 70%',
+        start: 'top 55%',
         end: 'bottom bottom',
         scrub: true,
         animation: gsap.fromTo(
@@ -204,7 +189,7 @@ function scrollAnimations(context) {
     ScrollTrigger.create({
         trigger: '.journey_section',
         scroller: wrapper,
-        start: 'top 70%',
+        start: 'top 55%',
         end: 'bottom bottom',
         scrub: true,
         animation: gsap.fromTo(
@@ -242,8 +227,6 @@ function reset(context) {
         "#about",
         ".about-title",
         ".about-text",
-        ".about-line",
-        ".about-dot",
         ".about-divider-line",
         ".about-divider-short",
         ".about-badge-link",
@@ -255,19 +238,9 @@ function reset(context) {
         ".journey_content",
     ]);
 
-    if (context.title) {
-        context.title.revert();
-        context.title = null;
-    }
-
     if (context.scroll && context.scroll.chars) {
         context.scroll.revert();
         context.scroll = null;
-    }
-
-    if (context.splits.aboutText) {
-        context.splits.aboutText.revert();
-        context.splits.aboutText = null;
     }
 
     if (context.journey_title) {
@@ -281,12 +254,11 @@ function reset(context) {
     }
 
     gsap.set([
-        ".about-line",
         ".about-badge-link",
         ".about-divider-line",
         ".about-divider-short",
-        ".about-dot",
-        context.title,
+        ".about-title",
+        ".about-text",
     ], { clearProps: "all" });
 
     if (context.tm) context.tm.kill();

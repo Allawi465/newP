@@ -21,32 +21,37 @@ export default function setupAboutLenis(context) {
 
         lenis.on('scroll', ScrollTrigger.update);
 
+
         gsap.ticker.add((time) => lenis.raf(time * 1000));
         gsap.ticker.lagSmoothing(0);
 
         ScrollTrigger.scrollerProxy(wrapper, {
             scrollTop(value) {
-                if (arguments.length) {
-                    lenis.scrollTo(value, { immediate: true });
-                }
+                if (arguments.length) lenis.scrollTo(value, { immediate: true });
                 return lenis.scroll;
             },
             getBoundingClientRect() {
-                return { top: 0, left: 0, width: wrapper.clientWidth, height: wrapper.clientHeight };
+                return { top: 0, left: 0, width: innerWidth, height: innerHeight };
             },
-            pinType: 'transform'
+            pinType: wrapper.style.transform ? 'transform' : 'fixed',
         });
 
-        ScrollTrigger.defaults({ scroller: wrapper });
+        context.startAboutScrolling = () => {
+            ScrollTrigger.defaults({ scroller: wrapper });
+            lenis.start();
+            requestAnimationFrame(() => {
+                lenis.scrollTo(0, { immediate: true });
+                lenis.raf(performance.now());
+            });
+        };
 
         context.stopAboutScrolling = () => lenis.stop();
 
-        return lenis;
+        ScrollTrigger.refresh();
     } else {
         wrapper.style.overflowY = 'auto';
         context.aboutLenis = null;
-        ScrollTrigger.defaults({ scroller: wrapper });;
-
-        return null;
+        ScrollTrigger.defaults({ scroller: wrapper });
+        ScrollTrigger.refresh();
     }
 }

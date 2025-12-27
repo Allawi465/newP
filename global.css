@@ -285,44 +285,6 @@
         position: relative;
     }
 
-    .line-dot-container {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        display: none;
-        align-items: center;
-    }
-
-    .line-dot-inner,
-    .about-line-dot-inner {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .line,
-    .about-line {
-        width: 1px;
-        height: 5rem;
-    }
-
-    .about-line {
-        background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.2), transparent);
-    }
-
-    .dot,
-    .about-dot {
-        width: 0.25rem;
-        height: 0.25rem;
-        border-radius: 9999px;
-    }
-
-    .about-dot {
-        background-color: rgba(0, 0, 0, 0.5)
-    }
-
     .hero-content {
         max-width: 42rem;
         display: flex;
@@ -350,6 +312,7 @@
         overflow-wrap: normal;
         margin: 0;
         font-weight: 700;
+        will-change: transform, opacity;
     }
 
     .hero_title div,
@@ -391,6 +354,8 @@
         width: 4rem;
         height: 1px;
         background-color: rgba(255, 255, 255, 0.5);
+        transform-origin: left center;
+        display: block;
     }
 
     .text {
@@ -631,11 +596,6 @@
         display: flex;
         align-items: flex-start;
         gap: 2rem;
-    }
-
-    .about-line-dot-container {
-        display: none;
-        flex-shrink: 0;
     }
 
     .about-badges-container {
@@ -1028,8 +988,7 @@
         }
 
         .divider_short,
-        .about-divider-short,
-        .line-dot-container {
+        .about-divider-short {
             display: flex;
         }
 

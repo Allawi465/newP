@@ -1,9 +1,9 @@
 import gsap from "gsap";
-import { SplitText } from "gsap/SplitText";
 import { loadingContainer } from "./loading";
 
+const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+
 export default function initLoadingSequence(context) {
-    gsap.registerPlugin(SplitText);
 
     const aboutElement = document.querySelector(".about");
     if (aboutElement) {
@@ -13,10 +13,6 @@ export default function initLoadingSequence(context) {
     const timeline = gsap.timeline({});
 
     document.fonts.ready.then(() => {
-
-        const title = new SplitText(".hero_title", { type: ",words, chars" });
-        const title_2 = new SplitText(".hero_title_2", { type: "words, chars" });
-        context.splits.heroText = SplitText.create(".hero_text", { type: "chars, words, lines" });
 
         timeline.to(context.largeShaderMaterial.uniforms.progress, {
             value: 1,
@@ -67,54 +63,46 @@ export default function initLoadingSequence(context) {
                     context.material.needsUpdate = true;
                 },
             }, 0.5)
-            .from(title.chars, {
+            .from(".hero_title", {
                 x: "-1em",
                 duration: 1.0,
                 ease: "power2.out",
-                stagger: { amount: 0.2 },
                 opacity: 0,
             }, 0.5)
-            .from(".line", {
-                height: 0,
-                duration: 1.0,
-                ease: "power2.out",
-                stagger: 0.2,
-            }, 0.5)
-            .from(title_2.chars, {
+            .from(".hero_title_2", {
                 opacity: 0,
                 x: "1em",
                 duration: 1.0,
                 ease: "power2.out",
-                stagger: { amount: 0.2 },
             }, 0.5)
             .from(".divider_line", {
-                width: 0,
+                scaleX: 0,
                 duration: 1.0,
                 ease: "power2.out",
-            }, 0.8)
+            }, 0.5)
             .from(".divider_short", {
-                width: 0,
+                scaleX: 0,
                 duration: 1.0,
                 ease: "power2.out",
-            }, 0.8)
-            .from(context.splits.heroText.lines, {
+            }, isMobile ? 0.8 : 1)
+            .from(".hero_text", {
                 duration: 1,
-                yPercent: 100,
                 opacity: 0,
-                stagger: 0.1,
-                ease: "expo.out",
-            }, 1.2)
+                x: -50,
+                ease: "power2.out",
+            }, isMobile ? 0.8 : 1)
             .from(" .badge", {
                 opacity: 0,
+                x: -100,
                 stagger: 0.1,
                 duration: 1,
-                ease: "power2.out",
-            }, 1.4)
+                ease: "expo.out"
+            }, isMobile ? 1. : 1.2)
             .to(".scroll", {
                 opacity: 1,
                 duration: 1.0,
                 ease: "power2.out",
-            }, 1.4)
+            }, isMobile ? 1.5 : 2.)
             .to(".scroll-line", {
                 opacity: 1,
                 duration: 1.0,
@@ -124,6 +112,6 @@ export default function initLoadingSequence(context) {
                         aboutElement.style.pointerEvents = 'auto';
                     }
                 }
-            }, 1.4);
+            }, isMobile ? 1.5 : 2.);
     });
 }

@@ -78,9 +78,7 @@ class EffectShell {
 
             ScrollTrigger.scrollerProxy(this.wrapper, {
                 scrollTop(value) {
-                    if (arguments.length) {
-                        lenis.scrollTo(value, { immediate: true });
-                    }
+                    if (arguments.length) lenis.scrollTo(value, { immediate: true });
                     return lenis.scroll;
                 },
                 getBoundingClientRect() {
@@ -93,11 +91,14 @@ class EffectShell {
 
             this.startBodyScrolling = () => lenis.start();
             this.stopBodyScrolling = () => lenis.stop();
+            ScrollTrigger.refresh();
         } else {
             this.bodyLenis = null;
             this.wrapper.style.overflow = '';
             this.wrapper.style.overflow = '';
             ScrollTrigger.defaults({ scroller: this.wrapper });
+            ScrollTrigger.refresh();
+
         }
     }
 
@@ -107,6 +108,7 @@ class EffectShell {
         }
         this.wrapper.style.overflow = "";
         document.body.style.overflow = "";
+        ScrollTrigger.refresh();
     }
 
     stopBodyScrolling() {

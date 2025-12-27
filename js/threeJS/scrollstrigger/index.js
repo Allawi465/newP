@@ -199,7 +199,7 @@ export default function setupScrollAnimation(content) {
     ScrollTrigger.create({
         trigger: ".hero",
         start: "top top",
-        end: "90% top",
+        end: "85% top",
         scroller: content.wrapper,
         scrub: true,
         onEnterBack: () => {
@@ -214,6 +214,7 @@ export default function setupScrollAnimation(content) {
             content.material.uniforms.uScrollProgress.value = self.progress;
         },
         onLeave: () => {
+            if (content.isDivOpen) return;
             content.chromaticBendPass.uniforms.offset.value.set(0.000, 0.000);
             content.glassMaterial.opacity = 0;
             content.glassMaterial.needsUpdate = true;
@@ -261,6 +262,7 @@ export default function setupScrollAnimation(content) {
             }
         },
         onLeaveBack: () => {
+            if (content.isDivOpen) return;
             content.fboMaterial.uniforms.uFooter.value = 0;
             content.disableParticles(content);
         }

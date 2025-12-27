@@ -85,11 +85,6 @@ export const defaultConfig = {
     baseMeshSpacing: 2.2,
     segments: 32,
     bounceTween: null,
-    splits: {
-        heroText: null,
-        aboutText: null,
-        projectsText: null
-    },
     slideHeight: 3.0,
     slideWidth: 1.8,
     meshSpacing: 2.2,
